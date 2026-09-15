@@ -1,0 +1,109 @@
+@import './tokens.css';
+@import 'tailwindcss';
+
+@theme {
+  --color-*: initial;
+
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-fg: var(--fg);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-mastery-high: var(--mastery-high);
+  --color-mastery-medium: var(--mastery-medium);
+  --color-mastery-low: var(--mastery-low);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-ui: var(--font-ui);
+  --font-voice: var(--font-voice);
+
+  --text-xs: var(--step--1);
+  --text-base: var(--step-0);
+  --text-lg: var(--step-1);
+  --text-xl: var(--step-2);
+  --text-2xl: var(--step-3);
+
+  --radius-card: var(--radius);
+  --radius-panel: var(--radius-lg);
+
+  --spacing-tap: var(--tap-min);
+
+  --shadow-soft: var(--shadow);
+
+  --animate-rise: rise 0.36s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  --animate-reveal: reveal 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-breathe: breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes reveal {
+  from { opacity: 0; letter-spacing: 0.3em; filter: blur(6px); }
+  to { opacity: 1; letter-spacing: 0; filter: none; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+@layer base {
+  body {
+    background: var(--ink);
+    color: var(--fg);
+    font-family: var(--font-ui);
+    font-size: var(--step-0);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  button {
+    min-height: var(--tap-min);
+    touch-action: manipulation;
+  }
+}
+
+@layer utilities {
+  .voice {
+    font-family: var(--font-voice);
+    font-weight: 400;
+  }
+
+  .label-caps {
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--faint);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,6 @@
+insightface
+hdbscan
+openai-whisper
+Pillow
+geopy
+anthropic
