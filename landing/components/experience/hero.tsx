@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDown, Code2 } from 'lucide-react'
+import { ArrowRight, Code2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useScrollOffset } from './use-scroll-progress'
 
@@ -40,14 +40,14 @@ export function Hero() {
           <a href="#o-segundo" className="transition-colors hover:text-white">
             o segundo
           </a>
-          <a href="#o-mapa" className="transition-colors hover:text-white">
-            o mapa
+          <a href="#o-produto" className="transition-colors hover:text-white">
+            o produto
           </a>
-          <a href="#privacidade" className="transition-colors hover:text-white">
-            privacidade
+          <a href="#por-que" className="transition-colors hover:text-white">
+            por que funciona
           </a>
-          <a href="#testar" className="transition-colors hover:text-white">
-            testar
+          <a href="#baixar" className="transition-colors hover:text-white">
+            baixar
           </a>
         </nav>
 
@@ -86,9 +86,9 @@ export function Hero() {
 
           <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
             <Button asChild size="lg" className="rounded-full">
-              <a href="#o-segundo">
-                Ver o segundo em que ela falta
-                <ArrowDown className="size-4" />
+              <a href="/experimentar">
+                Experimentar agora
+                <ArrowRight className="size-4" />
               </a>
             </Button>
             <Button
@@ -97,7 +97,7 @@ export function Hero() {
               variant="ghost"
               className="glass-dark rounded-full text-white hover:bg-white/15 hover:text-white"
             >
-              <a href="#testar">Testar com o seu nome</a>
+              <a href="#baixar">Baixar o app</a>
             </Button>
           </div>
         </div>

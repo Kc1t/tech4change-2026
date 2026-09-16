@@ -1,21 +1,9 @@
 import { Reveal } from './reveal'
 
 const NUMBERS = [
-  {
-    value: '17%',
-    label: 'dos itens falhados saem com pista fonológica',
-    note: 'contra cerca de 1% para pista semântica — Bislick, n=100, Boston Naming Test'
-  },
-  {
-    value: '168h',
-    label: 'tem a semana de quem vive com afasia',
-    note: 'a fonoaudióloga está presente em uma delas'
-  },
-  {
-    value: 'R$ 30,8 bi',
-    label: 'de custo anual do AVC no Brasil',
-    note: '70% disso é custo indireto, absorvido pelas famílias'
-  }
+  { value: '17%', label: 'das palavras falhadas saem com pista fonológica' },
+  { value: '168h', label: 'tem a semana de quem vive com afasia' },
+  { value: '1h', label: 'dela tem a fonoaudióloga por perto' }
 ]
 
 export function NumbersBar() {
@@ -28,8 +16,7 @@ export function NumbersBar() {
               <p className="display tabular text-[2.6rem] leading-none text-primary">
                 {number.value}
               </p>
-              <p className="mt-3 text-[0.95rem] leading-snug">{number.label}</p>
-              <p className="mt-2 text-[0.72rem] leading-relaxed text-faint">{number.note}</p>
+              <p className="mt-3 text-[0.95rem] leading-snug text-dim">{number.label}</p>
             </div>
           </Reveal>
         ))}

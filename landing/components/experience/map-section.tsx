@@ -20,7 +20,7 @@ export function MapSection() {
   return (
     <section id="o-mapa" className="mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
       <Reveal>
-        <p className="text-[0.68rem] font-semibold tracking-[0.14em] text-label uppercase">
+        <p className="label-caps">
           como funciona
         </p>
         <h2 className="mt-5 max-w-4xl text-[clamp(1.9rem,4.4vw,3.4rem)] leading-[1.1] font-medium tracking-[-0.035em] text-balance">
@@ -52,7 +52,7 @@ export function MapSection() {
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[rgba(20,14,12,0.8)] to-transparent" />
 
             <div className="glass-light absolute right-5 bottom-5 left-5 rounded-2xl p-5 sm:right-auto sm:max-w-xs">
-              <p className="text-[0.66rem] font-semibold tracking-[0.14em] text-label uppercase">
+              <p className="label-caps">
                 a família confirma uma vez
               </p>
               <p className="mt-2 text-[0.95rem] leading-snug">

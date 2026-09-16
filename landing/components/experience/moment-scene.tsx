@@ -10,7 +10,6 @@ const STEPS = [
     kicker: 'travou',
     rung: 'a pausa',
     text: 'É a minha… a minha…',
-    note: 'Um silêncio de 1,3 segundo no meio da frase. É esse o gatilho — ninguém precisa apertar nada.'
   },
   {
     image: '/story/scene-phone.webp',
@@ -19,7 +18,6 @@ const STEPS = [
     kicker: 'degrau 1 · categoria',
     rung: 'é da família',
     text: 'é da família',
-    note: 'O celular está no centro da mesa, com a tela para cima. Escutando, não gravando: o áudio vive num buffer em memória e é sobrescrito.'
   },
   {
     image: '/story/scene-watch.webp',
@@ -28,7 +26,6 @@ const STEPS = [
     kicker: 'degrau 2 · relação',
     rung: 'da geração dos netos',
     text: 'da geração dos netos',
-    note: 'A dica acende nos dois aparelhos ao mesmo tempo. No pulso, só ele vê — a mesa não percebe que houve ajuda.'
   },
   {
     image: '/story/scene-granddaughter.webp',
@@ -37,7 +34,6 @@ const STEPS = [
     kicker: 'degrau 3 · fonológica',
     rung: 'Le…',
     text: 'Le…',
-    note: 'A primeira sílaba é o último degrau, nunca o primeiro. E nunca a palavra inteira — quem diz a palavra é ele.'
   }
 ]
 
@@ -50,7 +46,7 @@ export function MomentScene() {
   const resolved = progress > 0.9
 
   return (
-    <section id="o-segundo" ref={ref} className="relative h-[520vh]">
+    <section id="o-segundo" ref={ref} className="relative h-[300vh]">
       <div className="sticky top-0 isolate h-[100svh] overflow-hidden">
         {STEPS.map((step, i) => (
           <img
@@ -77,9 +73,6 @@ export function MomentScene() {
               A escada não entrega a palavra.
               <span className="display block italic">Entrega um degrau.</span>
             </h2>
-            <p className="mt-5 hidden max-w-sm text-[0.95rem] leading-relaxed text-white/70 lg:block">
-              {STEPS[active]?.note}
-            </p>
 
             <ol className="mt-5 flex gap-2 sm:mt-8" aria-hidden="true">
               {STEPS.map((step, i) => (
@@ -117,7 +110,7 @@ export function MomentScene() {
                 resolved ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-6 opacity-0'
               }`}
             >
-              <p className="text-[0.66rem] font-semibold tracking-[0.14em] text-label uppercase">
+              <p className="label-caps">
                 quem disse a palavra foi ele
               </p>
               <p className="display mt-1 text-[2rem] leading-none text-primary sm:text-[2.6rem]">Letícia</p>
