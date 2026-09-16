@@ -20,11 +20,17 @@ export interface SpokenWord {
   stress: number
 }
 
+export interface Mark {
+  word: number
+  syllable: number
+}
+
 interface Beat {
   position: number
   stressed: boolean
   charIndex: number
   word: number
+  syllable: number
   onset: boolean
 }
 
@@ -53,6 +59,7 @@ function beatsOf(words: SpokenWord[]): Beat[] {
         stressed: !weak && index === word.stress,
         charIndex: word.charIndex,
         word: wordIndex,
+        syllable: index,
         onset: index === 0
       })
       position += 1
@@ -74,6 +81,14 @@ function usable(measured: number): boolean {
 
 let timer: number | null = null
 let watchdog: number | null = null
+let listener: ((mark: Mark | null) => void) | null = null
+
+function release() {
+  if (!listener) return
+  const current = listener
+  listener = null
+  current(null)
+}
 
 export function stopEntrainment() {
   if (timer !== null) {
@@ -84,6 +99,7 @@ export function stopEntrainment() {
     window.clearTimeout(watchdog)
     watchdog = null
   }
+  release()
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) speechSynthesis.cancel()
 }
 
@@ -91,7 +107,8 @@ export function speakEntrained(
   text: string,
   channels: ChannelState,
   discretion: DiscretionMode,
-  intensity: number
+  intensity: number,
+  onBeat?: (mark: Mark | null) => void
 ): boolean {
   if (!canSpeak(channels, discretion)) return false
 
@@ -100,6 +117,7 @@ export function speakEntrained(
 
   const beats = beatsOf(words)
   stopEntrainment()
+  listener = onBeat ?? null
 
   let period = syllableMs
   let anchor = 0
@@ -118,6 +136,7 @@ export function speakEntrained(
     const beat = beats[index]
     if (!beat) return
     pulse([beatMs(beat, period)], channels, intensity, true)
+    listener?.({ word: beat.word, syllable: beat.syllable })
     index += 1
     if (index >= limit && !anchored) limit = beats.length
     schedule()
@@ -168,6 +187,7 @@ export function speakEntrained(
       if (usable(period)) syllableMs = Math.round(syllableMs * 0.5 + period * 0.5)
       if (timer !== null) window.clearTimeout(timer)
       timer = null
+      release()
     }
 
     speechSynthesis.speak(utterance)

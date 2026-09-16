@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 const HERE = dirname(fileURLToPath(import.meta.url))
 const SERVER_DIR = resolve(HERE, '..')
 const STUB = resolve(HERE, 'model-stub.mjs')
-const GRAPH = resolve(SERVER_DIR, '../src/data/graph.json')
+const GRAPH = resolve(SERVER_DIR, '../web/src/data/graph.json')
 
 const graph = JSON.parse(readFileSync(GRAPH, 'utf8'))
 const projection = {

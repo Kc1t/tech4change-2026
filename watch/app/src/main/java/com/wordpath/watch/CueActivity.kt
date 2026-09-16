@@ -3,6 +3,7 @@ package com.wordpath.watch
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.wordpath.watch.databinding.ActivityCueBinding
 import kotlinx.coroutines.delay
@@ -16,7 +17,6 @@ class CueActivity : ComponentActivity() {
     private var target = LifeGraph.targets.first()
     private var ladder = LifeGraph.ladder(LifeGraph.targets.first())
     private var level = 0
-    private var origin = "deterministic"
     private val lastLevel = mutableMapOf<String, Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +37,6 @@ class CueActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             val id = SyncClient.join(code) ?: return@launch
-            binding.origin.text = getString(R.string.paired, code)
 
             launch {
                 while (true) {
@@ -58,12 +57,7 @@ class CueActivity : ComponentActivity() {
 
         if (cue.event == "resolved") {
             CuePatterns.success(this, INTENSITY)
-            binding.aurora.surge(1f)
-            binding.cue.textSize = CUE_TEXT_SP
-            binding.caption.text = getString(R.string.resolved_caption)
-            binding.cue.text = incoming.label
-            binding.source.text = getString(R.string.resolved_source, cue.level)
-            binding.resolved.visibility = View.GONE
+            showWord(incoming.label)
             return
         }
 
@@ -75,11 +69,7 @@ class CueActivity : ComponentActivity() {
 
         CuePatterns.play(this, CuePatterns.forLevel(cue.level, cue.isFinal), INTENSITY)
         binding.aurora.surge(glowFor(cue.level, cue.isFinal))
-        binding.cue.textSize = CUE_TEXT_SP
-        binding.caption.text = getString(R.string.rung_caption, cue.level, LifeGraph.kindFor(cue.attr))
-        binding.cue.text = text
-        binding.source.text = cue.edge ?: ""
-        binding.resolved.visibility = View.VISIBLE
+        showCue(cue.level, cue.isFinal, text)
     }
 
     private fun advance() {
@@ -95,20 +85,14 @@ class CueActivity : ComponentActivity() {
         val rung = ladder[level - 1]
         CuePatterns.play(this, CuePatterns.forLevel(rung.level, rung.isFinal), INTENSITY)
         binding.aurora.surge(glowFor(rung.level, rung.isFinal))
-        render(rung)
+        showCue(rung.level, rung.isFinal, rung.text)
     }
 
     private fun resolve() {
         CuePatterns.success(this, INTENSITY)
         binding.aurora.surge(1f)
-        binding.cue.textSize = CUE_TEXT_SP
         lastLevel[target.id] = level
-
-        binding.caption.text = getString(R.string.resolved_caption)
-        binding.cue.text = target.label
-        binding.resolved.visibility = View.GONE
-        binding.source.text = getString(R.string.resolved_source, level)
-
+        showWord(target.label)
         binding.root.postDelayed({ reset() }, RESET_DELAY_MS)
     }
 
@@ -117,7 +101,6 @@ class CueActivity : ComponentActivity() {
         target = next
         ladder = LifeGraph.ladder(next)
         level = 0
-        origin = "deterministic"
         renderIdle()
     }
 
@@ -129,9 +112,31 @@ class CueActivity : ComponentActivity() {
 
             target = ranked
             ladder = LifeGraph.ladder(ranked, plan.order)
-            origin = plan.origin
-            binding.origin.text = getString(R.string.origin, origin)
         }
+    }
+
+    private fun renderIdle() {
+        binding.marks.clear()
+        binding.cue.textSize = IDLE_TEXT_SP
+        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.dim))
+        binding.cue.text = getString(R.string.idle_cue)
+        binding.resolved.visibility = View.GONE
+    }
+
+    private fun showCue(rung: Int, isFinal: Boolean, text: String) {
+        binding.marks.show(rung, isFinal)
+        binding.cue.textSize = CUE_TEXT_SP
+        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.fg))
+        binding.cue.text = text
+        binding.resolved.visibility = View.VISIBLE
+    }
+
+    private fun showWord(word: String) {
+        binding.marks.clear()
+        binding.cue.textSize = CUE_TEXT_SP
+        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.brand))
+        binding.cue.text = word
+        binding.resolved.visibility = View.GONE
     }
 
     private fun glowFor(level: Int, isFinal: Boolean): Float = when {
@@ -141,28 +146,10 @@ class CueActivity : ComponentActivity() {
         else -> 0.46f
     }
 
-    private fun renderIdle() {
-        binding.cue.textSize = IDLE_TEXT_SP
-        binding.caption.text = getString(R.string.idle_caption)
-        binding.cue.text = getString(R.string.idle_cue)
-        binding.source.text = ""
-        binding.origin.text = ""
-        binding.resolved.visibility = View.GONE
-    }
-
-    private fun render(rung: Rung) {
-        binding.cue.textSize = CUE_TEXT_SP
-        binding.caption.text = getString(R.string.rung_caption, rung.level, rung.kind)
-        binding.cue.text = rung.text
-        binding.source.text = rung.edge ?: ""
-        binding.origin.text = getString(R.string.origin, origin)
-        binding.resolved.visibility = View.VISIBLE
-    }
-
     private companion object {
         const val INTENSITY = 3
-        const val IDLE_TEXT_SP = 14f
-        const val CUE_TEXT_SP = 23f
+        const val IDLE_TEXT_SP = 15f
+        const val CUE_TEXT_SP = 26f
         const val RESET_DELAY_MS = 3000L
         const val HEARTBEAT_MS = 20_000L
     }

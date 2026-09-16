@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ink">#100A16</color>
-    <color name="surface">#241B30</color>
-    <color name="fg">#F7F1EC</color>
-    <color name="faint">#9B8AA6</color>
-    <color name="brand">#D8577C</color>
+    <color name="ink">#F2F2F0</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="fg">#161616</color>
+    <color name="dim">#4A4A48</color>
+    <color name="faint">#6F6F6C</color>
+    <color name="brand">#BF3F63</color>
+    <color name="line">#D6D6D1</color>
 
     <color name="aurora_1">#F39A6B</color>
     <color name="aurora_2">#D8577C</color>

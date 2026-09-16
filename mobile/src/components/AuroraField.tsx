@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
+import Svg, { Defs, FeGaussianBlur, Filter, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
 import { color } from '../theme/tokens'
 
 export type OrbState = 'off' | 'listening' | 'speaking' | 'blocked' | 'delivering'
@@ -62,6 +62,9 @@ export function AuroraField({ state, level = 0 }: { state: OrbState; level?: num
               <Stop offset="1" stopColor={RAMPS[layer.id]![2]} />
             </LinearGradient>
           ))}
+          <Filter id="af-soft" x="-12%" y="-12%" width="124%" height="124%">
+            <FeGaussianBlur stdDeviation="9" />
+          </Filter>
           <LinearGradient id="af-veil" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={color.ink} stopOpacity="1" />
             <Stop offset="0.26" stopColor={color.ink} stopOpacity="0.28" />
@@ -69,14 +72,16 @@ export function AuroraField({ state, level = 0 }: { state: OrbState; level?: num
           </LinearGradient>
         </Defs>
 
-        {LAYERS.map(layer => (
-          <Path
-            key={layer.id}
-            d={shape(layer, now * layer.drift, boost)}
-            fill={`url(#${layer.id})`}
-            opacity={layer.opacity}
-          />
-        ))}
+        <G filter="url(#af-soft)">
+          {LAYERS.map(layer => (
+            <Path
+              key={layer.id}
+              d={shape(layer, now * layer.drift, boost)}
+              fill={`url(#${layer.id})`}
+              opacity={layer.opacity}
+            />
+          ))}
+        </G>
 
         <Rect width={W} height={H} fill="url(#af-veil)" />
       </Svg>

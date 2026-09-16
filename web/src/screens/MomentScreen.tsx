@@ -9,7 +9,8 @@ import { AuroraField } from '@/components/AuroraField'
 import { LearningCard } from '@/components/LearningCard'
 import { useListening } from '@/hooks/useListening'
 import { cueFor } from '@/domain/haptics'
-import { speakEntrained, stopEntrainment } from '@/channels/entrain'
+import { speakEntrained, stopEntrainment, type Mark } from '@/channels/entrain'
+import { SpokenPhrase } from '@/components/SpokenPhrase'
 import { broadcastCue } from '@/sync/client'
 import type { HelpLevel, LadderStep, OutputMode } from '@/domain/types'
 import { BrandMark, NotificationBell, TopBar } from '@/components/layout'
@@ -72,8 +73,11 @@ export function MomentScreen() {
   const sessionCode = useApp(s => s.sessionCode)
   const deviceId = useApp(s => s.deviceId)
   const cueRequest = useApp(s => s.cueRequest)
+  const hear = useApp(s => s.hear)
+  const prediction = useApp(s => s.prediction)
 
   const [flash, setFlash] = useState<Flash | null>(null)
+  const [mark, setMark] = useState<Mark | null>(null)
   const [resolvedAt, setResolvedAt] = useState<number | null>(null)
   const target = lifeGraph.nodes[scene.targetId]!
 
@@ -97,7 +101,7 @@ export function MomentScreen() {
       if (output !== 'voice') setFlash({ text, caption, source, isWord, id: performance.now() })
       if (output === 'text') return false
       const spoken = text.replace('…', '')
-      if (entrain && speakEntrained(spoken, channels, discretion, intensity)) return true
+      if (entrain && speakEntrained(spoken, channels, discretion, intensity, setMark)) return true
       speak(spoken, channels, discretion)
       return false
     },
@@ -176,6 +180,10 @@ export function MomentScreen() {
 
   const { levelRef, state: listening, start: listen, stop: unlisten } = useListening(trigger)
 
+  useEffect(() => {
+    hear(listening.transcript)
+  }, [listening.transcript, hear])
+
   function handleSuccess() {
     stopEntrainment()
     vibrate('success', channels, intensity)
@@ -221,6 +229,9 @@ export function MomentScreen() {
     trigger()
   }, [cueRequest])
 
+  const guess = prediction.targetId ? lifeGraph.nodes[prediction.targetId] : null
+  const confident = guess !== null && prediction.confidence >= 0.35
+
   const status = resolved
     ? 'destravou'
     : flash
@@ -233,9 +244,11 @@ export function MomentScreen() {
             ? 'ajustando ao ambiente'
             : listening.noisy
               ? 'ambiente alto demais'
-              : listening.speaking
-                ? 'ouvindo a frase'
-                : 'escutando'
+              : confident
+                ? 'já sei qual é'
+                : listening.speaking
+                  ? 'ouvindo a frase'
+                  : 'escutando'
 
   const heard = listening.transcript.trim()
   const spoken = armed && heard ? heard : scene.prompt
@@ -244,9 +257,17 @@ export function MomentScreen() {
     ? flash.text
     : resolved
       ? target.label
-      : scene.attempt
+      : confident
+        ? guess!.label
+        : scene.attempt
 
-  const expectedKind = flash?.isWord || resolved ? 'word' : flash ? 'cue' : 'waiting'
+  const expectedKind = flash?.isWord || resolved
+    ? 'word'
+    : flash
+      ? 'cue'
+      : confident
+        ? 'guess'
+        : 'waiting'
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden">
@@ -281,22 +302,38 @@ export function MomentScreen() {
             ? 'a palavra'
             : expectedKind === 'cue'
               ? 'o degrau'
-              : 'esperando a palavra'}
+              : expectedKind === 'guess'
+                ? 'acho que é'
+                : 'esperando a palavra'}
         </span>
 
         <span
-          key={flash?.id ?? (resolved ? 'resolved' : 'waiting')}
+          key={flash?.id ?? (resolved ? 'resolved' : expectedKind === 'guess' ? guess!.id : 'waiting')}
           className={[
-            'voice mt-4 max-w-[11ch] text-[46px] leading-[1.02]',
+            'voice mt-4 max-w-[11ch] text-[46px] leading-[1.02] transition-colors',
             expectedKind === 'word'
               ? 'animate-reveal text-brand'
               : expectedKind === 'cue'
                 ? 'animate-rise text-fg'
-                : 'text-faint'
+                : expectedKind === 'guess'
+                  ? 'animate-rise text-dim'
+                  : 'text-faint'
           ].join(' ')}
         >
-          {expected}
+          <SpokenPhrase text={expected} mark={flash ? mark : null} />
         </span>
+
+        {expectedKind === 'guess' && (
+          <span className="mt-4 flex items-center gap-2 text-[0.78rem] text-faint">
+            <span className="h-1 w-16 overflow-hidden rounded-full bg-line">
+              <span
+                style={{ width: `${Math.round(prediction.confidence * 100)}%` }}
+                className="block h-full rounded-full bg-brand transition-[width] duration-300"
+              />
+            </span>
+            pelo que ela está falando
+          </span>
+        )}
 
         {flash?.source && (
           <span className="mt-4 max-w-[32ch] text-[0.82rem] leading-snug text-faint">

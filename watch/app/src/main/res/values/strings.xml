@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">eilo</string>
-    <string name="idle_caption">no pulso</string>
     <string name="idle_cue">Toque quando a palavra travar</string>
-    <string name="rung_caption">degrau %1$d · %2$s</string>
     <string name="resolved">Consegui</string>
-    <string name="resolved_caption">quem disse a palavra foi você</string>
-    <string name="resolved_source">em %1$d degraus</string>
-    <string name="origin">escada: %1$s</string>
-    <string name="paired">pareado · sessão %1$s</string>
 </resources>

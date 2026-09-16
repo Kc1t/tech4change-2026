@@ -6,6 +6,7 @@ import { AuroraField, type OrbState } from '../components/AuroraField'
 import { BrandMark, TopBar } from '../components/ui'
 import { NotificationBell } from '../components/NotificationBell'
 import { lifeGraph, useApp } from '../store'
+import { broadcastCue, type CuePayload } from '../sync/client'
 import { color, font } from '../theme/tokens'
 import { TOP_INSET } from '../theme/insets'
 import type { LadderStep } from '../domain/types'
@@ -40,6 +41,8 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   const advance = useApp(s => s.advance)
   const succeed = useApp(s => s.succeed)
   const nextScene = useApp(s => s.nextScene)
+  const sessionCode = useApp(s => s.sessionCode)
+  const deviceId = useApp(s => s.deviceId)
 
   const [flash, setFlash] = useState<Flash | null>(null)
   const [resolvedAt, setResolvedAt] = useState<number | null>(null)
@@ -54,6 +57,14 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
     return () => clearTimeout(timer)
   }, [flash])
 
+  const share = useCallback(
+    (payload: Omit<CuePayload, 'deviceId'>) => {
+      if (!sessionCode || !deviceId) return
+      broadcastCue(sessionCode, { deviceId, ...payload })
+    },
+    [sessionCode, deviceId]
+  )
+
   const show = useCallback(
     (text: string, caption: string, isWord: boolean) => {
       if (output !== 'voice') setFlash({ text, caption, isWord, id: Date.now() })
@@ -65,8 +76,10 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   const handleSuccess = useCallback(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     show(target.label, 'quem disse a palavra foi ela', true)
-    setResolvedAt(succeed())
-  }, [show, succeed, target.label])
+    const level = succeed()
+    share({ targetId: target.id, level, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
+    setResolvedAt(level)
+  }, [show, succeed, share, target.label, target.id])
 
   const trigger = useCallback(() => {
     if (resolvedAt !== null) {
@@ -80,6 +93,7 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       show(target.label, 'entregue direto — modo conversa', true)
       setResolvedAt(succeed(0))
+      share({ targetId: target.id, level: 0, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
       return
     }
 
@@ -97,7 +111,15 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
     if (!step) return
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     show(step.text, `degrau ${step.level} · ${KIND_LABEL[step.kind]}`, false)
-  }, [helpLevel, resolvedAt, show, target.label, start, advance, succeed, nextScene])
+    share({
+      targetId: target.id,
+      level: step.level,
+      attr: step.attr,
+      edge: step.edgeId,
+      isFinal: step.isFinal,
+      event: 'cue'
+    })
+  }, [helpLevel, resolvedAt, show, share, target.label, target.id, start, advance, succeed, nextScene])
 
   const resolved = resolvedAt !== null
   const orbState: OrbState = resolved

@@ -14,6 +14,7 @@ import { GraphScreen } from './src/screens/GraphScreen'
 import { MemoriesScreen } from './src/screens/MemoriesScreen'
 import { MomentScreen } from './src/screens/MomentScreen'
 import { ProgressScreen } from './src/screens/ProgressScreen'
+import { useSyncChannel } from './src/hooks/useSyncChannel'
 import { HOME, type Route } from './src/navigation'
 import { useApp } from './src/store'
 import { color } from './src/theme/tokens'
@@ -28,6 +29,7 @@ export default function App() {
   })
 
   const [stack, setStack] = useState<Route[]>([HOME])
+  useSyncChannel()
   const setMemoryFilter = useApp(s => s.setMemoryFilter)
   const route = stack[stack.length - 1]!
 

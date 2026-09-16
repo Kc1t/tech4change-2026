@@ -13,6 +13,7 @@ import { BAR_INSET } from '../theme/insets'
 import type { Route } from '../navigation'
 
 const TAB_SIZE = 44
+const BAR_PAD = 8
 const ORB_SIZE = 52
 
 const LEFT: Array<{ route: Route; label: string; path: string }> = [
@@ -49,7 +50,7 @@ export function BottomBar({
   onHome: () => void
 }) {
   const [width, setWidth] = useState(0)
-  const slot = width > 0 ? width / ORDER.length : 0
+  const slot = width > 0 ? (width - BAR_PAD * 2) / ORDER.length : 0
   const index = ORDER.indexOf(route)
   const pill = useSharedValue(0)
 
@@ -200,14 +201,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: color.surface,
     borderRadius: radius.pill,
-    paddingHorizontal: 8,
+    paddingHorizontal: BAR_PAD,
     paddingVertical: 8,
     ...shadow.bar
   },
   pill: {
     position: 'absolute',
-    left: 8,
-    top: 8,
+    left: BAR_PAD,
+    top: 8 + (ORB_SIZE - TAB_SIZE) / 2,
     width: TAB_SIZE,
     height: TAB_SIZE,
     borderRadius: TAB_SIZE / 2,

@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import graphData from '../data/graph.json'
 import { demoHistory } from '../domain/demo'
+import { BUILT_IN_DEVICES, channelsFrom, DISCOVERABLE, type PairedDevice } from '../domain/devices'
+import type { CuePayload, Device } from '../sync/client'
 import { buildLadder, deterministicPlan, resolve, startingLevel } from '../domain/ladder'
 import type {
   ChannelState,
@@ -69,6 +71,11 @@ interface AppState {
   helpLevel: HelpLevel
   output: OutputMode
   channels: ChannelState
+  paired: PairedDevice[]
+  sessionCode: string | null
+  deviceId: string | null
+  devices: Device[]
+  lastCue: CuePayload | null
   learning: Record<NodeId, LearningState>
   history: Resolution[]
   unseenLearning: NodeId[]
@@ -83,7 +90,13 @@ interface AppState {
   nextScene: () => void
   setHelpLevel: (level: HelpLevel) => void
   setOutput: (output: OutputMode) => void
-  toggleChannel: (key: keyof ChannelState) => void
+  toggleDevice: (id: string) => void
+  toggleBuzz: (id: string) => void
+  pairDevice: (id: string) => void
+  unpairDevice: (id: string) => void
+  setSession: (code: string | null, deviceId: string | null) => void
+  setDevices: (devices: Device[]) => void
+  setLastCue: (cue: CuePayload | null) => void
   setMemoryFilter: (id: NodeId | null) => void
   markLearningSeen: () => void
   loadDemo: () => void
@@ -97,7 +110,12 @@ export const useApp = create<AppState>()((set, get) => ({
   open: false,
   helpLevel: 'hint',
   output: 'both',
-  channels: { phone: true, earbuds: true, watch: false },
+  channels: channelsFrom(BUILT_IN_DEVICES),
+  paired: BUILT_IN_DEVICES,
+  sessionCode: null,
+  deviceId: null,
+  devices: [],
+  lastCue: null,
   learning: {},
   history: [],
   unseenLearning: [],
@@ -170,8 +188,40 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setHelpLevel: helpLevel => set({ helpLevel }),
   setOutput: output => set({ output }),
-  toggleChannel: key =>
-    set(state => ({ channels: { ...state.channels, [key]: !state.channels[key] } })),
+  toggleDevice: id =>
+    set(state => {
+      const paired = state.paired.map(device =>
+        device.id === id ? { ...device, on: !device.on } : device
+      )
+      return { paired, channels: channelsFrom(paired) }
+    }),
+
+  toggleBuzz: id =>
+    set(state => {
+      const paired = state.paired.map(device =>
+        device.id === id ? { ...device, buzz: !device.buzz, on: device.buzz || device.on } : device
+      )
+      return { paired, channels: channelsFrom(paired) }
+    }),
+
+  pairDevice: id =>
+    set(state => {
+      const found = DISCOVERABLE.find(device => device.id === id)
+      if (!found || state.paired.some(device => device.id === id)) return state
+      const paired = [...state.paired, found]
+      return { paired, channels: channelsFrom(paired) }
+    }),
+
+  unpairDevice: id =>
+    set(state => {
+      const paired = state.paired.filter(device => device.id !== id)
+      return { paired, channels: channelsFrom(paired) }
+    }),
+  setSession: (sessionCode, deviceId) =>
+    set(state => ({ sessionCode, deviceId, devices: sessionCode ? state.devices : [] })),
+  setDevices: devices => set({ devices }),
+  setLastCue: lastCue => set({ lastCue }),
+
   setMemoryFilter: id => set({ memoryFilter: id }),
   markLearningSeen: () => set({ unseenLearning: [] }),
 

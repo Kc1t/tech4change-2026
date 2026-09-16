@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "node -e \"require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\" && nest build",
-    "dev": "nest start --watch",
+    "dev": "node -e \"require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\" && nest start --watch",
     "start": "node dist/main",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",

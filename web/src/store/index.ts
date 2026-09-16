@@ -4,7 +4,9 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import graphData from '@/data/graph.json'
 import { demoHistory } from '@/domain/demo'
+import { BUILT_IN_DEVICES, channelsFrom, DISCOVERABLE, type PairedDevice } from '@/domain/devices'
 import { deterministicPlan, buildLadder, resolve, startingLevel } from '@/domain/ladder'
+import { CONFIDENCE_FLOOR, EMPTY_PREDICTION, predict, type Prediction } from '@/domain/predict'
 import { project } from '@/domain/projection'
 import { rankCue, recordEvent } from '@/api/client'
 import type { CuePayload, Device } from '@/sync/client'
@@ -92,6 +94,7 @@ interface AppState {
   origin: CuePlan['origin']
   startedAt: number | null
   channels: ChannelState
+  paired: PairedDevice[]
   discretion: DiscretionMode
   intensity: number
   helpLevel: HelpLevel
@@ -107,11 +110,13 @@ interface AppState {
   demo: boolean
   cueRequest: number
   memoryFilter: NodeId | null
+  prediction: Prediction
 
   scene: () => Scene
   target: () => NodeId
   learningFor: (id: NodeId) => LearningState
   requestCue: () => void
+  hear: (transcript: string) => void
   setMemoryFilter: (id: NodeId | null) => void
   loadDemo: () => void
   clearDemo: () => void
@@ -121,7 +126,10 @@ interface AppState {
   advance: () => void
   succeed: (levelUsed?: number) => number
   nextScene: () => void
-  toggleChannel: (key: keyof ChannelState) => void
+  toggleDevice: (id: string) => void
+  toggleBuzz: (id: string) => void
+  pairDevice: (id: string) => void
+  unpairDevice: (id: string) => void
   setDiscretion: (mode: DiscretionMode) => void
   setIntensity: (value: number) => void
   setHelpLevel: (level: HelpLevel) => void
@@ -141,7 +149,8 @@ export const useApp = create<AppState>()(
       open: false,
       origin: 'deterministic',
       startedAt: null,
-      channels: { phone: true, earbuds: true, watch: false },
+      channels: channelsFrom(BUILT_IN_DEVICES),
+      paired: BUILT_IN_DEVICES,
       discretion: 'discreet',
       intensity: 3,
       helpLevel: 'hint',
@@ -157,12 +166,31 @@ export const useApp = create<AppState>()(
       demo: false,
       cueRequest: 0,
       memoryFilter: null,
+      prediction: EMPTY_PREDICTION,
 
       scene: () => SCENES[get().sceneIndex]!,
-      target: () => SCENES[get().sceneIndex]!.targetId,
+      target: () => {
+        const { prediction } = get()
+        if (
+          prediction.targetId &&
+          prediction.confidence >= CONFIDENCE_FLOOR &&
+          lifeGraph.nodes[prediction.targetId]
+        ) {
+          return prediction.targetId
+        }
+        return SCENES[get().sceneIndex]!.targetId
+      },
       learningFor: id => get().learning[id] ?? EMPTY_LEARNING,
 
       requestCue: () => set(state => ({ cueRequest: state.cueRequest + 1 })),
+
+      hear: transcript => {
+        if (get().open) return
+        const next = transcript.trim() ? predict(lifeGraph, transcript) : EMPTY_PREDICTION
+        const current = get().prediction
+        if (next.targetId === current.targetId && next.confidence === current.confidence) return
+        set({ prediction: next })
+      },
 
       setMemoryFilter: id => set({ memoryFilter: id }),
 
@@ -211,9 +239,11 @@ export const useApp = create<AppState>()(
           elapsedMs: 0
         })
 
+        const heard = get().prediction.mentioned.filter(id => lifeGraph.nodes[id])
+
         const plan = await rankCue({
           projection: project(lifeGraph),
-          activeNodes: [lifeGraph.owner],
+          activeNodes: [lifeGraph.owner, ...heard].slice(0, 32),
           hints: { kind: lifeGraph.nodes[targetId]!.kind },
           lastLevel: previous
         })
@@ -282,11 +312,39 @@ export const useApp = create<AppState>()(
           sceneIndex: (state.sceneIndex + 1) % SCENES.length,
           ladder: [],
           level: 0,
-          open: false
+          open: false,
+          prediction: EMPTY_PREDICTION
         })),
 
-      toggleChannel: key =>
-        set(state => ({ channels: { ...state.channels, [key]: !state.channels[key] } })),
+      toggleDevice: id =>
+        set(state => {
+          const paired = state.paired.map(device =>
+            device.id === id ? { ...device, on: !device.on } : device
+          )
+          return { paired, channels: channelsFrom(paired) }
+        }),
+
+      toggleBuzz: id =>
+        set(state => {
+          const paired = state.paired.map(device =>
+            device.id === id ? { ...device, buzz: !device.buzz, on: device.buzz || device.on } : device
+          )
+          return { paired, channels: channelsFrom(paired) }
+        }),
+
+      pairDevice: id =>
+        set(state => {
+          const found = DISCOVERABLE.find(device => device.id === id)
+          if (!found || state.paired.some(device => device.id === id)) return state
+          const paired = [...state.paired, found]
+          return { paired, channels: channelsFrom(paired) }
+        }),
+
+      unpairDevice: id =>
+        set(state => {
+          const paired = state.paired.filter(device => device.id !== id)
+          return { paired, channels: channelsFrom(paired) }
+        }),
 
       setDiscretion: mode => set({ discretion: mode }),
       setIntensity: value => set({ intensity: value }),
@@ -308,12 +366,16 @@ export const useApp = create<AppState>()(
           : localStorage
       ),
       skipHydration: true,
+      merge: (persisted, current) => {
+        const next = { ...current, ...(persisted as Partial<AppState>) }
+        return { ...next, channels: channelsFrom(next.paired) }
+      },
       partialize: state => ({
         learning: state.learning,
         history: state.history,
         unseenLearning: state.unseenLearning,
         demo: state.demo,
-        channels: state.channels,
+        paired: state.paired,
         discretion: state.discretion,
         intensity: state.intensity,
         helpLevel: state.helpLevel,

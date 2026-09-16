@@ -22,6 +22,18 @@ object SyncClient {
     private const val TAG = "SyncClient"
     private const val CONNECT_TIMEOUT_MS = 4000
 
+    suspend fun discover(): String? = withContext(Dispatchers.IO) {
+        try {
+            val connection = open("/v1/sync/sessions/open", "GET")
+            if (connection.responseCode !in 200..299) return@withContext null
+            val body = connection.inputStream.bufferedReader().use { it.readText() }
+            JSONObject(body).optString("code").takeIf { it.isNotEmpty() && it != "null" }
+        } catch (error: Exception) {
+            Log.w(TAG, "Discover failed: ${error.javaClass.simpleName}")
+            null
+        }
+    }
+
     suspend fun join(code: String): String? = withContext(Dispatchers.IO) {
         val payload = """{"kind":"watch","name":"Relógio"}"""
         try {

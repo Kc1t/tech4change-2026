@@ -1,5 +1,7 @@
 const VOWELS = new Set('aeiouáéíóúâêôãõàü')
 const STRONG = new Set('aeoáéóâêô')
+const WEAK = new Set('iu')
+const ACCENTED_WEAK = new Set('íú')
 const DIGRAPHS = ['ch', 'lh', 'nh', 'qu', 'gu']
 const CLUSTERS = [
   'bl', 'br', 'cl', 'cr', 'dl', 'dr', 'fl', 'fr',
@@ -10,9 +12,13 @@ function isVowel(char: string): boolean {
   return VOWELS.has(char.toLowerCase())
 }
 
-function isHiatus(pair: string): boolean {
-  if (pair.length < 2) return false
-  return STRONG.has(pair[pair.length - 2]!) && STRONG.has(pair[pair.length - 1]!)
+function isHiatus(run: string): boolean {
+  if (run.length < 2) return false
+  const last = run[run.length - 1]!
+  const previous = run[run.length - 2]!
+  if (ACCENTED_WEAK.has(last)) return true
+  if (run.length >= 3 && WEAK.has(previous) && isVowel(run[run.length - 3]!)) return true
+  return STRONG.has(previous) && STRONG.has(last)
 }
 
 function onsetStart(run: string): number {

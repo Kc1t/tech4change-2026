@@ -1,46 +1,13 @@
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import * as Speech from 'expo-speech'
-import Svg, { Path } from 'react-native-svg'
+import { BuzzPicker, DeviceList } from '../components/DevicePanel'
+import { SyncPanel } from '../components/SyncPanel'
 import { NotificationBell } from '../components/NotificationBell'
 import { BrandMark, Card, Screen, ScreenHeader, TopBar } from '../components/ui'
 import { useApp } from '../store'
 import { color, font, radius, shadow, tap } from '../theme/tokens'
-import type { ChannelState, HelpLevel, OutputMode } from '../domain/types'
-
-const DEVICES: Array<{
-  key: keyof ChannelState
-  name: string
-  role: string
-  detail: string
-  tint: string
-  path: string
-}> = [
-  {
-    key: 'phone',
-    name: 'Celular',
-    role: 'mostra a palavra',
-    detail: 'a dica aparece na tela e vibra no ritmo dela',
-    tint: color.brandSoft,
-    path: 'M7.4 2.6h9.2a1.8 1.8 0 0 1 1.8 1.8v15.2a1.8 1.8 0 0 1-1.8 1.8H7.4a1.8 1.8 0 0 1-1.8-1.8V4.4a1.8 1.8 0 0 1 1.8-1.8ZM10.4 18.6h3.2'
-  },
-  {
-    key: 'earbuds',
-    name: 'Fone',
-    role: 'fala a dica',
-    detail: 'ninguém mais na mesa ouve — é o canal discreto',
-    tint: '#d5e2f2',
-    path: 'M12 3.4a7 7 0 0 0-7 7v5.2M12 3.4a7 7 0 0 1 7 7v5.2M5 13.4h1.6a1.6 1.6 0 0 1 1.6 1.6v3.4a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 18.4V15a1.6 1.6 0 0 1 1-1.6ZM19 13.4h-1.6a1.6 1.6 0 0 0-1.6 1.6v3.4a1.6 1.6 0 0 0 1.6 1.6h.8a1.6 1.6 0 0 0 1.6-1.6V15a1.6 1.6 0 0 0-.8-1.6Z'
-  },
-  {
-    key: 'watch',
-    name: 'Relógio',
-    role: 'marca o degrau',
-    detail: 'vibra no pulso e mostra em que degrau ela está',
-    tint: '#d3e8d8',
-    path: 'M12 7.4v4.2l2.6 1.6M8.6 4.6 9 2.4h6l.4 2.2M8.6 19.4 9 21.6h6l.4-2.2M12 19.4a7.4 7.4 0 1 0 0-14.8 7.4 7.4 0 0 0 0 14.8Z'
-  }
-]
+import type { HelpLevel, OutputMode } from '../domain/types'
 
 const HELP: Array<{ value: HelpLevel; label: string; hint: string }> = [
   { value: 'deliver', label: 'Entrega', hint: 'a palavra vem direto, sem escada' },
@@ -55,14 +22,13 @@ const OUTPUT: Array<{ value: OutputMode; label: string; hint: string }> = [
 ]
 
 export function BodyScreen({ onBell }: { onBell: () => void }) {
-  const channels = useApp(s => s.channels)
+  const paired = useApp(s => s.paired)
   const helpLevel = useApp(s => s.helpLevel)
   const output = useApp(s => s.output)
-  const toggleChannel = useApp(s => s.toggleChannel)
   const setHelpLevel = useApp(s => s.setHelpLevel)
   const setOutput = useApp(s => s.setOutput)
 
-  const live = DEVICES.filter(device => channels[device.key]).length
+  const live = paired.filter(device => device.on).length
 
   return (
     <Screen gap={12}>
@@ -70,63 +36,31 @@ export function BodyScreen({ onBell }: { onBell: () => void }) {
 
       <ScreenHeader
         label="os aparelhos"
-        title="Onde a ajuda aparece"
-        sub={`${live} de ${DEVICES.length} ligados. A dica chega em todos ao mesmo tempo.`}
+        title="Onde a ajuda chega"
+        sub={`${live} de ${paired.length} ligados. A dica chega em todos no mesmo instante.`}
       />
 
-      <View style={styles.devices}>
-        {DEVICES.map(device => {
-          const on = channels[device.key]
-          return (
-            <Pressable
-              key={device.key}
-              onPress={() => {
-                void Haptics.selectionAsync()
-                toggleChannel(device.key)
-              }}
-              style={styles.device}
-            >
-              <View style={[styles.deviceIcon, { backgroundColor: on ? device.tint : color.surface2 }]}>
-                <Svg viewBox="0 0 24 24" width={22} height={22}>
-                  <Path
-                    d={device.path}
-                    fill="none"
-                    stroke={on ? color.fg : color.faint}
-                    strokeWidth={1.6}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
-              </View>
+      <DeviceList />
 
-              <View style={styles.deviceBody}>
-                <View style={styles.deviceHead}>
-                  <Text style={[styles.deviceName, !on && { color: color.faint }]}>
-                    {device.name}
-                  </Text>
-                  <Text style={styles.deviceRole}>{device.role}</Text>
-                </View>
-                <Text style={styles.deviceDetail}>{device.detail}</Text>
-              </View>
+      <ScreenHeader
+        label="onde vibra"
+        title="O que bate junto com a dica"
+        sub="Escolha em que aparelho você quer sentir. A vibração marca o tempo, não a palavra."
+      />
 
-              <Switch
-                value={on}
-                onValueChange={() => toggleChannel(device.key)}
-                trackColor={{ false: color.surface2, true: color.brand }}
-                thumbColor={color.surface}
-              />
-            </Pressable>
-          )
-        })}
-      </View>
+      <BuzzPicker />
+
+      <ScreenHeader
+        label="a mesma sessão"
+        title="Ligar celular e relógio"
+        sub="Um código de quatro dígitos põe os dois na mesma conversa. A ponte leva o degrau, nunca a palavra."
+      />
+
+      <SyncPanel />
 
       <Card>
         <Text style={styles.cardLabel}>QUANTA AJUDA</Text>
-        <Segmented
-          options={HELP}
-          value={helpLevel}
-          onChange={setHelpLevel}
-        />
+        <Segmented options={HELP} value={helpLevel} onChange={setHelpLevel} />
         <Text style={styles.hint}>{HELP.find(o => o.value === helpLevel)?.hint}</Text>
       </Card>
 
@@ -183,24 +117,6 @@ function Segmented<T extends string>({
 }
 
 const styles = StyleSheet.create({
-  devices: { gap: 10 },
-  device: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    padding: 16,
-    minHeight: 0,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  deviceIcon: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
-  deviceBody: { flex: 1, minWidth: 0 },
-  deviceHead: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-  deviceName: { fontFamily: font.semibold, fontSize: 16, letterSpacing: -0.4, color: color.fg },
-  deviceRole: { fontFamily: font.medium, fontSize: 12.5, color: color.brand },
-  deviceDetail: { fontFamily: font.regular, fontSize: 12.5, lineHeight: 17, color: color.faint, marginTop: 4 },
   cardLabel: {
     fontFamily: font.semibold,
     fontSize: 11,

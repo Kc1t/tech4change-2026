@@ -144,6 +144,38 @@ cd server && npm run test:guardrails   # exige npm run build antes
 
 Variável de ambiente: `NEXT_PUBLIC_API_URL` no app, `NEXT_PUBLIC_APP_URL` na landing.
 
+### Celular × relógio (a ponte)
+
+Sem `web/.env.local` o `syncAvailable()` devolve `false` e **a ponte inteira some da interface** —
+não dá erro, só não aparece. Para um aparelho de verdade o endereço tem que ser o IP da máquina na
+rede, não `localhost`:
+
+```bash
+# web/.env.local — troque pelo IP da máquina (ipconfig / Get-NetIPAddress)
+NEXT_PUBLIC_API_URL=http://192.168.15.5:3333
+```
+
+O React Native descobre o endereço sozinho pelo `Constants.expoConfig.hostUri` (mesma máquina do
+Metro, porta 3333). `EXPO_PUBLIC_API_URL` sobrescreve se precisar.
+
+O relógio Wear OS **não precisa mais do código assado no build**: se `SESSION_CODE` estiver vazio
+ele chama `GET /v1/sync/sessions/open` e entra sozinho na sessão aberta há menos de 15 minutos que
+ainda tenha menos de 4 aparelhos. Só o endereço continua vindo do Gradle:
+
+```bash
+cd watch && ./gradlew installDebug -PapiUrl=http://192.168.15.5:3333
+```
+
+Ordem na hora de gravar: **API → celular abre a sessão → relógio**. O relógio tenta de 3 em 3
+segundos e mostra "procurando o celular…" até achar.
+
+Dois caminhos de transporte, mesmo evento: o web e o relógio usam SSE
+(`/sessions/:code/stream`); o React Native não tem `EventSource` e faz polling em
+`/sessions/:code/events?after=<seq>`, que devolve só o que passou do cursor.
+
+**As sessões vivem na memória do processo.** Qualquer reinício do `server` — inclusive o
+`--watch` recompilando sozinho — derruba tudo e o pareamento precisa ser refeito.
+
 **Erro `0xc0000142` no build do Next** não é bug de código: é o Windows recusando criar processo
 por exaustão. Feche abas do Chrome ou derrube um dos dev servers duplicados e rode de novo.
 

@@ -7,6 +7,9 @@ import type { BroadcastCueInput } from './dto/broadcast-cue.dto'
 const DEVICE_TTL_MS = 45_000
 const SESSION_TTL_MS = 6 * 60 * 60 * 1000
 const SWEEP_MS = 15_000
+const EVENT_BUFFER = 64
+const PAIRING_WINDOW_MS = 15 * 60 * 1000
+const PAIRING_MAX_DEVICES = 4
 
 export type DeviceKind = 'phone' | 'watch' | 'earbuds' | 'desktop'
 
@@ -23,6 +26,8 @@ interface Session {
   createdAt: number
   devices: Map<string, Device>
   channel: Subject<SyncEvent>
+  log: Array<{ seq: number; event: SyncEvent }>
+  seq: number
 }
 
 export type SyncEvent =
@@ -47,7 +52,9 @@ export class SyncService {
       code,
       createdAt: Date.now(),
       devices: new Map(),
-      channel: new Subject<SyncEvent>()
+      channel: new Subject<SyncEvent>(),
+      log: [],
+      seq: 0
     })
 
     this.logger.log(`Session ${code} opened`)
@@ -89,8 +96,27 @@ export class SyncService {
 
   broadcast(code: string, cue: BroadcastCueInput): { delivered: number } {
     const session = this.require(code)
-    session.channel.next({ type: 'cue', from: cue.deviceId, cue })
+    this.publish(session, { type: 'cue', from: cue.deviceId, cue })
     return { delivered: session.devices.size }
+  }
+
+  openForPairing(): { code: string | null } {
+    const now = Date.now()
+    const candidates = [...this.sessions.values()]
+      .filter(session => now - session.createdAt < PAIRING_WINDOW_MS)
+      .filter(session => session.devices.size > 0)
+      .filter(session => session.devices.size < PAIRING_MAX_DEVICES)
+      .sort((a, b) => b.createdAt - a.createdAt)
+
+    return { code: candidates[0]?.code ?? null }
+  }
+
+  since(code: string, after: number): { seq: number; events: SyncEvent[] } {
+    const session = this.require(code)
+    return {
+      seq: session.seq,
+      events: session.log.filter(entry => entry.seq > after).map(entry => entry.event)
+    }
   }
 
   stream(code: string): Observable<{ data: SyncEvent }> {
@@ -107,7 +133,14 @@ export class SyncService {
   }
 
   private announce(session: Session): void {
-    session.channel.next({ type: 'devices', devices: [...session.devices.values()] })
+    this.publish(session, { type: 'devices', devices: [...session.devices.values()] })
+  }
+
+  private publish(session: Session, event: SyncEvent): void {
+    session.seq += 1
+    session.log.push({ seq: session.seq, event })
+    if (session.log.length > EVENT_BUFFER) session.log.shift()
+    session.channel.next(event)
   }
 
   private require(code: string): Session {
@@ -134,7 +167,7 @@ export class SyncService {
       if (dropped) this.announce(session)
 
       if (now - session.createdAt > SESSION_TTL_MS) {
-        session.channel.next({ type: 'closed' })
+        this.publish(session, { type: 'closed' })
         session.channel.complete()
         this.sessions.delete(session.code)
         this.logger.log(`Session ${session.code} expired`)
