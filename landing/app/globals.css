@@ -1,0 +1,198 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  color-scheme: light;
+  --radius: 0.75rem;
+
+  --stage: #000000;
+  --frame: #1c1d21;
+  --frame-line: #2c2d33;
+
+  --ink: #f2f2f0;
+  --surface: #ffffff;
+  --surface-2: #e8e8e4;
+  --line: #d6d6d1;
+  --line-soft: #e4e4df;
+  --fg: #161616;
+  --dim: #4a4a48;
+  --faint: #9a9a98;
+  --label: #6b6b68;
+  --brand: #bf3f63;
+  --brand-ink: #ffffff;
+  --brand-soft: #f8e0e6;
+  --brand-warm: #f0a36b;
+  --brand-rose: #d65a7a;
+
+  --aurora-base: #fbd9c4;
+  --aurora-1: #f39a6b;
+  --aurora-2: #d8577c;
+  --aurora-3: #6b3f8f;
+  --aurora-4: #ffe3a8;
+
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-line: rgba(255, 255, 255, 0.5);
+  --shadow-glass: inset 0 0 0 1px var(--glass-line), 0 6px 20px rgba(22, 22, 22, 0.1);
+
+  --mastery-high: #2f7a5c;
+  --mastery-medium: #a06210;
+  --mastery-low: #b03a4e;
+
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  --background: var(--ink);
+  --foreground: var(--fg);
+  --card: var(--surface);
+  --card-foreground: var(--fg);
+  --popover: var(--surface);
+  --popover-foreground: var(--fg);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--fg);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--dim);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--fg);
+  --destructive: var(--mastery-low);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-fg: var(--fg);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-warm: var(--brand-warm);
+  --color-brand-rose: var(--brand-rose);
+  --color-stage: var(--stage);
+  --color-aurora-base: var(--aurora-base);
+  --color-aurora-1: var(--aurora-1);
+  --color-aurora-2: var(--aurora-2);
+  --color-aurora-3: var(--aurora-3);
+  --color-aurora-4: var(--aurora-4);
+  --color-mastery-high: var(--mastery-high);
+  --color-mastery-medium: var(--mastery-medium);
+  --color-mastery-low: var(--mastery-low);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-voice: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand-rose);
+    outline-offset: 4px;
+  }
+}
+
+@layer utilities {
+  .voice {
+    font-family: var(--font-voice);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+  }
+
+  .label-caps {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--label);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .brand-mark {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, var(--brand-warm), var(--brand-rose));
+    transform: rotate(45deg);
+  }
+
+  .grain {
+    background-image: var(--grain);
+    mix-blend-mode: overlay;
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); border-radius: 50%; }
+  50% { transform: scale(1.02); border-radius: 49% 51% 50% 50%; }
+}
+
+@keyframes drift {
+  to { transform: translate(12%, -8%) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
