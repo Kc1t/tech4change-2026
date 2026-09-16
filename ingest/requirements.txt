@@ -2,5 +2,7 @@ insightface
 hdbscan
 openai-whisper
 Pillow
+numpy
+opencv-python
 geopy
 anthropic

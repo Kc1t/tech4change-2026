@@ -1,6 +1,16 @@
 node_modules
 dist
+.next
+out
+.expo
+web-build
+.playwright-mcp
+next-env.d.ts
 .env
 .vercel
+*.tsbuildinfo
 ingest/input/*
 !ingest/input/.gitkeep
+
+# Pesquisa, pitch e roteiro — material do grupo, nao versionado
+research/
