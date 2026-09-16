@@ -58,6 +58,8 @@ class CueActivity : ComponentActivity() {
 
         if (cue.event == "resolved") {
             CuePatterns.success(this, INTENSITY)
+            binding.aurora.surge(1f)
+            binding.cue.textSize = CUE_TEXT_SP
             binding.caption.text = getString(R.string.resolved_caption)
             binding.cue.text = incoming.label
             binding.source.text = getString(R.string.resolved_source, cue.level)
@@ -72,6 +74,8 @@ class CueActivity : ComponentActivity() {
         }
 
         CuePatterns.play(this, CuePatterns.forLevel(cue.level, cue.isFinal), INTENSITY)
+        binding.aurora.surge(glowFor(cue.level, cue.isFinal))
+        binding.cue.textSize = CUE_TEXT_SP
         binding.caption.text = getString(R.string.rung_caption, cue.level, LifeGraph.kindFor(cue.attr))
         binding.cue.text = text
         binding.source.text = cue.edge ?: ""
@@ -81,6 +85,7 @@ class CueActivity : ComponentActivity() {
     private fun advance() {
         if (level == 0) {
             CuePatterns.confirm(this, INTENSITY)
+            binding.aurora.surge(0.3f)
             requestPlan()
         }
 
@@ -89,11 +94,14 @@ class CueActivity : ComponentActivity() {
         level += 1
         val rung = ladder[level - 1]
         CuePatterns.play(this, CuePatterns.forLevel(rung.level, rung.isFinal), INTENSITY)
+        binding.aurora.surge(glowFor(rung.level, rung.isFinal))
         render(rung)
     }
 
     private fun resolve() {
         CuePatterns.success(this, INTENSITY)
+        binding.aurora.surge(1f)
+        binding.cue.textSize = CUE_TEXT_SP
         lastLevel[target.id] = level
 
         binding.caption.text = getString(R.string.resolved_caption)
@@ -126,7 +134,15 @@ class CueActivity : ComponentActivity() {
         }
     }
 
+    private fun glowFor(level: Int, isFinal: Boolean): Float = when {
+        isFinal -> 1f
+        level >= 3 -> 0.88f
+        level == 2 -> 0.68f
+        else -> 0.46f
+    }
+
     private fun renderIdle() {
+        binding.cue.textSize = IDLE_TEXT_SP
         binding.caption.text = getString(R.string.idle_caption)
         binding.cue.text = getString(R.string.idle_cue)
         binding.source.text = ""
@@ -135,6 +151,7 @@ class CueActivity : ComponentActivity() {
     }
 
     private fun render(rung: Rung) {
+        binding.cue.textSize = CUE_TEXT_SP
         binding.caption.text = getString(R.string.rung_caption, rung.level, rung.kind)
         binding.cue.text = rung.text
         binding.source.text = rung.edge ?: ""
@@ -144,6 +161,8 @@ class CueActivity : ComponentActivity() {
 
     private companion object {
         const val INTENSITY = 3
+        const val IDLE_TEXT_SP = 14f
+        const val CUE_TEXT_SP = 23f
         const val RESET_DELAY_MS = 3000L
         const val HEARTBEAT_MS = 20_000L
     }

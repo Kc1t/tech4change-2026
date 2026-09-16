@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Caminho</string>
+    <string name="app_name">eilo</string>
     <string name="idle_caption">no pulso</string>
     <string name="idle_cue">Toque quando a palavra travar</string>
     <string name="rung_caption">degrau %1$d · %2$s</string>

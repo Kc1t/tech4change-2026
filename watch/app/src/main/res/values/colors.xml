@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ink">#0E1417</color>
-    <color name="surface">#1E282D</color>
-    <color name="fg">#E9EFF1</color>
-    <color name="faint">#61727A</color>
-    <color name="accent">#F0A93B</color>
+    <color name="ink">#100A16</color>
+    <color name="surface">#241B30</color>
+    <color name="fg">#F7F1EC</color>
+    <color name="faint">#9B8AA6</color>
+    <color name="brand">#D8577C</color>
+
+    <color name="aurora_1">#F39A6B</color>
+    <color name="aurora_2">#D8577C</color>
+    <color name="aurora_3">#6B3F8F</color>
+    <color name="aurora_4">#FFE3A8</color>
 </resources>
