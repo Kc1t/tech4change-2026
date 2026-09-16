@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { lifeGraph, useApp } from '@/store'
 import { notifyWatch, patternFor, speak, unlockAudio, vibrate } from '@/channels'
 import { recordEvent } from '@/api/client'
-import { Orb, type OrbState } from '@/components/Orb'
-import { SpeechWave } from '@/components/SpeechWave'
+import type { OrbState } from '@/components/Orb'
+import { AuroraField } from '@/components/AuroraField'
 import { LearningCard } from '@/components/LearningCard'
 import { useListening } from '@/hooks/useListening'
 import { broadcastCue } from '@/sync/client'
@@ -234,11 +234,8 @@ export function MomentScreen() {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden">
-      <span
-        aria-hidden="true"
-        className="absolute bottom-[-46%] left-1/2 aspect-square w-[200%] -translate-x-1/2"
-      >
-        <Orb state={orbState} levelRef={levelRef} />
+      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[54%]">
+        <AuroraField state={orbState} levelRef={levelRef} />
       </span>
 
       <div className="relative z-10 px-7 pt-4">
@@ -329,9 +326,7 @@ export function MomentScreen() {
         </div>
       )}
 
-      <div className="relative z-10 shrink-0 pb-[92px]">
-        <SpeechWave live={armed} levelRef={levelRef} />
-      </div>
+      <div className="shrink-0 pb-[92px]" />
     </section>
   )
 }
