@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, Headphones, Smartphone, Watch } from 'lucide-react'
 import { firstSyllable } from '@/lib/phonology'
 import { Logo } from '@/components/v3/logo'
@@ -14,7 +14,6 @@ type NodeId = 'owner' | 'person' | 'place'
 
 const HELENA = { owner: 'Helena', person: 'Letícia', place: 'Sorocaba' }
 const MAX_ANSWER = 40
-const STEP_MS = 1400
 
 const QUESTIONS: Array<{ key: Key; question: string; note: string; placeholder: string }> = [
   {
@@ -69,26 +68,9 @@ export function DemoFlow() {
   const [draft, setDraft] = useState('')
 
   const [mode, setMode] = useState<Mode>('ladder')
-  const [armed, setArmed] = useState(false)
-  const [shown, setShown] = useState(0)
-  const [resolved, setResolved] = useState(false)
-  const [settled, setSettled] = useState(false)
-
-  const timers = useRef<number[]>([])
+  const [level, setLevel] = useState(0)
+  const [resolvedAt, setResolvedAt] = useState<number | null>(null)
   const [guided, setGuided] = useState(false)
-
-  useEffect(() => () => clearTimers(), [])
-
-  useEffect(() => {
-    if (stage !== 'live') return
-    const timer = window.setTimeout(() => setSettled(true), 1600)
-    return () => window.clearTimeout(timer)
-  }, [stage])
-
-  function clearTimers() {
-    timers.current.forEach(window.clearTimeout)
-    timers.current = []
-  }
 
   const rungs: Rung[] = [
     { level: 1, kind: 'categoria', text: 'é da família' },
@@ -98,33 +80,30 @@ export function DemoFlow() {
   ]
 
   const active = mode === 'hint' ? [rungs[3]!] : rungs
-  const status = settled ? 'escutando' : 'ajustando ao ambiente'
 
   const present: NodeId[] = guided
     ? (['owner', 'person', 'place'] as NodeId[]).slice(0, index)
     : ['owner', 'person', 'place']
 
   const highlight: GraphHighlight =
-    stage !== 'live' || shown === 0
+    stage !== 'live' || level === 0
       ? null
       : mode === 'hint'
         ? 'syllable'
-        : (['family', 'person', 'place', 'syllable'] as GraphHighlight[])[shown - 1]!
+        : (['family', 'person', 'place', 'syllable'] as GraphHighlight[])[level - 1]!
 
-  function arm() {
-    setArmed(true)
-    clearTimers()
-    active.forEach((_, i) => {
-      timers.current.push(window.setTimeout(() => setShown(i + 1), STEP_MS * (i + 1)))
-    })
-    timers.current.push(window.setTimeout(() => setResolved(true), STEP_MS * (active.length + 1)))
+  function advance() {
+    if (resolvedAt !== null) return
+    setLevel(current => Math.min(current + 1, active.length))
+  }
+
+  function succeed() {
+    setResolvedAt(level)
   }
 
   function reset() {
-    clearTimers()
-    setArmed(false)
-    setShown(0)
-    setResolved(false)
+    setLevel(0)
+    setResolvedAt(null)
   }
 
   function changeMode(next: Mode) {
@@ -140,7 +119,6 @@ export function DemoFlow() {
     setDraft('')
     if (index === QUESTIONS.length - 1) {
       setIndex(index + 1)
-      setSettled(false)
       window.setTimeout(() => setStage('live'), 1100)
       return
     }
@@ -192,7 +170,6 @@ export function DemoFlow() {
             onClick={() => {
               setGuided(false)
               setSeed(HELENA)
-              setSettled(false)
               setStage('live')
             }}
             className="group flex flex-col rounded-[1.5rem] border border-[var(--v3-line)] bg-white p-8 text-left transition-transform hover:-translate-y-1"
@@ -300,16 +277,15 @@ export function DemoFlow() {
     <Shell>
       <div className="grid items-start gap-6 xl:grid-cols-[1.25fr_1fr]">
         <DeskListener
-          owner={seed.owner || 'Você'}
+          prompt={`${seed.owner || 'Você'} está contando quem apareceu no almoço de domingo.`}
           answer={seed.person}
-          status={status}
           mode={mode}
           onMode={changeMode}
           rungs={active}
-          shown={shown}
-          resolved={resolved}
-          armed={armed}
-          onArm={arm}
+          level={level}
+          resolvedAt={resolvedAt}
+          onAdvance={advance}
+          onSucceed={succeed}
           onReset={reset}
         />
 
@@ -328,8 +304,8 @@ export function DemoFlow() {
               Isto aqui é uma simulação
             </p>
             <p className="mt-3 text-[0.95rem] leading-relaxed text-[var(--v3-muted)]">
-              Nesta tela você aperta <strong className="text-[var(--v3-ink)]">Travou</strong>. Na
-              vida real ninguém aperta nada, e é aí que o eilo faz sentido de verdade.
+              Nesta tela você toca para subir cada degrau. Na vida real ninguém toca nada, e é aí
+              que o eilo faz sentido de verdade.
             </p>
 
             <ul className="mt-6 flex flex-col gap-5">
