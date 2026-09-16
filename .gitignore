@@ -14,3 +14,9 @@ ingest/input/*
 
 # Pesquisa, pitch e roteiro — material do grupo, nao versionado
 research/
+
+# Saida do Gradle e caminho do SDK local
+watch/app/build/
+watch/.gradle/
+watch/build/
+watch/local.properties
