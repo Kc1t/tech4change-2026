@@ -5,6 +5,7 @@ import { Images } from 'lucide-react'
 
 const BACKGROUNDS = [
   { id: 'retrato', src: '/hero-eilo.webp', label: 'Retrato', fit: 'object-cover object-right' },
+  { id: 'onda', src: '/hero-wave.webp', label: 'Onda', fit: 'object-cover object-center' },
   { id: 'ceu', src: '/sky.webp', label: 'Céu', fit: 'object-cover object-center' }
 ]
 
