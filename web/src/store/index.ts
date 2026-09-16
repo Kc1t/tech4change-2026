@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import graphData from '@/data/graph.json'
+import { demoHistory } from '@/domain/demo'
 import { deterministicPlan, buildLadder, resolve, startingLevel } from '@/domain/ladder'
 import { project } from '@/domain/projection'
 import { rankCue, recordEvent } from '@/api/client'
@@ -18,6 +19,7 @@ import type {
   Mastery,
   NodeId,
   OutputMode,
+  Resolution,
   Scene
 } from '@/domain/types'
 
@@ -80,6 +82,8 @@ function nextMastery(current: Mastery, levelsUsed: number, total: number): Maste
   return current === 'unseen' ? 'low' : current
 }
 
+const HISTORY_CAP = 240
+
 interface AppState {
   sceneIndex: number
   ladder: LadderStep[]
@@ -98,12 +102,18 @@ interface AppState {
   devices: Device[]
   lastCue: CuePayload | null
   learning: Record<NodeId, LearningState>
+  history: Resolution[]
+  demo: boolean
   cueRequest: number
+  memoryFilter: NodeId | null
 
   scene: () => Scene
   target: () => NodeId
   learningFor: (id: NodeId) => LearningState
   requestCue: () => void
+  setMemoryFilter: (id: NodeId | null) => void
+  loadDemo: () => void
+  clearDemo: () => void
 
   start: () => Promise<void>
   advance: () => void
@@ -140,13 +150,39 @@ export const useApp = create<AppState>()(
       devices: [],
       lastCue: null,
       learning: {},
+      history: [],
+      demo: false,
       cueRequest: 0,
+      memoryFilter: null,
 
       scene: () => SCENES[get().sceneIndex]!,
       target: () => SCENES[get().sceneIndex]!.targetId,
       learningFor: id => get().learning[id] ?? EMPTY_LEARNING,
 
       requestCue: () => set(state => ({ cueRequest: state.cueRequest + 1 })),
+
+      setMemoryFilter: id => set({ memoryFilter: id }),
+
+      loadDemo: () => {
+        const history = demoHistory(lifeGraph, Date.now())
+        const learning: Record<NodeId, LearningState> = {}
+
+        for (const entry of history) {
+          const previous = learning[entry.targetId] ?? EMPTY_LEARNING
+          learning[entry.targetId] = {
+            lastLevel: entry.level,
+            successes: previous.successes + 1,
+            failures: 0,
+            lastSeen: entry.at,
+            nextReview: null,
+            mastery: nextMastery(previous.mastery, entry.level, entry.rungs)
+          }
+        }
+
+        set({ history, learning, demo: true })
+      },
+
+      clearDemo: () => set({ history: [], learning: {}, demo: false }),
 
       start: async () => {
         const targetId = get().target()
@@ -208,20 +244,25 @@ export const useApp = create<AppState>()(
           elapsedMs: startedAt ? Date.now() - startedAt : 0
         })
 
-        set({
+        const at = new Date().toISOString()
+
+        set(state => ({
           open: false,
+          history: [...state.history, { at, targetId, level, rungs: ladder.length }].slice(
+            -HISTORY_CAP
+          ),
           learning: {
             ...learning,
             [targetId]: {
               lastLevel: level,
               successes: previous.successes + 1,
               failures: previous.failures,
-              lastSeen: new Date().toISOString(),
+              lastSeen: at,
               nextReview: null,
               mastery: nextMastery(previous.mastery, level, ladder.length)
             }
           }
-        })
+        }))
 
         return level
       },
@@ -259,6 +300,8 @@ export const useApp = create<AppState>()(
       skipHydration: true,
       partialize: state => ({
         learning: state.learning,
+        history: state.history,
+        demo: state.demo,
         channels: state.channels,
         discretion: state.discretion,
         intensity: state.intensity,

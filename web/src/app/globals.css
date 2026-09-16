@@ -70,6 +70,19 @@
   --color-aurora-3: var(--aurora-3);
   --color-aurora-4: var(--aurora-4);
   --color-glass: var(--glass);
+  --color-delta-up: var(--delta-up);
+  --color-delta-note: var(--delta-note);
+  --color-delta-down: var(--delta-down);
+  --color-kind-person: var(--kind-person);
+  --color-kind-person-ink: var(--kind-person-ink);
+  --color-kind-place: var(--kind-place);
+  --color-kind-place-ink: var(--kind-place-ink);
+  --color-kind-object: var(--kind-object);
+  --color-kind-object-ink: var(--kind-object-ink);
+  --color-kind-event: var(--kind-event);
+  --color-kind-event-ink: var(--kind-event-ink);
+  --color-kind-animal: var(--kind-animal);
+  --color-kind-animal-ink: var(--kind-animal-ink);
   --color-mastery-high: var(--mastery-high);
   --color-mastery-medium: var(--mastery-medium);
   --color-mastery-low: var(--mastery-low);
@@ -78,6 +91,8 @@
   --font-voice: var(--font-voice);
 
   --text-xs: var(--step--1);
+  --text-metric: 30px;
+  --text-display: 46px;
   --text-base: var(--step-0);
   --text-lg: var(--step-1);
   --text-xl: var(--step-2);

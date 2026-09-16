@@ -1,42 +1,42 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { NodeSheet } from '@/components/graph/NodeSheet'
+import { SOURCE_LABEL, SourceMark } from '@/components/graph/SourceMark'
+import { WordCloud, type CloudWord } from '@/components/graph/WordCloud'
+import { ScreenHeader } from '@/components/layout'
+import { memoriesAbout, memoriesOf, memoryTags } from '@/domain/memories'
 import { lifeGraph, useApp } from '@/store'
-import type { Mastery, NodeId } from '@/domain/types'
+import type { NodeId } from '@/domain/types'
 
 type Lens = 'life' | 'learning'
 
-interface Hitbox {
-  id: NodeId
-  x: number
-  y: number
-  r: number
-}
-
-const MASTERY_TOKEN: Record<Mastery, string> = {
-  high: '--mastery-high',
-  medium: '--mastery-medium',
-  low: '--mastery-low',
-  unseen: '--mastery-low'
-}
-
-const GROWTH_MS = 2200
 const FRESH_WINDOW_MS = 10 * 60 * 1000
 
-function token(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-}
-
-function easeOut(t: number): number {
-  return 1 - Math.pow(1 - t, 3)
-}
-
 export function GraphScreen() {
+  const router = useRouter()
   const learning = useApp(s => s.learning)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const hitboxes = useRef<Hitbox[]>([])
+  const setMemoryFilter = useApp(s => s.setMemoryFilter)
   const [lens, setLens] = useState<Lens>('life')
   const [selected, setSelected] = useState<NodeId | null>(null)
+
+  const memories = useMemo(() => memoriesOf(lifeGraph), [])
+
+  const words = useMemo<CloudWord[]>(() => {
+    return Object.values(lifeGraph.nodes).map(node => {
+      const about = memoriesAbout(memories, node.id).length
+      const isOwner = node.id === lifeGraph.owner
+      return {
+        id: node.id,
+        label: node.label,
+        kind: node.kind,
+        weight: about,
+        mastery: learning[node.id]?.mastery ?? 'unseen',
+        isOwner
+      }
+    })
+  }, [memories, learning])
 
   const fresh = useMemo(() => {
     const now = Date.now()
@@ -52,272 +52,125 @@ export function GraphScreen() {
     return best?.id ?? null
   }, [learning])
 
-  const startedAt = useRef(0)
-  const [growing, setGrowing] = useState(false)
+  const [announce, setAnnounce] = useState<NodeId | null>(null)
 
   useEffect(() => {
-    if (lens !== 'learning' || !fresh) {
-      setGrowing(false)
-      return
-    }
-    startedAt.current = performance.now()
-    setGrowing(true)
-    const timer = window.setTimeout(() => setGrowing(false), GROWTH_MS + 400)
+    if (lens !== 'learning' || !fresh) return
+    setAnnounce(fresh)
+    const timer = window.setTimeout(() => setAnnounce(null), 5200)
     return () => window.clearTimeout(timer)
   }, [lens, fresh])
 
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+  const anchorId = useMemo(() => {
+    if (fresh && memoriesAbout(memories, fresh).length) return fresh
+    const ranked = Object.values(lifeGraph.nodes)
+      .filter(node => node.id !== lifeGraph.owner)
+      .map(node => ({ id: node.id, about: memoriesAbout(memories, node.id) }))
+      .filter(entry => entry.about.length > 0)
+      .map(entry => ({
+        id: entry.id,
+        score: entry.about.length + (entry.about.some(m => m.source === 'audio') ? 10 : 0)
+      }))
+      .sort((a, b) => b.score - a.score)
+    return ranked[0]?.id ?? null
+  }, [fresh, memories])
 
-    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const frameRef = { current: 0 }
+  const anchorNode = anchorId ? lifeGraph.nodes[anchorId] : null
+  const anchorMemories = anchorId ? memoriesAbout(memories, anchorId) : []
+  const featured = anchorMemories.find(memory => memory.source === 'audio') ?? anchorMemories[0]
 
-    function draw(now: number) {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const width = canvas!.clientWidth
-      const height = canvas!.clientHeight
-      canvas!.width = width * dpr
-      canvas!.height = height * dpr
-      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx!.clearRect(0, 0, width, height)
+  const selectedNode = selected ? lifeGraph.nodes[selected] : null
+  const announced = announce ? lifeGraph.nodes[announce] : null
 
-      const pad = 34
-      const px = (id: NodeId) => pad + lifeGraph.nodes[id]!.layout.x * (width - pad * 2)
-      const py = (id: NodeId) => pad + lifeGraph.nodes[id]!.layout.y * (height - pad * 2)
-
-      const animating = growing && !calm
-      const progress = animating
-        ? Math.min(1, (now - startedAt.current) / GROWTH_MS)
-        : 1
-      const eased = easeOut(progress)
-
-      const line = token('--line')
-      const accent = token('--brand')
-
-      for (const edge of lifeGraph.edges) {
-        const touchesFresh = animating && (edge.from === fresh || edge.to === fresh)
-        const fromX = px(edge.from)
-        const fromY = py(edge.from)
-        const toX = px(edge.to)
-        const toY = py(edge.to)
-
-        ctx!.beginPath()
-        ctx!.moveTo(fromX, fromY)
-
-        if (touchesFresh) {
-          const anchorIsFresh = edge.from === fresh
-          const originX = anchorIsFresh ? toX : fromX
-          const originY = anchorIsFresh ? toY : fromY
-          const tipX = anchorIsFresh ? fromX : toX
-          const tipY = anchorIsFresh ? fromY : toY
-
-          ctx!.moveTo(originX, originY)
-          ctx!.lineTo(originX + (tipX - originX) * eased, originY + (tipY - originY) * eased)
-          ctx!.strokeStyle = accent
-          ctx!.lineWidth = 2
-          ctx!.globalAlpha = 1
-        } else {
-          ctx!.lineTo(toX, toY)
-          ctx!.strokeStyle = line
-          ctx!.lineWidth = 1
-          ctx!.globalAlpha = lens === 'learning' ? 0.45 : 0.8
-        }
-
-        ctx!.stroke()
-      }
-      ctx!.globalAlpha = 1
-
-      hitboxes.current = []
-      for (const node of Object.values(lifeGraph.nodes)) {
-        const x = px(node.id)
-        const y = py(node.id)
-        const isOwner = node.id === lifeGraph.owner
-        const isFresh = animating && node.id === fresh
-        const scale = isFresh ? eased : 1
-        const radius = (isOwner ? 26 : 20) * scale
-
-        let fill = token('--surface-2')
-        let stroke = token('--line')
-        if (lens === 'learning') {
-          const mastery = learning[node.id]?.mastery ?? 'unseen'
-          fill = token(MASTERY_TOKEN[mastery])
-          stroke = fill
-        } else if (isOwner) {
-          fill = accent
-          stroke = fill
-        }
-
-        if (isFresh && progress > 0.6) {
-          const halo = (progress - 0.6) / 0.4
-          ctx!.beginPath()
-          ctx!.arc(x, y, radius + 8 + halo * 18, 0, Math.PI * 2)
-          ctx!.strokeStyle = accent
-          ctx!.globalAlpha = 1 - halo
-          ctx!.lineWidth = 2
-          ctx!.stroke()
-          ctx!.globalAlpha = 1
-        }
-
-        if (selected === node.id) {
-          ctx!.beginPath()
-          ctx!.arc(x, y, radius + 6, 0, Math.PI * 2)
-          ctx!.strokeStyle = accent
-          ctx!.lineWidth = 2
-          ctx!.stroke()
-        }
-
-        if (radius > 0.5) {
-          ctx!.beginPath()
-          ctx!.arc(x, y, radius, 0, Math.PI * 2)
-          ctx!.fillStyle = fill
-          ctx!.fill()
-          ctx!.strokeStyle = stroke
-          ctx!.lineWidth = 1
-          ctx!.stroke()
-        }
-
-        if (scale > 0.8) {
-          ctx!.fillStyle = lens === 'learning' || isOwner ? token('--ink') : token('--fg')
-          ctx!.font = '600 10px Manrope, sans-serif'
-          ctx!.textAlign = 'center'
-          ctx!.textBaseline = 'middle'
-          const label = node.label.length > 9 ? `${node.label.slice(0, 8)}.` : node.label
-          ctx!.globalAlpha = Math.min(1, (scale - 0.8) / 0.2)
-          ctx!.fillText(label, x, y)
-          ctx!.globalAlpha = 1
-        }
-
-        hitboxes.current.push({ id: node.id, x, y, r: (isOwner ? 26 : 20) + 10 })
-      }
-
-      if (animating && progress < 1) frameRef.current = requestAnimationFrame(draw)
-    }
-
-    frameRef.current = requestAnimationFrame(draw)
-    const redraw = () => requestAnimationFrame(draw)
-    window.addEventListener('resize', redraw)
-
-    return () => {
-      cancelAnimationFrame(frameRef.current)
-      window.removeEventListener('resize', redraw)
-    }
-  }, [lens, selected, learning, fresh, growing])
-
-  function handleClick(event: React.MouseEvent<HTMLCanvasElement>) {
-    const rect = event.currentTarget.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    const hit = hitboxes.current.find(box => Math.hypot(box.x - x, box.y - y) <= box.r)
-    setSelected(hit ? hit.id : null)
+  function openMemories(id: NodeId | null) {
+    setMemoryFilter(id)
+    setSelected(null)
+    router.push('/memories')
   }
 
-  const node = selected ? lifeGraph.nodes[selected] : null
-  const edges = selected
-    ? lifeGraph.edges.filter(edge => edge.from === selected || edge.to === selected)
-    : []
-  const freshNode = fresh ? lifeGraph.nodes[fresh] : null
-
   return (
-    <section className="flex flex-col gap-4 p-5">
-      <div>
-        <p className="label-caps">o mapa</p>
-        <h2 className="voice mt-2 text-xl leading-tight">
-          A vida dela, e o que ela já recupera sozinha
-        </h2>
-        <p className="mt-1 text-xs text-dim">Toque num nó para ver de onde veio cada ligação.</p>
+    <section className="relative flex h-full flex-col overflow-hidden">
+      <div className="shrink-0 px-7 pt-[calc(22px+env(safe-area-inset-top,0px))]">
+        <ScreenHeader
+          label="a vida dela"
+          title="Como tudo se conecta"
+          sub="Cada memória revela um pouco mais da história."
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5 rounded-card bg-surface-2 p-1">
-        {(['life', 'learning'] as Lens[]).map(option => (
+      <div className="relative min-h-0 flex-1 px-4 pt-4">
+        <WordCloud
+          words={words}
+          tinted={lens === 'learning'}
+          caption={
+            announced
+              ? `${announced.label} acabou de entrar no que ela já alcança`
+              : 'Toque numa palavra para ver de onde ela veio'
+          }
+          onPick={setSelected}
+        />
+
+        <div className="glass absolute right-7 top-7 flex gap-0.5 rounded-full p-1">
+          {(['life', 'learning'] as Lens[]).map(option => (
+            <button
+              key={option}
+              onClick={() => setLens(option)}
+              className={[
+                'min-h-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
+                option === lens ? 'bg-surface text-fg shadow-soft' : 'text-dim'
+              ].join(' ')}
+            >
+              {option === 'life' ? 'Vida' : 'Aprendizado'}
+              {option === 'learning' && fresh && (
+                <i className="ml-1 inline-block size-1.5 rounded-full bg-brand align-middle" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="shrink-0 px-7 pb-[96px] pt-3">
+        {anchorNode && featured ? (
           <button
-            key={option}
-            onClick={() => setLens(option)}
-            className={[
-              'rounded-[9px] px-3 py-3 text-xs font-semibold',
-              option === lens ? 'bg-surface text-fg shadow-soft' : 'text-dim'
-            ].join(' ')}
+            onClick={() => setSelected(anchorNode.id)}
+            className="flex w-full min-h-0 items-center gap-3 rounded-card bg-surface p-3 text-left shadow-soft"
           >
-            {option === 'life' ? 'Vida' : 'Aprendizado'}
-            {option === 'learning' && freshNode && (
-              <i className="ml-1.5 inline-block size-1.5 rounded-full bg-brand align-middle" />
+            <SourceMark source={featured.source} seed={featured.id} size={38} />
+            <span className="min-w-0 flex-1">
+              <span className="label-caps block truncate">
+                {SOURCE_LABEL[featured.source]} · {anchorNode.label}
+              </span>
+              <span className="mt-1 block truncate text-[13px] font-medium text-fg">
+                {featured.detail}
+              </span>
+            </span>
+            {anchorMemories.length > 1 && (
+              <span className="shrink-0 rounded-full bg-surface-2 px-2 py-1 text-[11px] font-semibold leading-none text-dim">
+                +{anchorMemories.length - 1}
+              </span>
             )}
           </button>
-        ))}
+        ) : null}
+
+        <button
+          onClick={() => openMemories(null)}
+          className="mt-2 w-full min-h-0 text-center text-[12.5px] font-semibold text-dim"
+        >
+          Ver todas as {memories.length} memórias
+        </button>
       </div>
 
-      <div className="relative">
-        <canvas
-          ref={canvasRef}
-          onClick={handleClick}
-          aria-label="Grafo da vida de Helena"
-          className="h-[340px] w-full rounded-card border border-line-soft bg-surface"
+      {selectedNode && (
+        <NodeSheet
+          node={selectedNode}
+          memories={memoriesAbout(memories, selectedNode.id)}
+          tagsFor={memory =>
+            memoryTags(lifeGraph, memory).filter(tag => tag !== selectedNode.label)
+          }
+          onClose={() => setSelected(null)}
+          onSeeAll={() => openMemories(selectedNode.id)}
         />
-        {growing && freshNode && (
-          <p className="animate-rise pointer-events-none absolute inset-x-3 bottom-3 rounded-card border border-line bg-surface/90 px-3 py-2 text-center text-[0.68rem] leading-snug backdrop-blur-sm">
-            <span className="label-caps text-brand">nova ramificação de aprendizado</span>
-            <span className="mt-0.5 block text-dim">
-              {freshNode.label} entrou no mapa do que ela já alcança
-            </span>
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-3 text-[0.7rem] text-dim">
-        {lens === 'learning' ? (
-          <>
-            <Legend token="--mastery-high" label="diz sozinha" />
-            <Legend token="--mastery-medium" label="precisa de um degrau" />
-            <Legend token="--mastery-low" label="precisa da escada" />
-          </>
-        ) : (
-          <>
-            <Legend token="--accent" label="ela" />
-            <Legend token="--surface-2" label="pessoas, lugares e coisas" />
-          </>
-        )}
-      </div>
-
-      {node && (
-        <div className="animate-rise rounded-card border border-line bg-surface p-4">
-          <span className="label-caps">
-            {node.kind}
-            {node.aliases ? ` · também chamada de ${node.aliases.join(', ')}` : ''}
-          </span>
-          <h3 className="voice mt-1 text-xl">{node.label}</h3>
-          <ul className="mt-3 flex list-none flex-col gap-2 p-0">
-            {edges.flatMap(edge =>
-              edge.provenance.map((p, i) => (
-                <li key={`${edge.id}-${i}`} className="flex gap-2 text-xs leading-relaxed text-dim">
-                  <span className="w-1 shrink-0 rounded-sm bg-line" />
-                  <span>
-                    <b className="font-semibold text-fg">{p.source}</b> · {p.ref} — {p.detail}
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
       )}
-
-      <p className="text-[0.68rem] leading-relaxed text-faint">
-        Toda aresta carrega proveniência. Se o modelo citar uma ligação que não existe no grafo, a
-        resposta inteira é rejeitada — por isso o sistema não consegue inventar uma parente.
-      </p>
     </section>
-  )
-}
-
-function Legend({ token: name, label }: { token: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <i
-        className="block h-[9px] w-[9px] rounded-full border border-line"
-        style={{ background: `var(${name})` }}
-      />
-      {label}
-    </span>
   )
 }

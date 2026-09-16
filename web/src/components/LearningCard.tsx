@@ -30,7 +30,7 @@ export function LearningCard() {
   return (
     <Link
       href="/graph"
-      className="glass animate-rise flex items-center gap-3 rounded-panel px-3 py-3"
+      className="animate-rise flex items-center gap-3 rounded-[18px] bg-surface p-3 shadow-[0_2px_8px_rgba(22,22,22,0.08),0_14px_32px_rgba(22,22,22,0.16)]"
     >
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-soft">
         <svg
@@ -50,18 +50,18 @@ export function LearningCard() {
       </span>
 
       <span className="min-w-0 flex-1">
-        <strong className="block text-sm font-semibold leading-tight text-fg">
+        <strong className="block text-[15px] font-semibold leading-tight text-fg">
           Novo aprendizado
         </strong>
-        <small className="block truncate text-xs leading-tight text-faint">
-          {label} entrou no grafo
+        <small className="mt-1 block truncate text-[13px] leading-tight text-dim">
+          {label} entrou no mapa
         </small>
       </span>
 
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"
-        className="h-4 w-4 shrink-0 text-faint"
+        className="h-4 w-4 shrink-0 text-dim"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"

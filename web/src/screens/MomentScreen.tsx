@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { lifeGraph, useApp } from '@/store'
-import { notifyWatch, patternFor, speak, unlockAudio, vibrate } from '@/channels'
+import { notifyWatch, patternFor, pulse, speak, unlockAudio, vibrate } from '@/channels'
 import { recordEvent } from '@/api/client'
 import type { OrbState } from '@/components/Orb'
 import { AuroraField } from '@/components/AuroraField'
 import { LearningCard } from '@/components/LearningCard'
 import { useListening } from '@/hooks/useListening'
+import { cueFor } from '@/domain/haptics'
+import { speakEntrained, stopEntrainment } from '@/channels/entrain'
 import { broadcastCue } from '@/sync/client'
 import type { HelpLevel, LadderStep, OutputMode } from '@/domain/types'
 
@@ -84,11 +86,21 @@ export function MomentScreen() {
   }, [flash])
 
   const show = useCallback(
-    (text: string, caption: string, isWord: boolean, source: string | null = null) => {
+    (
+      text: string,
+      caption: string,
+      isWord: boolean,
+      source: string | null = null,
+      entrain = false
+    ): boolean => {
       if (output !== 'voice') setFlash({ text, caption, source, isWord, id: performance.now() })
-      if (output !== 'text') speak(text.replace('…', ''), channels, discretion)
+      if (output === 'text') return false
+      const spoken = text.replace('…', '')
+      if (entrain && speakEntrained(spoken, channels, discretion, intensity)) return true
+      speak(spoken, channels, discretion)
+      return false
     },
-    [output, channels, discretion]
+    [output, channels, discretion, intensity]
   )
 
   const share = useCallback(
@@ -100,22 +112,22 @@ export function MomentScreen() {
   )
 
   const deliver = useCallback(() => {
-    vibrate('success', channels, intensity)
-    show(target.label, 'entregue direto — modo conversa', true)
+    const entrained = show(target.label, 'entregue direto — modo conversa', true, null, true)
+    if (!entrained) vibrate('success', channels, intensity)
     void notifyWatch(target.label, 'entregue direto', channels)
     share({ targetId: target.id, level: 0, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
     setResolvedAt(succeed(0))
   }, [channels, intensity, show, target.label, target.id, succeed, share])
 
   const emit = useCallback(
-    (index: number) => {
+    (index: number, silent = false) => {
       const step = useApp.getState().ladder[index]
       if (!step) return
-      vibrate(patternFor(step.level, step.isFinal), channels, intensity)
       const source = step.provenance
         ? `${SOURCE_LABEL[step.provenance.source] ?? step.provenance.source} · ${step.provenance.detail}`
         : null
-      show(step.text, `degrau ${step.level} · ${KIND_LABEL[step.kind]}`, false, source)
+      const entrained = show(step.text, `degrau ${step.level} · ${KIND_LABEL[step.kind]}`, false, source, true)
+      if (!silent && !entrained) vibrate(patternFor(step.level, step.isFinal), channels, intensity)
       void notifyWatch(`Degrau ${step.level}`, step.text, channels)
       const state = useApp.getState()
       share({
@@ -148,9 +160,10 @@ export function MomentScreen() {
     }
 
     if (!useApp.getState().open) {
-      vibrate('confirm', channels, intensity)
+      const signature = cueFor(target.label, useApp.getState().learningFor(target.id), target.phon)
+      const felt = pulse(signature.pattern, channels, intensity, true)
       void start()
-      emit(useApp.getState().level - 1)
+      emit(useApp.getState().level - 1, felt)
       return
     }
 
@@ -158,11 +171,12 @@ export function MomentScreen() {
     if (state.level >= state.ladder.length) return
     advance()
     emit(useApp.getState().level - 1)
-  }, [helpLevel, resolvedAt, deliver, start, advance, emit, channels, intensity])
+  }, [helpLevel, resolvedAt, deliver, start, advance, emit, channels, intensity, target])
 
   const { levelRef, state: listening, start: listen, stop: unlisten } = useListening(trigger)
 
   function handleSuccess() {
+    stopEntrainment()
     vibrate('success', channels, intensity)
     show(target.label, 'quem disse a palavra foi ela', true)
     share({ targetId: target.id, level, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
@@ -170,6 +184,7 @@ export function MomentScreen() {
   }
 
   function handleNext() {
+    stopEntrainment()
     setResolvedAt(null)
     setFlash(null)
     nextScene()
@@ -238,7 +253,14 @@ export function MomentScreen() {
         <AuroraField state={orbState} levelRef={levelRef} />
       </span>
 
-      <div className="relative z-10 px-7 pt-4">
+      <div className="relative z-10 px-7 pt-[calc(22px+env(safe-area-inset-top,0px))]">
+        <span className="flex items-center gap-1.5 text-[19px] font-semibold tracking-[-0.04em] text-fg">
+          <i aria-hidden="true" className="brand-mark" />
+          eilo
+        </span>
+      </div>
+
+      <div className="relative z-10 px-7 pt-5">
         <p className="label-caps">{status}</p>
         <p className="mt-2 max-w-[26ch] text-[19px] leading-snug text-dim">
           {spoken}

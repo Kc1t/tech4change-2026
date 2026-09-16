@@ -5,6 +5,7 @@ import { useApp } from '@/store'
 import { speak, vibrate } from '@/channels'
 import { useRouter } from 'next/navigation'
 import { DENIED_CONSENT, readConsent, writeConsent, type ConsentState } from '@/api/client'
+import { Screen } from '@/components/layout'
 
 const QUESTIONS: Array<{ key: keyof ConsentState; pictogram: string; question: string; explanation: string }> = [
   {
@@ -72,12 +73,12 @@ export function ConsentScreen() {
   }
 
   return (
-    <section className="flex flex-col gap-4 p-5">
+    <Screen className="gap-4">
       <div>
         <p className="label-caps">
           primeiro acesso · pergunta {index + 1} de {QUESTIONS.length}
         </p>
-        <h2 className="voice mt-2 text-xl leading-tight">Quem autoriza é você</h2>
+        <h2 className="voice mt-1.5 text-xl leading-tight">Quem autoriza é você</h2>
         <p className="mt-1 text-xs text-dim">
           Afasia não é incapacidade civil. Nem um curador pode consentir por você sobre saúde e
           privacidade.
@@ -93,7 +94,7 @@ export function ConsentScreen() {
         ))}
       </div>
 
-      <div className="rounded-panel border border-line bg-surface p-6">
+      <div className="rounded-panel bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-6">
         <div className="mb-4 text-[3.4rem] leading-none" aria-hidden="true">
           {question.pictogram}
         </div>
@@ -107,7 +108,7 @@ export function ConsentScreen() {
               discretion
             )
           }
-          className="mt-4 inline-flex items-center gap-2 rounded-full border border-line px-4 py-2.5 text-xs text-dim"
+          className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface px-4 py-2.5 text-xs text-dim"
         >
           🔊 Ouvir a pergunta
         </button>
@@ -116,7 +117,7 @@ export function ConsentScreen() {
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => answer(false)}
-          className="rounded-card border border-line bg-surface px-3 py-4 font-semibold"
+          className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-3 py-4 font-semibold"
         >
           Não
         </button>
@@ -141,6 +142,6 @@ export function ConsentScreen() {
         a LGPD exige quando o titular tem comunicação reduzida. Cada resposta é gravada
         separadamente, porque dizer não a uma não pode desligar as outras.
       </p>
-    </section>
+    </Screen>
   )
 }

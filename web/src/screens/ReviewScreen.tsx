@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { lifeGraph, seeded, useApp } from '@/store'
 import { vibrate } from '@/channels'
 import type { NodeId } from '@/domain/types'
+import { Screen } from '@/components/layout'
 
 const KIND_LABEL: Record<string, string> = {
   person: 'pessoa',
@@ -58,10 +59,10 @@ export function ReviewScreen() {
   }
 
   return (
-    <section className="flex flex-col gap-4 p-5">
+    <Screen className="gap-4">
       <div>
         <p className="label-caps">primeiro acesso · revisão</p>
-        <h2 className="voice mt-2 text-xl leading-tight">Confira o que encontramos</h2>
+        <h2 className="voice mt-1.5 text-xl leading-tight">Confira o que encontramos</h2>
         <p className="mt-1 text-xs text-dim">
           {seeded
             ? 'Estes nós vieram das três respostas que você deu. Confirme ou corrija, uma vez só.'
@@ -131,6 +132,6 @@ export function ReviewScreen() {
           ? 'O que você digitou não passou pelo nosso servidor. Veio no fragmento da URL, que por especificação nunca é enviado — e virou grafo aqui dentro. Abra o DevTools e confira.'
           : 'Esta tela é a única que sabe que o rosto agrupado como “Pessoa 1” é a Letícia. Essa ligação fica no aparelho e não é enviada para lugar nenhum — é justamente o dado que o servidor nunca pode ver.'}
       </p>
-    </section>
+    </Screen>
   )
 }

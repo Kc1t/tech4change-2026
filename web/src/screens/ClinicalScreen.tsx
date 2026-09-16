@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { clinicianSummary } from '@/api/client'
 import { lifeGraph, useApp } from '@/store'
 import type { ClinicianSummary, Mastery } from '@/domain/types'
+import { Screen } from '@/components/layout'
 
 const SIMULATED_AVERAGE = [3.6, 3.4, 3.1, 2.9, 2.5, 2.3, 2.0, 1.8]
 
@@ -155,10 +156,10 @@ export function ClinicalScreen() {
   }, [series.join(',')])
 
   return (
-    <section className="flex flex-col gap-4 p-5">
+    <Screen className="gap-4">
       <div>
         <p className="label-caps">painel do fonoaudiólogo</p>
-        <h2 className="voice mt-2 text-xl leading-tight">
+        <h2 className="voice mt-1.5 text-xl leading-tight">
           Helena
           {live
             ? ` · ${summary.trend.length} ${summary.trend.length === 1 ? 'semana' : 'semanas'}`
@@ -176,7 +177,7 @@ export function ClinicalScreen() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-card border border-line bg-surface p-4">
+        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4">
           <b className="voice tabular block text-xl font-normal">{headline}</b>
           <span className="mt-0.5 block text-[0.68rem] leading-snug text-faint">
             degrau médio até destravar
@@ -187,7 +188,7 @@ export function ClinicalScreen() {
             </span>
           )}
         </div>
-        <div className="rounded-card border border-line bg-surface p-4">
+        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4">
           <b className="voice tabular block text-xl font-normal">{blocks}</b>
           <span className="mt-0.5 block text-[0.68rem] leading-snug text-faint">
             {live ? 'bloqueios registrados fora da sessão' : 'palavras exercitadas neste aparelho'}
@@ -203,7 +204,7 @@ export function ClinicalScreen() {
         <canvas
           ref={canvasRef}
           aria-label="Degrau médio caindo ao longo de oito semanas"
-          className="h-[170px] w-full rounded-card border border-line-soft bg-surface"
+          className="h-[170px] w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)]"
         />
       </div>
 
@@ -249,6 +250,6 @@ export function ClinicalScreen() {
         O indicador de sucesso é o degrau médio <em>caindo</em>. É uma ferramenta feita para deixar
         de ser necessária.
       </p>
-    </section>
+    </Screen>
   )
 }

@@ -12,7 +12,7 @@
   --line-soft: #e4e4df;
   --fg: #161616;
   --dim: #4a4a48;
-  --faint: #9a9a98;
+  --faint: #6f6f6c;
   --label: #6b6b68;
 
   --brand: #bf3f63;
@@ -29,6 +29,21 @@
 
   --glass: rgba(255, 255, 255, 0.55);
   --glass-line: rgba(255, 255, 255, 0.5);
+
+  --kind-person: #e2d6f3;
+  --kind-person-ink: #4a3566;
+  --kind-place: #d3e8d8;
+  --kind-place-ink: #2d5340;
+  --kind-object: #f7e0c6;
+  --kind-object-ink: #6b4522;
+  --kind-event: #f9d9cf;
+  --kind-event-ink: #71382a;
+  --kind-animal: #d5e2f2;
+  --kind-animal-ink: #2f4665;
+
+  --delta-up: #5145cd;
+  --delta-note: #b07708;
+  --delta-down: #b03a4e;
 
   --mastery-high: #2f7a5c;
   --mastery-medium: #a06210;

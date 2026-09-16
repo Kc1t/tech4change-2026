@@ -21,17 +21,26 @@ export function patternFor(level: number, isFinal: boolean): PatternName {
   return 'level1'
 }
 
-export function vibrate(name: PatternName, channels: ChannelState, intensity: number): boolean {
+export function pulse(
+  pattern: readonly number[],
+  channels: ChannelState,
+  intensity: number,
+  soft = false
+): boolean {
   if (!channels.phone) return false
-  const scale = 0.5 + intensity * 0.2
-  const pattern = PATTERNS[name].map((ms, i) => (i % 2 === 0 ? Math.round(ms * scale) : ms))
   if (!canVibrate) return false
+  const scale = soft ? 0.34 + intensity * 0.14 : 0.5 + intensity * 0.2
+  const scaled = pattern.map((ms, i) => (i % 2 === 0 ? Math.max(12, Math.round(ms * scale)) : ms))
   try {
-    navigator.vibrate(pattern)
+    navigator.vibrate(scaled)
     return true
   } catch {
     return false
   }
+}
+
+export function vibrate(name: PatternName, channels: ChannelState, intensity: number): boolean {
+  return pulse(PATTERNS[name], channels, intensity)
 }
 
 let voice: SpeechSynthesisVoice | null = null
@@ -48,18 +57,26 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   speechSynthesis.addEventListener('voiceschanged', loadVoice)
 }
 
+export function canSpeak(channels: ChannelState, discretion: DiscretionMode): boolean {
+  if (!channels.earbuds && discretion !== 'home') return false
+  return typeof window !== 'undefined' && 'speechSynthesis' in window
+}
+
+export function utteranceFor(text: string, discretion: DiscretionMode): SpeechSynthesisUtterance {
+  const utterance = new SpeechSynthesisUtterance(text)
+  if (voice) utterance.voice = voice
+  utterance.lang = 'pt-BR'
+  utterance.rate = 0.88
+  utterance.pitch = 0.95
+  utterance.volume = discretion === 'home' ? 1 : 0.85
+  return utterance
+}
+
 export function speak(text: string, channels: ChannelState, discretion: DiscretionMode) {
-  if (!channels.earbuds && discretion !== 'home') return
-  if (!('speechSynthesis' in window)) return
+  if (!canSpeak(channels, discretion)) return
   try {
     speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    if (voice) utterance.voice = voice
-    utterance.lang = 'pt-BR'
-    utterance.rate = 0.88
-    utterance.pitch = 0.95
-    utterance.volume = discretion === 'home' ? 1 : 0.85
-    speechSynthesis.speak(utterance)
+    speechSynthesis.speak(utteranceFor(text, discretion))
   } catch {
     return
   }

@@ -14,7 +14,11 @@ const WATCH_MESSAGE: Record<WatchOutcome, string> = {
 }
 import { RowButton, SegmentedControl, Switch } from '@/components/Controls'
 import { SyncPanel } from '@/components/SyncPanel'
+import { HapticWords } from '@/components/HapticWords'
 import type { ChannelState, DiscretionMode } from '@/domain/types'
+import { Screen } from '@/components/layout'
+import Link from 'next/link'
+import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 
 const DEVICES: Array<{
   key: keyof ChannelState
@@ -57,6 +61,7 @@ export function BodyScreen() {
   const setIntensity = useApp(s => s.setIntensity)
 
   const [watchResult, setWatchResult] = useState<string | null>(null)
+  const { available: installable, install } = useInstallPrompt()
 
   async function testWatch() {
     const outcome = await notifyWatch(
@@ -68,10 +73,10 @@ export function BodyScreen() {
   }
 
   return (
-    <section className="flex flex-col gap-4 p-5">
+    <Screen className="gap-4">
       <div>
         <p className="label-caps">aparelhos conectados</p>
-        <h2 className="voice mt-2 text-xl leading-tight">Os seus aparelhos, na mesma sessão</h2>
+        <h2 className="voice mt-1.5 text-xl leading-tight">Os seus aparelhos, na mesma sessão</h2>
         <p className="mt-1 text-xs text-dim">
           Um código de quatro dígitos liga celular e relógio. A dica chega nos dois ao mesmo tempo.
         </p>
@@ -81,7 +86,7 @@ export function BodyScreen() {
 
       <div className="mt-2">
         <p className="label-caps">os canais</p>
-        <h2 className="voice mt-2 text-xl leading-tight">Como a ajuda chega até você</h2>
+        <h2 className="voice mt-1.5 text-xl leading-tight">Como a ajuda chega até você</h2>
         <p className="mt-1 text-xs text-dim">
           Nenhum canal é confiável sozinho. Ligue os que funcionam para você.
         </p>
@@ -91,7 +96,7 @@ export function BodyScreen() {
         {DEVICES.map(device => (
           <div
             key={device.key}
-            className="flex items-start gap-3 rounded-card border border-line bg-surface p-4"
+            className="flex items-start gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4"
           >
             <div className="min-w-0 flex-1">
               <h3 className="text-base font-semibold">{device.name}</h3>
@@ -109,7 +114,7 @@ export function BodyScreen() {
           </div>
         ))}
 
-        <div className="flex items-start gap-3 rounded-card border border-line bg-surface p-4 opacity-55">
+        <div className="flex items-start gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4 opacity-55">
           <div className="min-w-0 flex-1">
             <h3 className="text-base font-semibold">
               Anel{' '}
@@ -146,6 +151,18 @@ export function BodyScreen() {
         />
       </div>
 
+      <div className="mt-2">
+        <p className="label-caps">o relógio da dica</p>
+        <h2 className="voice mt-1.5 text-xl leading-tight">A vibração marca o tempo, não a palavra</h2>
+        <p className="mt-1 text-xs text-dim">
+          Ela abre a janela em que vale a pena tentar e depois bate junto com as sílabas que o fone
+          diz — é o mesmo compasso, do aviso até a dica. Quanto mais a palavra trava, mais longo é o
+          aviso. Toque para sentir.
+        </p>
+      </div>
+
+      <HapticWords />
+
       <div className="flex flex-col gap-2.5">
         <RowButton onClick={() => vibrate('level3', channels, intensity)}>Sentir agora</RowButton>
         <RowButton onClick={testWatch}>
@@ -157,6 +174,54 @@ export function BodyScreen() {
         Esta tela também é o controle de privacidade. O que estiver desligado aqui não é usado, e
         nenhum áudio sai do aparelho até você tocar em Travei.
       </p>
-    </section>
+
+      <div className="mt-2">
+        <p className="label-caps">o resto do aplicativo</p>
+        <h2 className="voice mt-1.5 text-xl leading-tight">Onde ficam as outras telas</h2>
+      </div>
+
+      <div className="flex flex-col gap-2.5">
+        <Link
+          href="/consent"
+          className="flex min-h-tap items-center justify-between rounded-[18px] bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 text-[14px] font-semibold text-fg"
+        >
+          Primeiro acesso
+          <Chevron />
+        </Link>
+        <Link
+          href="/clinical"
+          className="flex min-h-tap items-center justify-between rounded-[18px] bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 text-[14px] font-semibold text-fg"
+        >
+          Painel do fonoaudiólogo
+          <Chevron />
+        </Link>
+        {installable && (
+          <button
+            onClick={() => void install()}
+            className="flex min-h-tap items-center justify-between rounded-[18px] bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 text-left text-[14px] font-semibold text-brand"
+          >
+            Instalar no celular
+            <Chevron />
+          </button>
+        )}
+      </div>
+    </Screen>
+  )
+}
+
+function Chevron() {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      aria-hidden="true"
+      className="size-4 shrink-0 text-faint"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m7.5 4.5 5.5 5.5-5.5 5.5" />
+    </svg>
   )
 }
