@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  subject    String
+  targetId   String
+  event      String
+  level      Int
+  origin     String
+  channel    String
+  elapsedMs  Int
+  occurredAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([subject, occurredAt])
+}
+
+model CuePlanCache {
+  id             String   @id @default(cuid())
+  projectionHash String
+  targetId       String
+  plan           Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([projectionHash, targetId])
+}
+
+model ConsentRecord {
+  subject   String   @id
+  listening Boolean  @default(false)
+  photos    Boolean  @default(false)
+  clinician Boolean  @default(false)
+  research  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
