@@ -236,14 +236,14 @@ export function MomentScreen() {
     <section className="relative flex h-full flex-col overflow-hidden">
       <span
         aria-hidden="true"
-        className="absolute bottom-[-64%] left-1/2 aspect-square w-[200%] -translate-x-1/2"
+        className="absolute bottom-[-46%] left-1/2 aspect-square w-[200%] -translate-x-1/2"
       >
         <Orb state={orbState} levelRef={levelRef} />
       </span>
 
       <div className="relative z-10 px-7 pt-4">
         <p className="label-caps">{status}</p>
-        <p className="mt-2 max-w-[26ch] text-[17px] leading-snug text-dim">
+        <p className="mt-2 max-w-[26ch] text-[19px] leading-snug text-dim">
           {spoken}
           {armed && (
             <span
@@ -270,7 +270,7 @@ export function MomentScreen() {
         <span
           key={flash?.id ?? (resolved ? 'resolved' : 'waiting')}
           className={[
-            'voice mt-3 max-w-[13ch] text-[34px] leading-[1.04]',
+            'voice mt-4 max-w-[11ch] text-[46px] leading-[1.02]',
             expectedKind === 'word'
               ? 'animate-reveal text-brand'
               : expectedKind === 'cue'
@@ -282,20 +282,20 @@ export function MomentScreen() {
         </span>
 
         {flash?.source && (
-          <span className="mt-3 max-w-[30ch] text-[0.7rem] leading-snug text-faint">
+          <span className="mt-4 max-w-[32ch] text-[0.82rem] leading-snug text-faint">
             {flash.source}
           </span>
         )}
 
         {resolved && (
-          <span className="mt-3 max-w-[28ch] text-xs leading-snug text-dim">
+          <span className="mt-4 max-w-[30ch] text-[0.95rem] leading-snug text-dim">
             Em {resolvedAt} {resolvedAt === 1 ? 'degrau' : 'degraus'}. Da próxima vez a dica começa
             mais longe.
           </span>
         )}
 
         {!flash && !resolved && (
-          <span className="mt-3 max-w-[28ch] text-xs leading-snug text-faint">
+          <span className="mt-4 max-w-[30ch] text-[0.95rem] leading-snug text-faint">
             {armed
               ? 'Toque quando ela não vier.'
               : 'Toque para eu começar a acompanhar. Nada é gravado em disco.'}
@@ -329,7 +329,7 @@ export function MomentScreen() {
         </div>
       )}
 
-      <div className="relative z-10 mt-2 pb-[96px]">
+      <div className="relative z-10 shrink-0 pb-[92px]">
         <SpeechWave live={armed} levelRef={levelRef} />
       </div>
     </section>
