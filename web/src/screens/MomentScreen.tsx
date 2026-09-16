@@ -12,6 +12,7 @@ import { cueFor } from '@/domain/haptics'
 import { speakEntrained, stopEntrainment } from '@/channels/entrain'
 import { broadcastCue } from '@/sync/client'
 import type { HelpLevel, LadderStep, OutputMode } from '@/domain/types'
+import { BrandMark, NotificationBell, TopBar } from '@/components/layout'
 
 const HELP_OPTIONS: Array<{ value: HelpLevel; label: string; hint: string }> = [
   { value: 'deliver', label: 'Entrega', hint: 'diz a palavra' },
@@ -253,14 +254,11 @@ export function MomentScreen() {
         <AuroraField state={orbState} levelRef={levelRef} />
       </span>
 
-      <div className="relative z-10 px-7 pt-[calc(22px+env(safe-area-inset-top,0px))]">
-        <span className="flex items-center gap-1.5 text-[19px] font-semibold tracking-[-0.04em] text-fg">
-          <i aria-hidden="true" className="brand-mark" />
-          eilo
-        </span>
+      <div className="relative z-10 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
+        <TopBar left={<BrandMark />} right={<NotificationBell />} />
       </div>
 
-      <div className="relative z-10 px-7 pt-5">
+      <div className="relative z-10 px-7 pt-3">
         <p className="label-caps">{status}</p>
         <p className="mt-2 max-w-[26ch] text-[19px] leading-snug text-dim">
           {spoken}

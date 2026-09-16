@@ -183,6 +183,14 @@
   50.01%, 100% { opacity: 0; }
 }
 
+@keyframes orb-glow {
+  0% { background-position: 28% 22%; }
+  25% { background-position: 68% 30%; }
+  50% { background-position: 74% 70%; }
+  75% { background-position: 34% 76%; }
+  100% { background-position: 28% 22%; }
+}
+
 @keyframes drift {
   to { transform: translate(12%, -8%) scale(1.15); }
 }

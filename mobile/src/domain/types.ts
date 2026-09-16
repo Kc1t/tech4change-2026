@@ -78,6 +78,13 @@ export interface LearningState {
   mastery: Mastery
 }
 
+export interface Resolution {
+  at: string
+  targetId: NodeId
+  level: number
+  rungs: number
+}
+
 export type DiscretionMode = 'discreet' | 'normal' | 'home'
 
 export type HelpLevel = 'deliver' | 'hint' | 'ladder'

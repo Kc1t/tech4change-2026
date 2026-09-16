@@ -1,3 +1,8 @@
+'use client'
+
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useApp } from '@/store'
 import { cn } from '@/lib/utils'
 
 export function Screen({
@@ -12,7 +17,7 @@ export function Screen({
   return (
     <section
       className={cn(
-        'relative flex h-full flex-col px-7 pb-[104px] pt-[calc(22px+env(safe-area-inset-top,0px))]',
+        'relative flex h-full flex-col px-7 pb-[104px] pt-[calc(10px+env(safe-area-inset-top,0px))]',
         scroll ? 'overflow-y-auto' : 'overflow-hidden',
         className
       )}
@@ -104,5 +109,93 @@ export function Sparkle({ muted = false }: { muted?: boolean }) {
       <path d="M12 3v18m9-9H3" />
       <path d="M18.364 5.636 5.636 18.364m12.728 0L5.636 5.636" opacity="0.5" />
     </svg>
+  )
+}
+
+export function TopBar({
+  left,
+  right,
+  className
+}: {
+  left?: React.ReactNode
+  right?: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('flex h-11 shrink-0 items-center justify-between', className)}>
+      <div className="flex min-w-0 items-center">{left}</div>
+      <div className="flex shrink-0 items-center gap-1">{right}</div>
+    </div>
+  )
+}
+
+export function BrandMark() {
+  return (
+    <span className="flex items-center gap-1.5 text-[18px] font-semibold tracking-[-0.04em] text-fg">
+      <i aria-hidden="true" className="brand-mark" />
+      eilo
+    </span>
+  )
+}
+
+export function BackButton({ label = 'Voltar' }: { label?: string }) {
+  const router = useRouter()
+
+  return (
+    <button
+      onClick={() => router.back()}
+      className="-ml-2 flex min-h-0 items-center gap-1 py-2 pl-2 pr-3 text-[14px] font-semibold text-dim"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        aria-hidden="true"
+        className="size-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M12 4.5 6.5 10l5.5 5.5" />
+      </svg>
+      {label}
+    </button>
+  )
+}
+
+export function NotificationBell() {
+  const unseen = useApp(s => s.unseenLearning)
+  const count = unseen.length
+
+  return (
+    <Link
+      href="/graph"
+      aria-label={
+        count > 0
+          ? `${count} ${count === 1 ? 'palavra nova' : 'palavras novas'} no mapa`
+          : 'Nada novo no mapa'
+      }
+      className="relative grid size-11 place-items-center rounded-full text-dim transition-colors active:bg-surface-2"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        className="size-[21px]"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M18 8.6a6 6 0 1 0-12 0c0 4.2-1.4 5.6-2 6.3-.3.4 0 1 .5 1h15c.5 0 .8-.6.5-1-.6-.7-2-2.1-2-6.3Z" />
+        <path d="M10.2 19.4a2.1 2.1 0 0 0 3.6 0" />
+      </svg>
+
+      {count > 0 && (
+        <span className="absolute right-[9px] top-[9px] grid min-w-[17px] place-items-center rounded-full bg-brand px-1 text-[10px] font-bold leading-[17px] text-brand-ink ring-2 ring-ink">
+          {count > 9 ? '9+' : count}
+        </span>
+      )}
+    </Link>
   )
 }

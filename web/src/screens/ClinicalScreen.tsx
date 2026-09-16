@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { clinicianSummary } from '@/api/client'
 import { lifeGraph, useApp } from '@/store'
 import type { ClinicianSummary, Mastery } from '@/domain/types'
-import { Screen } from '@/components/layout'
+import { BackButton, Screen, TopBar } from '@/components/layout'
 
 const SIMULATED_AVERAGE = [3.6, 3.4, 3.1, 2.9, 2.5, 2.3, 2.0, 1.8]
 
@@ -157,6 +157,7 @@ export function ClinicalScreen() {
 
   return (
     <Screen className="gap-4">
+      <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">painel do fonoaudiólogo</p>
         <h2 className="voice mt-1.5 text-xl leading-tight">

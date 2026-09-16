@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { NodeSheet } from '@/components/graph/NodeSheet'
 import { SOURCE_LABEL, SourceMark } from '@/components/graph/SourceMark'
 import { WordCloud, type CloudWord } from '@/components/graph/WordCloud'
-import { ScreenHeader } from '@/components/layout'
+import { BrandMark, ScreenHeader, TopBar } from '@/components/layout'
 import { memoriesAbout, memoriesOf, memoryTags } from '@/domain/memories'
 import { lifeGraph, useApp } from '@/store'
 import type { NodeId } from '@/domain/types'
@@ -18,6 +18,7 @@ export function GraphScreen() {
   const router = useRouter()
   const learning = useApp(s => s.learning)
   const setMemoryFilter = useApp(s => s.setMemoryFilter)
+  const markLearningSeen = useApp(s => s.markLearningSeen)
   const [lens, setLens] = useState<Lens>('life')
   const [selected, setSelected] = useState<NodeId | null>(null)
 
@@ -51,6 +52,10 @@ export function GraphScreen() {
 
     return best?.id ?? null
   }, [learning])
+
+  useEffect(() => {
+    markLearningSeen()
+  }, [markLearningSeen])
 
   const [announce, setAnnounce] = useState<NodeId | null>(null)
 
@@ -90,7 +95,30 @@ export function GraphScreen() {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden">
-      <div className="shrink-0 px-7 pt-[calc(22px+env(safe-area-inset-top,0px))]">
+      <div className="shrink-0 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
+        <TopBar
+          left={<BrandMark />}
+          right={
+            <div className="flex gap-0.5 rounded-full bg-surface-2 p-1">
+              {(['life', 'learning'] as Lens[]).map(option => (
+                <button
+                  key={option}
+                  onClick={() => setLens(option)}
+                  className={[
+                    'min-h-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
+                    option === lens ? 'bg-surface text-fg shadow-soft' : 'text-dim'
+                  ].join(' ')}
+                >
+                  {option === 'life' ? 'Vida' : 'Aprendizado'}
+                  {option === 'learning' && fresh && (
+                    <i className="ml-1 inline-block size-1.5 rounded-full bg-brand align-middle" />
+                  )}
+                </button>
+              ))}
+            </div>
+          }
+        />
+
         <ScreenHeader
           label="a vida dela"
           title="Como tudo se conecta"
@@ -110,23 +138,6 @@ export function GraphScreen() {
           onPick={setSelected}
         />
 
-        <div className="glass absolute right-7 top-7 flex gap-0.5 rounded-full p-1">
-          {(['life', 'learning'] as Lens[]).map(option => (
-            <button
-              key={option}
-              onClick={() => setLens(option)}
-              className={[
-                'min-h-0 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors',
-                option === lens ? 'bg-surface text-fg shadow-soft' : 'text-dim'
-              ].join(' ')}
-            >
-              {option === 'life' ? 'Vida' : 'Aprendizado'}
-              {option === 'learning' && fresh && (
-                <i className="ml-1 inline-block size-1.5 rounded-full bg-brand align-middle" />
-              )}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="shrink-0 px-7 pb-[96px] pt-3">

@@ -16,7 +16,7 @@ import { RowButton, SegmentedControl, Switch } from '@/components/Controls'
 import { SyncPanel } from '@/components/SyncPanel'
 import { HapticWords } from '@/components/HapticWords'
 import type { ChannelState, DiscretionMode } from '@/domain/types'
-import { Screen } from '@/components/layout'
+import { BrandMark, NotificationBell, Screen, TopBar } from '@/components/layout'
 import Link from 'next/link'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 
@@ -74,6 +74,7 @@ export function BodyScreen() {
 
   return (
     <Screen className="gap-4">
+      <TopBar left={<BrandMark />} right={<NotificationBell />} />
       <div>
         <p className="label-caps">aparelhos conectados</p>
         <h2 className="voice mt-1.5 text-xl leading-tight">Os seus aparelhos, na mesma sessão</h2>

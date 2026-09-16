@@ -103,6 +103,7 @@ interface AppState {
   lastCue: CuePayload | null
   learning: Record<NodeId, LearningState>
   history: Resolution[]
+  unseenLearning: NodeId[]
   demo: boolean
   cueRequest: number
   memoryFilter: NodeId | null
@@ -114,6 +115,7 @@ interface AppState {
   setMemoryFilter: (id: NodeId | null) => void
   loadDemo: () => void
   clearDemo: () => void
+  markLearningSeen: () => void
 
   start: () => Promise<void>
   advance: () => void
@@ -151,6 +153,7 @@ export const useApp = create<AppState>()(
       lastCue: null,
       learning: {},
       history: [],
+      unseenLearning: [],
       demo: false,
       cueRequest: 0,
       memoryFilter: null,
@@ -182,7 +185,9 @@ export const useApp = create<AppState>()(
         set({ history, learning, demo: true })
       },
 
-      clearDemo: () => set({ history: [], learning: {}, demo: false }),
+      clearDemo: () => set({ history: [], learning: {}, unseenLearning: [], demo: false }),
+
+      markLearningSeen: () => set({ unseenLearning: [] }),
 
       start: async () => {
         const targetId = get().target()
@@ -245,9 +250,14 @@ export const useApp = create<AppState>()(
         })
 
         const at = new Date().toISOString()
+        const isNew = learning[targetId] === undefined
 
         set(state => ({
           open: false,
+          unseenLearning:
+            isNew && !state.unseenLearning.includes(targetId)
+              ? [...state.unseenLearning, targetId]
+              : state.unseenLearning,
           history: [...state.history, { at, targetId, level, rungs: ladder.length }].slice(
             -HISTORY_CAP
           ),
@@ -301,6 +311,7 @@ export const useApp = create<AppState>()(
       partialize: state => ({
         learning: state.learning,
         history: state.history,
+        unseenLearning: state.unseenLearning,
         demo: state.demo,
         channels: state.channels,
         discretion: state.discretion,

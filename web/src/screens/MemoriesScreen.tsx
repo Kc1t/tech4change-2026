@@ -1,14 +1,12 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { MemoryRow } from '@/components/graph/MemoryRow'
-import { ScreenHeader } from '@/components/layout'
+import { BackButton, ScreenHeader, TopBar } from '@/components/layout'
 import { memoriesAbout, memoriesOf, memoryTags } from '@/domain/memories'
 import { lifeGraph, useApp } from '@/store'
 
 export function MemoriesScreen() {
-  const router = useRouter()
   const filter = useApp(s => s.memoryFilter)
   const setMemoryFilter = useApp(s => s.setMemoryFilter)
 
@@ -18,25 +16,8 @@ export function MemoriesScreen() {
 
   return (
     <section className="flex h-full flex-col overflow-hidden">
-      <div className="shrink-0 px-7 pt-[calc(16px+env(safe-area-inset-top,0px))]">
-        <button
-          onClick={() => router.back()}
-          className="-ml-2 flex min-h-0 items-center gap-1 py-2 pl-2 pr-3 text-[13px] font-semibold text-dim"
-        >
-          <svg
-            viewBox="0 0 20 20"
-            aria-hidden="true"
-            className="size-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 4.5 6.5 10l5.5 5.5" />
-          </svg>
-          Voltar
-        </button>
+      <div className="shrink-0 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
+        <TopBar left={<BackButton />} />
 
         <ScreenHeader
           label="as memórias"

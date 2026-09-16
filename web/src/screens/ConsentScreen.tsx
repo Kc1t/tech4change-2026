@@ -5,7 +5,7 @@ import { useApp } from '@/store'
 import { speak, vibrate } from '@/channels'
 import { useRouter } from 'next/navigation'
 import { DENIED_CONSENT, readConsent, writeConsent, type ConsentState } from '@/api/client'
-import { Screen } from '@/components/layout'
+import { BackButton, Screen, TopBar } from '@/components/layout'
 
 const QUESTIONS: Array<{ key: keyof ConsentState; pictogram: string; question: string; explanation: string }> = [
   {
@@ -74,6 +74,7 @@ export function ConsentScreen() {
 
   return (
     <Screen className="gap-4">
+      <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">
           primeiro acesso · pergunta {index + 1} de {QUESTIONS.length}

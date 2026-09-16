@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { lifeGraph, seeded, useApp } from '@/store'
 import { vibrate } from '@/channels'
 import type { NodeId } from '@/domain/types'
-import { Screen } from '@/components/layout'
+import { BackButton, Screen, TopBar } from '@/components/layout'
 
 const KIND_LABEL: Record<string, string> = {
   person: 'pessoa',
@@ -60,6 +60,7 @@ export function ReviewScreen() {
 
   return (
     <Screen className="gap-4">
+      <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">primeiro acesso · revisão</p>
         <h2 className="voice mt-1.5 text-xl leading-tight">Confira o que encontramos</h2>

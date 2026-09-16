@@ -2,7 +2,15 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
-import { Insight, Screen, ScreenHeader, Sparkle } from '@/components/layout'
+import {
+  BrandMark,
+  Insight,
+  NotificationBell,
+  Screen,
+  ScreenHeader,
+  Sparkle,
+  TopBar
+} from '@/components/layout'
 import { Gauge } from '@/components/progress/Gauge'
 import { StatCard } from '@/components/progress/StatCard'
 import { TrendSky } from '@/components/progress/TrendSky'
@@ -55,6 +63,7 @@ export function ProgressScreen() {
   if (progress.attempts === 0) {
     return (
       <Screen scroll={false}>
+        <TopBar left={<BrandMark />} right={<NotificationBell />} />
         <ScreenHeader
           label="o progresso"
           title="Ainda não há nada para mostrar"
@@ -94,6 +103,7 @@ export function ProgressScreen() {
       />
 
       <div className="relative px-7">
+        <TopBar left={<BrandMark />} right={<NotificationBell />} />
         <ScreenHeader label="o progresso" title="Quanto ela já alcança sozinha" />
       </div>
 

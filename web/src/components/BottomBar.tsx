@@ -6,11 +6,15 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useApp } from '@/store'
 
 const LEFT = [
-  { href: '/', label: 'Momento', path: 'M4 11.2 12 4.6l8 6.6M6.6 10.2V19h10.8v-8.8' },
   {
     href: '/graph',
     label: 'Grafo',
     path: 'M9 8.6a2.4 2.4 0 1 0-4.8 0 2.4 2.4 0 0 0 4.8 0ZM19.8 8.6a2.4 2.4 0 1 0-4.8 0 2.4 2.4 0 0 0 4.8 0ZM3 19c0-2.4 1.9-3.8 4.2-3.8S11.4 16.6 11.4 19M13 19c0-2.4 1.9-3.8 4.2-3.8S21.4 16.6 21.4 19'
+  },
+  {
+    href: '/memories',
+    label: 'Memórias',
+    path: 'M7 4.6h10a1.6 1.6 0 0 1 1.6 1.6v13.2L12 16.4l-6.6 3V6.2A1.6 1.6 0 0 1 7 4.6Z'
   }
 ]
 
@@ -30,7 +34,7 @@ export function BottomBar() {
   const open = useApp(s => s.open)
 
   const tabRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
-  const [pill, setPill] = useState<{ left: number; width: number } | null>(null)
+  const [pill, setPill] = useState<{ left: number; top: number; width: number } | null>(null)
   const [ready, setReady] = useState(false)
 
   useLayoutEffect(() => {
@@ -40,7 +44,7 @@ export function BottomBar() {
         setPill(null)
         return
       }
-      setPill({ left: active.offsetLeft, width: active.offsetWidth })
+      setPill({ left: active.offsetLeft, top: active.offsetTop, width: active.offsetWidth })
     }
 
     place()
@@ -53,8 +57,13 @@ export function BottomBar() {
     return () => cancelAnimationFrame(frame)
   }, [])
 
-  function handleCue() {
-    if (pathname !== '/') router.push('/')
+  const atHome = pathname === '/'
+
+  function handleHome() {
+    if (!atHome) {
+      router.push('/')
+      return
+    }
     requestCue()
   }
 
@@ -64,9 +73,9 @@ export function BottomBar() {
         {pill && (
           <span
             aria-hidden="true"
-            style={{ left: pill.left, width: pill.width }}
+            style={{ left: pill.left, top: pill.top, width: pill.width, height: pill.width }}
             className={[
-              'absolute top-2 h-11 rounded-full bg-fg',
+              'absolute rounded-full bg-fg',
               ready
                 ? 'transition-[left,width] duration-[420ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
                 : ''
@@ -79,14 +88,29 @@ export function BottomBar() {
         ))}
 
         <div className="grid flex-1 place-items-center">
+          <span className="rounded-full shadow-[0_6px_20px_rgba(216,87,124,0.4)]">
           <button
-            onClick={handleCue}
-            aria-label={open ? 'Travou — pedir o próximo degrau' : 'Pedir uma dica agora'}
-            className="relative z-10 grid h-[52px] w-[52px] min-h-0 place-items-center rounded-full transition-transform active:scale-95"
+            onClick={handleHome}
+            aria-current={atHome ? 'page' : undefined}
+            aria-label={
+              atHome
+                ? open
+                  ? 'Travou — pedir o próximo degrau'
+                  : 'Pedir uma dica agora'
+                : 'Ir para o Momento'
+            }
+            className="relative z-10 grid h-[52px] w-[52px] min-h-0 place-items-center overflow-hidden rounded-full transition-transform active:scale-95"
           >
-            <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_32%_28%,var(--aurora-4),var(--aurora-1)_46%,var(--aurora-2)_80%,var(--aurora-3))] shadow-[0_6px_20px_rgba(216,87,124,0.42)]" />
-            <span className="absolute inset-[3px] rounded-full bg-[radial-gradient(circle_at_34%_28%,rgba(255,255,255,0.6),transparent_58%)]" />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full bg-[radial-gradient(circle,var(--aurora-4)_0%,var(--aurora-1)_30%,var(--aurora-2)_60%,var(--aurora-3)_100%)] bg-[length:230%_230%] [animation:orb-glow_14s_ease-in-out_infinite]"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_33%_26%,rgba(255,255,255,0.68),transparent_36%)]"
+            />
           </button>
+          </span>
         </div>
 
         {RIGHT.map(tab => (

@@ -1,7 +1,4 @@
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import { ArrowRight } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   NavigationMenu,
@@ -18,14 +15,7 @@ const NAV = [
   { label: 'blog', href: '#blog' }
 ]
 
-function device(file: string) {
-  return existsSync(join(process.cwd(), 'public', 'devices', file))
-}
-
 export function Hero() {
-  const hasWatch = device('watch.webp')
-  const hasAirpods = device('airpods.webp')
-
   return (
     <section className="v2 relative isolate flex min-h-dvh flex-col overflow-hidden">
       <img
@@ -36,59 +26,50 @@ export function Hero() {
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-white/72 via-white/34 to-white" />
 
-      <header className="relative z-30 flex items-center gap-6 px-6 py-5 sm:px-10">
-        <a
-          href="/v2"
-          className="flex items-baseline gap-2 text-[1.4rem] font-bold tracking-[-0.045em] lowercase"
-        >
-          <i aria-hidden="true" className="brand-mark translate-y-[-1px]" />
-          eilo
-        </a>
-
-        <NavigationMenu className="mx-auto hidden md:flex">
-          <NavigationMenuList className="gap-2">
-            {NAV.map(item => (
-              <NavigationMenuItem key={item.href}>
-                <NavigationMenuLink
-                  href={item.href}
-                  className="rounded-full bg-transparent px-4 py-2 text-[0.92rem] font-medium text-[var(--v2-dim)] transition-colors hover:bg-white/60 hover:text-[var(--v2-ink)] focus:bg-white/60"
-                >
-                  {item.label}
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
-
-        <Button
-          asChild
-          size="lg"
-          className="ml-auto rounded-full bg-[#191721] px-6 text-white shadow-[0_12px_28px_-14px_rgba(25,23,33,0.9)] hover:bg-[#2b2734] md:ml-0"
-        >
-          <a href="#baixar">
-            Baixar o app
-            <ArrowRight className="size-4" />
+      <header className="sticky top-4 z-50 px-4">
+        <div className="v2-nav mx-auto flex max-w-4xl items-center gap-1 rounded-full py-2 pr-2 pl-5">
+          <a
+            href="/v2"
+            className="mr-3 flex shrink-0 items-baseline gap-1.5 text-[1.15rem] font-bold tracking-[-0.045em] lowercase"
+          >
+            <i aria-hidden="true" className="brand-mark translate-y-[-1px]" />
+            eilo
           </a>
-        </Button>
+
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList className="gap-0.5">
+              {NAV.map(item => (
+                <NavigationMenuItem key={item.href}>
+                  <NavigationMenuLink
+                    href={item.href}
+                    className="rounded-full bg-transparent px-3.5 py-2 text-[0.88rem] font-medium whitespace-nowrap text-[var(--v2-dim)] transition-colors hover:bg-[var(--v2-ink)]/6 hover:text-[var(--v2-ink)] focus:bg-[var(--v2-ink)]/6"
+                  >
+                    {item.label}
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          <Button
+            asChild
+            className="ml-auto h-10 rounded-full bg-[#191721] px-5 text-[0.88rem] text-white shadow-[0_10px_24px_-14px_rgba(25,23,33,0.9)] hover:bg-[#2b2734]"
+          >
+            <a href="#baixar">
+              Baixar o app
+              <ArrowRight className="size-3.5" />
+            </a>
+          </Button>
+        </div>
       </header>
 
-      <div className="relative z-20 mx-auto mt-2 max-w-3xl px-6 text-center">
-        <Badge
-          variant="secondary"
-          className="v2-pill gap-2 rounded-full border-0 px-4 py-1.5 text-[0.66rem] font-semibold tracking-[0.16em] text-[var(--v2-dim)] uppercase"
-        >
-          <i aria-hidden="true" className="block size-1.5 rounded-full bg-[var(--v2-purple)]" />
-          mais presença no seu dia
-        </Badge>
-
-        <h1 className="mt-6 text-[clamp(2.1rem,4.9vw,3.6rem)] leading-[1.06] font-medium tracking-[-0.045em] text-balance">
-          Ele sabe qual
-          <br />é a palavra.
-          <br />
-          <span className="v2-gradient-text">E não diz.</span>
+      <div className="relative z-20 mx-auto mt-12 max-w-3xl px-6 text-center">
+        <h1 className="text-[clamp(2.3rem,5.4vw,4.1rem)] leading-[1.03] font-extrabold tracking-[-0.055em] text-balance">
+          Ele sabe qual é a palavra.
+          <br />E não diz.
         </h1>
 
-        <p className="mx-auto mt-5 max-w-lg text-[1.02rem] leading-relaxed text-[var(--v2-dim)] text-balance">
+        <p className="mx-auto mt-5 max-w-md text-[0.96rem] leading-relaxed font-normal text-[var(--v2-dim)] text-balance">
           O eilo acompanha, entende e ajuda a pessoa com afasia no dia a dia — pela fala, no
           celular, no relógio ou nos fones.
         </p>
@@ -108,7 +89,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="relative z-10 mt-6 min-h-[clamp(280px,30vw,400px)] flex-1">
+      <div className="relative z-10 mt-8 min-h-[clamp(300px,32vw,440px)] flex-1">
         <svg
           aria-hidden="true"
           viewBox="0 0 1200 300"
@@ -133,36 +114,8 @@ export function Hero() {
           />
         </svg>
 
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-6">
-          {hasWatch && (
-            <div className="absolute top-[6%] -left-[4%] w-[clamp(112px,16vw,238px)] sm:left-[4%] lg:left-[10%] [animation:v2-float_7s_ease-in-out_infinite] ">
-              <img
-                src="/devices/watch.webp"
-                alt="Um relógio com a dica acendendo na tela."
-                className="v2-device-glow w-full"
-              />
-              <span className="v2-pill absolute -top-4 right-0 hidden items-center gap-2 md:flex rounded-full px-3.5 py-1.5 text-[0.78rem] font-medium whitespace-nowrap">
-                <i className="block size-1.5 rounded-full bg-[var(--v2-purple)]" />
-                No seu ritmo
-              </span>
-            </div>
-          )}
-
+        <div className="mx-auto flex max-w-6xl items-start justify-center px-6">
           <PhoneListening />
-
-          {hasAirpods && (
-            <div className="absolute top-[14%] -right-[5%] w-[clamp(100px,13.5vw,196px)] sm:right-[4%] lg:right-[10%] [animation:v2-float_8.5s_ease-in-out_infinite_0.8s] ">
-              <img
-                src="/devices/airpods.webp"
-                alt="Fones sem fio, por onde a dica também chega."
-                className="v2-device-glow w-full"
-              />
-              <span className="v2-pill absolute -bottom-4 left-0 hidden items-center gap-2 md:flex rounded-full px-3.5 py-1.5 text-[0.78rem] font-medium whitespace-nowrap">
-                <i className="block size-1.5 rounded-full bg-[var(--v2-pink)]" />
-                Em qualquer lugar
-              </span>
-            </div>
-          )}
         </div>
 
         <div

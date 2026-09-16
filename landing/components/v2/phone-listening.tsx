@@ -2,7 +2,7 @@ import { Mic, MoreHorizontal, X } from 'lucide-react'
 
 export function PhoneListening() {
   return (
-    <div className="relative mx-auto w-[clamp(150px,14.5vw,198px)]">
+    <div className="relative mx-auto w-[clamp(176px,17vw,244px)]">
       <div className="v2-device-glow rounded-[2.6rem] border-[6px] border-white/85 bg-white shadow-[0_34px_70px_-28px_rgba(126,104,176,0.5)]">
         <div className="relative aspect-[9/18.5] overflow-hidden rounded-[2.1rem] bg-white">
           <span
