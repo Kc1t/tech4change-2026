@@ -150,7 +150,7 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path(__file__).parent.parent / "src" / "data" / "graph.json"
+        default=Path(__file__).parent.parent / "web" / "src" / "data" / "graph.json"
     )
     parser.add_argument("--owner", default="Helena")
     args = parser.parse_args()
