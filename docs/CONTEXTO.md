@@ -44,17 +44,17 @@ Este repositório é `app/`, e é um repositório git próprio publicado como
 `https://github.com/Kc1t/tech4change-2026` (**privado**).
 
 ```
-src/            aplicação Vite (React 18 + TypeScript + Zustand + Tailwind v4) — OFICIAL
-web/            aplicação Next 16 (App Router + React 19 + shadcn/ui) — não promovida
+web/            aplicação Next 16 (App Router + React 19 + shadcn/ui) — O APLICATIVO
+mobile/         aplicação React Native (Expo SDK 57, Reanimated)
 server/         API (NestJS 11 + Prisma + PostgreSQL)
-landing/        página pública do produto (Vite + shadcn/ui)
-watch/          prova de conceito Wear OS (Kotlin, NÃO compilada)
+landing/        página pública do produto (Next 16 + shadcn/ui)
+watch/          aplicação Wear OS (Kotlin) — compilada e rodando em Galaxy Watch 4
 ingest/         pipeline Python de ingestão — roda; `input/` está vazia
 docs/           este diretório
 ```
 
-**Atenção:** `src/` e `web/` são dois aplicativos completos com as mesmas 7 telas. Ver
-[`ESTADO.md`](ESTADO.md).
+**Atenção:** a aplicação Vite que ocupava `src/` na raiz foi removida em 16/09. A raiz não tem
+mais `package.json` — cada projeto roda do seu próprio diretório. Ver [`ESTADO.md`](ESTADO.md).
 
 O material de pesquisa, pitch e roteiro está em [`../research/`](../research/) — dentro da pasta,
 **fora do git**:
@@ -74,18 +74,18 @@ O material de pesquisa, pitch e roteiro está em [`../research/`](../research/) 
 
 ## Estado do código, em 15/09
 
-### Aplicação (`src/`) — funcionando
+### Aplicação (`web/`) — funcionando
 
-Sete telas, roteador por hash: `#/moment`, `#/graph`, `#/body`, `#/clinical`, `#/consent`,
-`#/review`, `#/watch`.
+App Router: `/`, `/graph`, `/body`, `/clinical`, `/consent`, `/review`, `/memories`, `/progress`
+e `/watch`.
 
-**A home (`src/screens/Moment/MomentScreen.tsx`) foi reescrita em 15/09** e agora é o centro do
+**A home (`web/src/screens/MomentScreen.tsx`) é o centro do
 produto: uma bolha em canvas que reage ao microfone de verdade, detecta a pausa da fala e dispara a
 dica sozinha.
 
-- `src/components/Orb.tsx` — a bolha. Cinco estados, anéis concêntricos que respiram com a amplitude
+- `web/src/components/Orb.tsx` — a bolha. Cinco estados, anéis concêntricos que respiram com a amplitude
   da voz. Sem gradiente.
-- `src/hooks/useListening.ts` — `AnalyserNode` a 60fps, detecção de pausa (fala > 700 ms seguida de
+- `web/src/hooks/useListening.ts` — `AnalyserNode` a 60fps, detecção de pausa (fala > 700 ms seguida de
   silêncio > 1300 ms) e `SpeechRecognition` opcional em pt-BR. Os limiares são **calibrados ao
   ruído do ambiente** nos primeiros 900 ms, não fixos — sem isso o app não disparava em sala
   barulhenta, e falhava em silêncio.
@@ -139,10 +139,10 @@ Um código de quatro dígitos liga celular e relógio na mesma sessão. Quem abr
 emissor; quem entra recebe as dicas em tempo real por Server-Sent Events.
 
 - `server/src/modules/sync/` — sessões em memória, roster com heartbeat de 45 s, varredura a cada 15 s
-- `src/sync/client.ts` — criar, entrar, sair, transmitir, assinar
-- `src/hooks/useSyncChannel.ts` — dono único da assinatura, montado no `Shell`
-- `src/components/SyncPanel.tsx` — código, roster ao vivo e estado de cada aparelho, dentro da tela Corpo
-- `src/screens/Watch/WatchScreen.tsx` — rota `/#/watch`, interface redonda que pareia por código, recebe a dica e vibra
+- `web/src/sync/client.ts` — criar, entrar, sair, transmitir, assinar
+- `web/src/hooks/useSyncChannel.ts` — dono único da assinatura, montado no `Shell`
+- `web/src/components/SyncPanel.tsx` — código, roster ao vivo e estado de cada aparelho, dentro da tela Corpo
+- `web/src/screens/WatchScreen.tsx` — rota `/watch`, interface redonda que pareia por código, recebe a dica e vibra
 - `watch/.../SyncClient.kt` — o app nativo entra na mesma sessão com `-PsessionCode=1234` no build
 
 **A ponte também não transporta palavra.** Ela transmite `targetId`, nível, chave de atributo e
@@ -154,23 +154,31 @@ celular acende o degrau no relógio.
 
 ### Landing (`landing/`) — funcionando
 
-Vite + shadcn/ui, mesma identidade da aplicação. Herói roda a escada animada. Uma seção mostra lado
+Next 16 + shadcn/ui, mesma identidade da aplicação. Herói roda a escada animada. A rota
+`/experimentar` roda o fluxo dentro de uma moldura de celular. Uma seção mostra lado
 a lado o JSON que fica no aparelho e o que chega ao servidor.
 
-### Relógio nativo (`watch/`) — escrito, nunca compilado
+### Relógio nativo (`watch/`) — rodando em hardware
 
 Kotlin para Wear OS. Fala direto com a API pelo Wi-Fi do relógio, sem depender de um app Android no
 celular, e entra na mesma sessão de sync por código (`SyncClient.kt`). Existe para os padrões de
 vibração por nível de degrau, que notificação espelhada não faz.
-**Nenhum arquivo passou por compilador.** Ver `watch/README.md`.
 
-Para a demonstração, o caminho que funciona hoje é a rota `/#/watch` aberta num segundo aparelho,
-mais o espelhamento de notificação no Galaxy Watch.
+**Compilado e instalado em 16/09**, num Galaxy Watch 4 (SM-R861, Wear OS / API 36), pareado por
+depuração sem fio. O log do próprio hardware confirma amplitude controlada por degrau, que é o
+argumento que a notificação espelhada não sustenta. A interface usa a mesma aurora da home, portada
+para `Canvas` em `AuroraView.kt`.
+
+O que ainda não rodou de ponta a ponta é o pareamento por sessão: o código vai em `BuildConfig` em
+tempo de build (`-PsessionCode=`), não há tela para digitá-lo no relógio.
+
+O build precisa do Android SDK 35+ e do JDK 17+; o caminho do SDK fica em `watch/local.properties`,
+fora do git. Ver `watch/README.md`.
 
 ### Ingestão (`ingest/`) — roda
 
 `python ingest.py --input input/ --owner Helena` lê fotos e áudios e escreve
-`src/data/graph.json`. Etapas em `steps/`: `exif.py` (data, GPS, agrupamento de viagem),
+`web/src/data/graph.json`. Etapas em `steps/`: `exif.py` (data, GPS, agrupamento de viagem),
 `faces.py` (InsightFace mais agrupamento — HDBSCAN quando instalado, senão aglomerativo por cosseno
 em numpy), `transcribe.py` (Whisper pt-BR), `phonology.py` (separação silábica), `graph.py`
 (montagem com identificador opaco e proveniência obrigatória).
@@ -183,23 +191,23 @@ O que ainda **não** existe ali: extração de relações por modelo de linguage
 reversa (a coordenada é lida, virar "Sorocaba" depende de serviço externo).
 
 Testado com 11 fotos sintéticas com EXIF: encontrou os 2 blocos de data corretos e produziu um grafo
-com o mesmo esquema do `src/data/graph.json`, incluindo o mesmo identificador para a Helena.
+com o mesmo esquema do `web/src/data/graph.json`, incluindo o mesmo identificador para a Helena.
 
 ---
 
 ## Como rodar
 
 ```bash
-npm install && cp .env.example .env && npm run dev     # app Vite, :5173
-cd web && npm install && npm run dev                   # app Next, :3010
-cd server && npm install && npm run dev                # API, :3333
-cd landing && npm install && npm run dev               # landing
+cd web && npm install && npm run dev                   # aplicativo, :3010
+cd landing && npm install && npm run dev               # landing,     :5174
+cd server && npm install && npm run dev                # API,         :3333
+cd mobile && npm install && npx expo start             # React Native
 ```
 
 `ANTHROPIC_API_KEY` é opcional — sem chave tudo funciona pela escada determinística, e isso é
 intencional e testado.
 
-Para o aplicativo falar com a API: `VITE_API_URL` no Vite, `NEXT_PUBLIC_API_URL` no Next.
+Para o aplicativo falar com a API: `NEXT_PUBLIC_API_URL`, lida em tempo de build.
 
 ---
 

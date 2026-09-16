@@ -1,4 +1,4 @@
-# O que falta — 15/09, faltam 5 dias
+# O que falta — 16/09, faltam 4 dias
 
 Ordenado por retorno, não por ordem de execução. Data limite: **domingo 20/09, 23:59**.
 
@@ -6,31 +6,20 @@ Ordenado por retorno, não por ordem de execução. Data limite: **domingo 20/09
 
 ## Bloqueia outras pessoas — resolver hoje
 
-### 1. O nome do produto
-O repositório se chama `tech4change-2026`, o `README.md` começa com `# [NOME]`, o cabeçalho do
-aplicativo mostra `[NOME]` e a landing também (`landing/src/App.tsx`, constante `PRODUCT` na
-linha 15). É uma constante em cada lugar, mas **até decidir, a landing tem um buraco visível.**
-
-Critérios que os candidatos precisam passar: pronunciável sob apraxia (CV-CV, duas sílabas, sem
-encontro consonantal, sem vibrante inicial, tônica na primeira, bilabiais `/p b m/` são as mais
-fáceis porque são visíveis no rosto de quem fala); nunca o diagnóstico no nome; até 11 caracteres
-para não truncar na tela inicial.
-
-Ordem recomendada: **Vau**, **Deixa**, **Meada**.
-`Eilo` foi descartado — fica a um fonema de `Elo`, a marca de cartão.
-
-### 2. Sobrenomes do Adriel e do Alessandro
+### 1. Sobrenomes do Adriel e do Alessandro
 Para o slide de equipe e para a tabela de integrantes do `README.md`.
 
-### 3. Teste do espelhamento no relógio
-Tela **Corpo** → ligar o relógio → botão de testar. Trinta segundos. Decide se existe o plano do
-pulso no bloco 4 do vídeo. Ver `VIDEO.md`.
+### 2. Percorrer a escada no relógio, com ele no pulso
+O aplicativo nativo já está instalado num Galaxy Watch 4 e vibra com amplitude por degrau. Falta
+tocar os quatro degraus com o relógio **no pulso** — fora dele o Wear entra em `DOZE_SUSPEND` em
+segundos e para de receber toque, o que impediu a verificação em 16/09. Decide o plano do pulso no
+bloco 4 do vídeo. Ver `VIDEO.md`.
 
 ---
 
 ## O de maior retorno na nota, e não é código
 
-### 4. Entrevistas com fonoaudiólogos
+### 3. Entrevistas com fonoaudiólogos
 O critério 5 — evidências de validação — vale 20% e é onde estamos piores. Uma análise de ponto por
 hora colocou "construir mais MVP" em 19º lugar entre 20 ações. Entrevistas ficaram no topo.
 
@@ -76,7 +65,7 @@ sobrevive a uma pergunta da banca; o outro não.
 
 ## Contradições no material que a banca pode pegar
 
-### 5. `FUNDAMENTACAO.md` §9.3 — resolvido em 15/09
+### 4. `FUNDAMENTACAO.md` §9.3 — resolvido em 15/09
 A seção dizia que a detecção de bloqueio saía do curto prazo e que o botão com buffer entrava no
 lugar. Foi reescrita para descrever o que existe: o botão continua sendo o caminho que nunca erra, e
 ao lado dele roda detecção de **pausa** por energia do sinal, com o limiar calibrado ao ruído do
@@ -85,7 +74,7 @@ ambiente.
 A ressalva ficou no documento, porque ela é o que separa a frase honesta da mentira: detectamos
 pausa, **não** bloqueio lexical. Qual palavra travou continua dependendo da transcrição.
 
-### 6. As três correções parciais — fechadas em 15/09
+### 5. As três correções parciais — fechadas em 15/09
 Estão aplicadas em todos os arquivos, dentro e fora do repositório. Ver a tabela de auditoria acima.
 
 ---

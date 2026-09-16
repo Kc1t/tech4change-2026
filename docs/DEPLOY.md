@@ -7,7 +7,7 @@ Três destinos independentes, sem monorepo:
 
 | o quê | onde | diretório raiz |
 |---|---|---|
-| aplicação | Vercel | `/` (raiz do repositório) |
+| aplicação | Vercel | `web/` |
 | landing | Vercel, projeto separado | `landing/` |
 | API | Railway | `server/` |
 
@@ -51,13 +51,13 @@ durante toda a janela de avaliação.
 
 ## 2. Aplicação no Vercel
 
-1. Import do mesmo repositório, **Root Directory = `/`**
-2. O `vercel.json` já define framework, build e os cabeçalhos. O de `/sw.js` é o que importa: sem
+1. Import do mesmo repositório, **Root Directory = `web`**
+2. O `web/vercel.json` já define framework e os cabeçalhos. O de `/sw.js` é o que importa: sem
    `Cache-Control: no-store` o service worker velho fica preso no navegador do jurado.
-3. Variável de ambiente:
+3. Variável de ambiente (o exemplo está em `web/.env.example`):
 
 ```
-VITE_API_URL=https://<api>.up.railway.app
+NEXT_PUBLIC_API_URL=https://<api>.up.railway.app
 ```
 
 Ela é lida em tempo de build. **Mudou a URL da API, tem que refazer o build** — não basta salvar a
@@ -77,10 +77,10 @@ Projeto separado, **Root Directory = `landing`**. Sem variáveis. O `landing/ver
 - [ ] `https://<api>/v1/docs` abre o Swagger
 - [ ] O `400` de identificador não-opaco ainda acontece em produção — é o plano do bloco 5 do vídeo
 - [ ] A aplicação abre no Chrome do Android e a bolha pede permissão de microfone
-- [ ] `/#/watch` pareia com o código gerado na tela Corpo, entre dois aparelhos de verdade
+- [ ] `/watch` pareia com o código gerado na tela Corpo, entre dois aparelhos de verdade
 - [ ] O app é instalável como PWA (o Chrome oferece "adicionar à tela inicial")
 - [ ] Abrir tudo em aba anônima, em outro aparelho e em outra conta
-- [ ] O `[NOME]` sumiu do cabeçalho da aplicação e da landing
+- [ ] O cabeçalho da aplicação e a landing mostram **eilo**, sem nenhum `[NOME]` sobrando
 
 ## O que não sobrevive ao deploy
 

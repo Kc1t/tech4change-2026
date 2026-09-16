@@ -163,8 +163,11 @@ em 19º entre 20 ações.
 | **sábado 19/09** | **gravar, editar e subir no YouTube como não listado** — link quebrado é a única desclassificação automática do regulamento (6.2.2.2) |
 | domingo | submeter de manhã |
 
-Buracos de código conhecidos: `watch/` nunca compilado (SDK do Wear são ~8 GB), o caminho do modelo
-nunca bateu na API real (falta `ANTHROPIC_API_KEY`), o service worker **não tem cache** — o app
-instala mas não abre offline, e as sessões de sync vivem na memória do processo.
+Buracos de código conhecidos: o caminho do modelo nunca bateu na API real (falta
+`ANTHROPIC_API_KEY`), o service worker **não tem cache** — o app instala mas não abre offline, e as
+sessões de sync vivem na memória do processo.
+
+O `watch/` saiu dessa lista em 16/09: compila e roda num Galaxy Watch 4. O que falta nele é digitar
+o código de sessão no relógio — hoje ele é assado em tempo de build.
 
 Detalhe completo em [`PENDENCIAS.md`](PENDENCIAS.md).
