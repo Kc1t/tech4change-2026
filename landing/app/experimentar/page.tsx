@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import '../experience.css'
+import '../v3.css'
 import { DemoFlow } from '@/components/demo/demo-flow'
 
 export const metadata: Metadata = {
