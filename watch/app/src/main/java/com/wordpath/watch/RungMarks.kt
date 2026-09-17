@@ -13,7 +13,7 @@ class RungMarks @JvmOverloads constructor(
 ) : View(context, attrs) {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, R.color.brand)
+        color = ContextCompat.getColor(context, R.color.accent)
     }
 
     private val density = resources.displayMetrics.density

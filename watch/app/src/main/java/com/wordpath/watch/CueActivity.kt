@@ -116,14 +116,16 @@ class CueActivity : ComponentActivity() {
     }
 
     private fun renderIdle() {
+        binding.mark.visibility = View.VISIBLE
         binding.marks.clear()
         binding.cue.textSize = IDLE_TEXT_SP
-        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.dim))
+        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.muted))
         binding.cue.text = getString(R.string.idle_cue)
         binding.resolved.visibility = View.GONE
     }
 
     private fun showCue(rung: Int, isFinal: Boolean, text: String) {
+        binding.mark.visibility = View.GONE
         binding.marks.show(rung, isFinal)
         binding.cue.textSize = CUE_TEXT_SP
         binding.cue.setTextColor(ContextCompat.getColor(this, R.color.fg))
@@ -132,9 +134,10 @@ class CueActivity : ComponentActivity() {
     }
 
     private fun showWord(word: String) {
+        binding.mark.visibility = View.GONE
         binding.marks.clear()
         binding.cue.textSize = CUE_TEXT_SP
-        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.brand))
+        binding.cue.setTextColor(ContextCompat.getColor(this, R.color.accent))
         binding.cue.text = word
         binding.resolved.visibility = View.GONE
     }

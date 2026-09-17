@@ -36,23 +36,23 @@ class AuroraView @JvmOverloads constructor(
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     }
 
-    private val peach = ContextCompat.getColor(context, R.color.aurora_1)
-    private val rose = ContextCompat.getColor(context, R.color.aurora_2)
-    private val plum = ContextCompat.getColor(context, R.color.aurora_3)
-    private val amber = ContextCompat.getColor(context, R.color.aurora_4)
+    private val lilac = ContextCompat.getColor(context, R.color.orb_1)
+    private val pink = ContextCompat.getColor(context, R.color.orb_2)
+    private val sky = ContextCompat.getColor(context, R.color.orb_3)
+    private val blush = ContextCompat.getColor(context, R.color.orb_4)
 
     private val layers = listOf(
         Layer(
             base = 0.34f, amp = 0.035f, boost = 0.09f, freq = 1.1f, drift = 0.00021f, alpha = 204,
-            colors = intArrayOf(amber, peach, rose), stops = floatArrayOf(0f, 0.55f, 1f)
+            colors = intArrayOf(blush, lilac, pink), stops = floatArrayOf(0f, 0.55f, 1f)
         ),
         Layer(
             base = 0.52f, amp = 0.045f, boost = 0.15f, freq = 1.8f, drift = -0.00034f, alpha = 230,
-            colors = intArrayOf(peach, rose, rose), stops = floatArrayOf(0f, 0.62f, 1f)
+            colors = intArrayOf(lilac, pink, lilac), stops = floatArrayOf(0f, 0.62f, 1f)
         ),
         Layer(
             base = 0.74f, amp = 0.035f, boost = 0.2f, freq = 2.7f, drift = 0.00047f, alpha = 242,
-            colors = intArrayOf(peach, rose, plum), stops = floatArrayOf(0f, 0.5f, 1f)
+            colors = intArrayOf(pink, lilac, sky), stops = floatArrayOf(0f, 0.5f, 1f)
         )
     )
 
@@ -136,7 +136,7 @@ class AuroraView @JvmOverloads constructor(
 
     private companion object {
         const val STEPS = 56
-        const val BAND = 0.62f
+        const val BAND = 0.45f
         const val HOLD_MS = 900L
         const val PERIOD_MS = 1_000_000L
     }

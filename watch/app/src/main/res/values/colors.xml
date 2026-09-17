@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ink">#F2F2F0</color>
+    <color name="ink">#F6F5FB</color>
     <color name="surface">#FFFFFF</color>
-    <color name="fg">#161616</color>
-    <color name="dim">#4A4A48</color>
-    <color name="faint">#6F6F6C</color>
-    <color name="brand">#BF3F63</color>
-    <color name="line">#D6D6D1</color>
+    <color name="fg">#1B1A22</color>
+    <color name="muted">#57546A</color>
+    <color name="line">#E6E3EF</color>
+    <color name="accent">#6B5FA8</color>
 
-    <color name="aurora_1">#F39A6B</color>
-    <color name="aurora_2">#D8577C</color>
-    <color name="aurora_3">#6B3F8F</color>
-    <color name="aurora_4">#FFE3A8</color>
+    <color name="orb_base">#E7DFFB</color>
+    <color name="orb_1">#B9A3F7</color>
+    <color name="orb_2">#EFB6EC</color>
+    <color name="orb_3">#A9DCFF</color>
+    <color name="orb_4">#FFE0F2</color>
 </resources>
