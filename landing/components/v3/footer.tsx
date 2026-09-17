@@ -23,7 +23,7 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <div className="v3-foot-surface px-3 pt-24 pb-4 sm:px-4 sm:pt-32">
+    <div className="v3-foot-surface px-3 pt-16 pb-4 sm:px-4 sm:pt-20">
       <footer className="mx-auto max-w-6xl overflow-hidden rounded-[1.75rem] bg-white px-8 pt-12 sm:px-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.1fr]">
           <div>

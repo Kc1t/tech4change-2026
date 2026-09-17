@@ -12,8 +12,8 @@ export function Invite() {
   const hasApk = existsSync(join(process.cwd(), 'public', 'eilo.apk'))
 
   return (
-    <section id="baixar" className="mx-auto max-w-6xl px-6 pb-24 sm:px-10 sm:pb-32">
-      <div className="py-12 text-center sm:py-16">
+    <section id="baixar" className="mx-auto max-w-6xl px-6 pb-4 sm:px-10 sm:pb-6">
+      <div className="pt-12 pb-4 text-center sm:pt-16">
         <Reveal>
           <Orb interactive className="mx-auto w-[clamp(152px,17vw,212px)]" />
         </Reveal>
