@@ -35,7 +35,11 @@
 > Entrega do **Tech4Change 2026 — FIAP PosTech**, tema *Potencializando o ser humano com Inteligência Artificial*. Protótipo acadêmico: **não é dispositivo médico**, não substitui fonoaudiologia e nunca foi usado em terapia real. A persona da demonstração é fictícia.
 
 <div align="center">
-  <img src="docs/media/hero-mvp.jpg" alt="O MVP do Eilo rodando no celular e no relógio" width="820">
+  <a href="https://www.youtube.com/watch?v=uXWnjCYHHWE" target="_blank">
+    <img src="docs/media/video-capa.jpg" alt="Assistir ao pitch do Eilo — 4 min" width="820">
+  </a>
+  <br />
+  <sub><a href="https://www.youtube.com/watch?v=uXWnjCYHHWE"><strong>▶ Assistir ao pitch — 4 min</strong></a></sub>
 </div>
 
 <p align="center">
@@ -109,6 +113,10 @@ O nome vem de *ei-lo*: **aqui está**.
 - **🫱 Fazer lembrar** — o relógio vibra e vai dando pistas cada vez mais próximas, até a palavra sair da boca dela. É o modo padrão, e é o que gera aprendizado.
 - **🗣️ Completar, se ela pedir** — quando continuar tentando já atrapalha a conversa, o Eilo fala a palavra, no fone ou na tela. É saída de emergência, não atalho.
 
+<div align="center">
+  <img src="docs/media/dois-modos.jpg" alt="Os dois modos: fazer lembrar e completar, se ela pedir" width="820">
+</div>
+
 > Dar pista em hierarquia não é invenção nossa: está descrito na fonoaudiologia desde 1977, no trabalho de Love e Webb, e sempre dependeu de um terapeuta na sala para decidir a hora. O que muda aqui é **quem decide a hora**. E o motivo de não entregar a palavra pronta também está medido: prática de recuperação retém mais do que receber a resposta (Middleton et al., 2015).
 
 ### De onde vem a dica
@@ -137,7 +145,7 @@ O valor está na divisão: **o grafo sabe o que o modelo não pode saber**, e o 
 <p>A pessoa toca uma vez e a escada sobe um degrau por vez — <strong>categoria → lugar → sílaba → a palavra</strong>. A primeira lista vai para a tela <strong>antes de qualquer chamada de rede</strong>, com alvo de 300 ms. Quem diz a palavra é sempre ela.</p>
 
 <div align="center">
-  <img src="docs/media/dois-modos.jpg" alt="Os dois modos: fazer lembrar e completar, se ela pedir" width="100%">
+  <img src="docs/media/hero-mvp.jpg" alt="Os quatro degraus até a palavra, no MVP rodando" width="100%">
 </div>
 
 </td>
