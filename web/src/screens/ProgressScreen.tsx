@@ -65,11 +65,10 @@ export function ProgressScreen() {
       <Screen scroll={false}>
         <TopBar left={<BrandMark />} right={<NotificationBell />} />
         <ScreenHeader
-          label="o progresso"
-          title="Ainda não há nada para mostrar"
-          sub="Esta tela só mostra o que realmente aconteceu. Assim que ela alcançar a primeira palavra na tela Momento, o registro começa aqui."
+          title="Progresso"
+          sub="Nada registrado ainda. Começa na primeira palavra alcançada."
         />
-        <div className="mt-6 flex flex-wrap gap-2.5">
+        <div className="mt-2 flex flex-wrap gap-2.5">
           <Link
             href="/"
             className="grid min-h-tap place-items-center rounded-full bg-fg px-5 text-[14px] font-semibold text-ink"
@@ -78,7 +77,7 @@ export function ProgressScreen() {
           </Link>
           <button
             onClick={loadDemo}
-            className="grid min-h-tap place-items-center rounded-full bg-surface px-5 text-[14px] font-semibold text-dim shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)]"
+            className="grid min-h-tap place-items-center rounded-full bg-surface px-5 text-[14px] font-semibold text-dim shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)]"
           >
             Ver com dados de exemplo
           </button>
@@ -99,19 +98,19 @@ export function ProgressScreen() {
     <Screen className="px-0">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-[linear-gradient(180deg,#f8dcdb_0%,#fbe7d3_50%,var(--ink)_100%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-[linear-gradient(180deg,#f0dcf4_0%,#e7dffb_50%,var(--ink)_100%)]"
       />
 
-      <div className="relative px-7">
+      <div className="relative flex flex-col gap-4 px-7">
         <TopBar left={<BrandMark />} right={<NotificationBell />} />
-        <ScreenHeader label="o progresso" title="Quanto ela já alcança sozinha" />
+        <ScreenHeader title="Progresso" sub="Quanto ela já alcança sozinha." />
       </div>
 
-      <div className="relative mt-12">
+      <div className="relative mt-8">
         <TrendSky series={progress.series} marks={marks} />
       </div>
 
-      <div className="relative mt-12 px-7">
+      <div className="relative mt-8 px-7">
         <Insight>
           {drop !== null && drop > 0.05
             ? `Menos ajuda nas últimas ${Math.min(5, history.length)} vezes`
@@ -121,7 +120,7 @@ export function ProgressScreen() {
         </Insight>
       </div>
 
-      <div className="relative mt-8 flex gap-4 px-7">
+      <div className="relative mt-4 flex gap-4 px-7">
         <StatCard
           label="Degrau médio"
           value={progress.average !== null ? formatLevel(progress.average) : '—'}
@@ -146,7 +145,7 @@ export function ProgressScreen() {
         />
       </div>
 
-      <div className="relative mt-8 px-7">
+      <div className="relative mt-4 px-7">
         <div className="mb-3 flex items-center gap-2">
           <Sparkle muted />
           <h3 className="text-[17px] font-bold tracking-[-0.02em] text-fg">O que mudou</h3>
@@ -159,7 +158,7 @@ export function ProgressScreen() {
         </p>
       </div>
 
-      <div className="relative mt-6 px-7">
+      <div className="relative mt-2 px-7">
         <p className="text-[32px] font-bold leading-tight tracking-[-0.04em] text-fg tabular">
           {progress.autonomy !== null ? Math.round(progress.autonomy) : '—'}
         </p>
@@ -167,13 +166,13 @@ export function ProgressScreen() {
         <Gauge value={progress.autonomy ?? 0} caption="Autonomia" />
       </div>
 
-      <div className="relative mt-8 px-7">
+      <div className="relative mt-4 px-7">
         <h3 className="mb-3 text-base font-bold tracking-[-0.02em] text-fg">Palavras</h3>
         <div className="flex flex-wrap gap-2">
           {words.map(word => (
             <span
               key={word.id}
-              className="flex items-center gap-2 rounded-full bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-3 py-2 text-[13.5px] font-medium text-fg"
+              className="flex items-center gap-2 rounded-full bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-3 py-2 text-[13.5px] font-medium text-fg"
             >
               <i
                 className="block size-2 rounded-full"

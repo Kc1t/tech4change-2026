@@ -67,3 +67,19 @@ export function firstSyllable(word: string): string {
   if (parts[0]!.length === 1 && parts.length > 2) return parts[0]! + parts[1]!
   return parts[0]!
 }
+
+const ACCENTED = new Set('áéíóúâêôãõà')
+
+export function stressIndex(word: string): number {
+  const parts = syllables(word)
+  if (parts.length <= 1) return 0
+
+  const marked = parts.findIndex(part =>
+    [...part.toLowerCase()].some(char => ACCENTED.has(char))
+  )
+  if (marked >= 0) return marked
+
+  const tail = parts[parts.length - 1]!.toLowerCase().replace(/s$/, '')
+  const paroxitona = 'aeo'.includes(tail.slice(-1)) || tail.endsWith('em')
+  return paroxitona ? parts.length - 2 : parts.length - 1
+}

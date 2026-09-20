@@ -6,8 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ink"
+    android:keepScreenOn="true"
     android:clickable="true"
     android:focusable="true">
+
+    <FrameLayout
+        android:id="@+id/stage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <com.wordpath.watch.AuroraView
         android:id="@+id/aurora"
@@ -21,15 +27,15 @@
 
         <ImageView
             android:id="@+id/mark"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
             android:contentDescription="@null"
             android:src="@drawable/brand_mark"
             app:layout_constraintBottom_toTopOf="@id/marks"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.34"
+            app:layout_constraintVertical_bias="0.30"
             app:layout_constraintVertical_chainStyle="packed" />
 
         <com.wordpath.watch.RungMarks
@@ -45,40 +51,32 @@
             android:id="@+id/cue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:fontFamily="@font/manrope_light"
             android:gravity="center"
             android:lineSpacingMultiplier="1.04"
             android:maxLines="3"
             android:textColor="@color/fg"
             android:textSize="26sp"
-            app:layout_constraintBottom_toTopOf="@id/resolved"
+            app:layout_constraintBottom_toTopOf="@id/trail"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/marks"
-            app:layout_constraintWidth_percent="0.88" />
+            app:layout_constraintWidth_percent="0.82" />
 
-        <TextView
-            android:id="@+id/resolved"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/pill"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="@font/manrope_semibold"
-            android:minHeight="44dp"
-            android:paddingHorizontal="26dp"
-            android:paddingVertical="12dp"
-            android:text="@string/resolved"
-            android:textColor="@color/fg"
-            android:textSize="13sp"
-            android:visibility="gone"
+        <com.wordpath.watch.ShakeTrail
+            android:id="@+id/trail"
+            android:layout_width="96dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cue" />
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
 
 </FrameLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">eilo</string>
-    <string name="idle_cue">Toque quando a palavra travar</string>
-    <string name="resolved">Consegui</string>
+    <string name="searching">Procurando o celular…</string>
+    <string name="waiting">Aguardando fala</string>
 </resources>

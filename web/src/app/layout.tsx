@@ -11,14 +11,14 @@ const manrope = Manrope({
 })
 
 export const metadata: Metadata = {
-  title: 'O caminho até a palavra',
-  description: 'Assistente de palavra para afasia pós-AVC',
+  title: 'Eilo',
+  description: 'O caminho até a palavra, para quem teve AVC',
   manifest: '/manifest.webmanifest',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent' }
 }
 
 export const viewport: Viewport = {
-  themeColor: '#f2f2f0',
+  themeColor: '#f6f5fb',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover'

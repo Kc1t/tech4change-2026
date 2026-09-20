@@ -27,7 +27,7 @@ export function Footer() {
       <footer className="mx-auto max-w-6xl overflow-hidden rounded-[1.75rem] bg-white px-8 pt-12 sm:px-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1.1fr]">
           <div>
-            <a href="/v3" className="inline-flex items-center">
+            <a href="/" className="inline-flex items-center">
               <Logo className="h-8" />
             </a>
             <p className="mt-4 max-w-[22rem] text-[0.88rem] leading-[1.7] text-[var(--v3-muted)]">

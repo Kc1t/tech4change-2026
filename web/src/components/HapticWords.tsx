@@ -98,7 +98,7 @@ export function HapticWords() {
             key={node.id}
             type="button"
             onClick={() => play(node.id, cue)}
-            className="flex flex-col gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4 text-left"
+            className="flex flex-col gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] p-4 text-left"
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-base font-semibold">{node.label}</h3>

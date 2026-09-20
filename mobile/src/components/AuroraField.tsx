@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-import Svg, { Defs, FeGaussianBlur, Filter, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
+import { View } from 'react-native'
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
 import { color } from '../theme/tokens'
 
 export type OrbState = 'off' | 'listening' | 'speaking' | 'blocked' | 'delivering'
 
 const W = 400
 const H = 320
-const STEPS = 40
+const STEPS = 26
 
 const LAYERS = [
   { id: 'af-back', base: 0.34, amp: 0.035, freq: 1.1, drift: 0.00021, opacity: 0.8 },
@@ -52,7 +52,7 @@ export function AuroraField({ state, level = 0 }: { state: OrbState; level?: num
   const boost = state === 'off' ? 0 : 0.04 + level * 0.14
 
   return (
-    <View style={styles.field} pointerEvents="none">
+    <View className="absolute inset-0" pointerEvents="none">
       <Svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <Defs>
           {LAYERS.map(layer => (
@@ -62,9 +62,6 @@ export function AuroraField({ state, level = 0 }: { state: OrbState; level?: num
               <Stop offset="1" stopColor={RAMPS[layer.id]![2]} />
             </LinearGradient>
           ))}
-          <Filter id="af-soft" x="-12%" y="-12%" width="124%" height="124%">
-            <FeGaussianBlur stdDeviation="9" />
-          </Filter>
           <LinearGradient id="af-veil" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor={color.ink} stopOpacity="1" />
             <Stop offset="0.26" stopColor={color.ink} stopOpacity="0.28" />
@@ -72,23 +69,17 @@ export function AuroraField({ state, level = 0 }: { state: OrbState; level?: num
           </LinearGradient>
         </Defs>
 
-        <G filter="url(#af-soft)">
-          {LAYERS.map(layer => (
-            <Path
-              key={layer.id}
-              d={shape(layer, now * layer.drift, boost)}
-              fill={`url(#${layer.id})`}
-              opacity={layer.opacity}
-            />
-          ))}
-        </G>
+        {LAYERS.map(layer => (
+          <Path
+            key={layer.id}
+            d={shape(layer, now * layer.drift, boost)}
+            fill={`url(#${layer.id})`}
+            opacity={layer.opacity}
+          />
+        ))}
 
         <Rect width={W} height={H} fill="url(#af-veil)" />
       </Svg>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  field: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }
-})

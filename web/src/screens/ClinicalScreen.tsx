@@ -156,7 +156,7 @@ export function ClinicalScreen() {
   }, [series.join(',')])
 
   return (
-    <Screen className="gap-4">
+    <Screen>
       <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">painel do fonoaudiólogo</p>
@@ -178,7 +178,7 @@ export function ClinicalScreen() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4">
+        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] p-4">
           <b className="voice tabular block text-xl font-normal">{headline}</b>
           <span className="mt-0.5 block text-[0.68rem] leading-snug text-faint">
             degrau médio até destravar
@@ -189,7 +189,7 @@ export function ClinicalScreen() {
             </span>
           )}
         </div>
-        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4">
+        <div className="rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] p-4">
           <b className="voice tabular block text-xl font-normal">{blocks}</b>
           <span className="mt-0.5 block text-[0.68rem] leading-snug text-faint">
             {live ? 'bloqueios registrados fora da sessão' : 'palavras exercitadas neste aparelho'}
@@ -205,7 +205,7 @@ export function ClinicalScreen() {
         <canvas
           ref={canvasRef}
           aria-label="Degrau médio caindo ao longo de oito semanas"
-          className="h-[170px] w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)]"
+          className="h-[170px] w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)]"
         />
       </div>
 

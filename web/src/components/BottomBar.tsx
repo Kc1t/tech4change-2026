@@ -69,7 +69,7 @@ export function BottomBar() {
 
   return (
     <nav className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex justify-center px-7 pb-[calc(14px+env(safe-area-inset-bottom,0px))]">
-      <div className="pointer-events-auto relative flex w-full items-center rounded-full bg-surface px-2 py-2 shadow-[0_2px_6px_rgba(22,22,22,0.06),0_14px_34px_rgba(22,22,22,0.14)]">
+      <div className="pointer-events-auto relative flex w-full items-center rounded-full bg-surface px-2 py-2 shadow-[0_2px_6px_rgba(90,70,160,0.06),0_14px_34px_rgba(90,70,160,0.14)]">
         {pill && (
           <span
             aria-hidden="true"
@@ -88,7 +88,7 @@ export function BottomBar() {
         ))}
 
         <div className="grid flex-1 place-items-center">
-          <span className="rounded-full shadow-[0_6px_20px_rgba(216,87,124,0.4)]">
+          <span className="rounded-full shadow-[0_6px_20px_rgba(142,127,240,0.4)]">
           <button
             onClick={handleHome}
             aria-current={atHome ? 'page' : undefined}

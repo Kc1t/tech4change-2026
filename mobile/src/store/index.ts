@@ -13,13 +13,14 @@ import type {
   Mastery,
   NodeId,
   OutputMode,
+  Backdrop,
   Resolution,
   Scene
 } from '../domain/types'
 
-export const lifeGraph = graphData as unknown as LifeGraph
+export let lifeGraph = graphData as unknown as LifeGraph
 
-export const SCENES: Scene[] = [
+export let SCENES: Scene[] = [
   {
     targetId: 'n_fd8f8a',
     speaker: 'Rodrigo, filho',
@@ -46,6 +47,14 @@ export const SCENES: Scene[] = [
   }
 ]
 
+export let seeded = false
+
+export function installSeed(graph: LifeGraph, scenes: Scene[]) {
+  lifeGraph = graph
+  SCENES = scenes
+  seeded = true
+}
+
 const EMPTY_LEARNING: LearningState = {
   lastLevel: null,
   successes: 0,
@@ -70,17 +79,20 @@ interface AppState {
   open: boolean
   helpLevel: HelpLevel
   output: OutputMode
+  backdrop: Backdrop
   channels: ChannelState
   paired: PairedDevice[]
   sessionCode: string | null
   deviceId: string | null
   devices: Device[]
+  intensity: number
   lastCue: CuePayload | null
   learning: Record<NodeId, LearningState>
   history: Resolution[]
   unseenLearning: NodeId[]
   memoryFilter: NodeId | null
   demo: boolean
+  demoRequest: number
 
   scene: () => Scene
   learningFor: (id: NodeId) => LearningState
@@ -90,6 +102,8 @@ interface AppState {
   nextScene: () => void
   setHelpLevel: (level: HelpLevel) => void
   setOutput: (output: OutputMode) => void
+  setBackdrop: (backdrop: Backdrop) => void
+  setIntensity: (value: number) => void
   toggleDevice: (id: string) => void
   toggleBuzz: (id: string) => void
   pairDevice: (id: string) => void
@@ -99,6 +113,7 @@ interface AppState {
   setLastCue: (cue: CuePayload | null) => void
   setMemoryFilter: (id: NodeId | null) => void
   markLearningSeen: () => void
+  fireDemo: () => void
   loadDemo: () => void
   clearDemo: () => void
 }
@@ -110,17 +125,20 @@ export const useApp = create<AppState>()((set, get) => ({
   open: false,
   helpLevel: 'hint',
   output: 'both',
+  backdrop: 'wave',
   channels: channelsFrom(BUILT_IN_DEVICES),
   paired: BUILT_IN_DEVICES,
   sessionCode: null,
   deviceId: null,
   devices: [],
+  intensity: 3,
   lastCue: null,
   learning: {},
   history: [],
   unseenLearning: [],
   memoryFilter: null,
   demo: false,
+  demoRequest: 0,
 
   scene: () => SCENES[get().sceneIndex]!,
   learningFor: id => get().learning[id] ?? EMPTY_LEARNING,
@@ -188,6 +206,7 @@ export const useApp = create<AppState>()((set, get) => ({
 
   setHelpLevel: helpLevel => set({ helpLevel }),
   setOutput: output => set({ output }),
+  setBackdrop: backdrop => set({ backdrop }),
   toggleDevice: id =>
     set(state => {
       const paired = state.paired.map(device =>
@@ -220,6 +239,8 @@ export const useApp = create<AppState>()((set, get) => ({
   setSession: (sessionCode, deviceId) =>
     set(state => ({ sessionCode, deviceId, devices: sessionCode ? state.devices : [] })),
   setDevices: devices => set({ devices }),
+  setIntensity: (value: number) => set({ intensity: Math.min(5, Math.max(1, Math.round(value))) }),
+
   setLastCue: lastCue => set({ lastCue }),
 
   setMemoryFilter: id => set({ memoryFilter: id }),
@@ -243,6 +264,8 @@ export const useApp = create<AppState>()((set, get) => ({
 
     set({ history, learning, demo: true })
   },
+
+  fireDemo: () => set(state => ({ demoRequest: state.demoRequest + 1 })),
 
   clearDemo: () => set({ history: [], learning: {}, unseenLearning: [], demo: false })
 }))

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, Text, TextInput, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { useSyncChannel } from '../hooks/useSyncChannel'
 import { apiBase, type Device, type DeviceKind } from '../sync/client'
-import { color, font, radius, shadow, tap } from '../theme/tokens'
+import { color, shadow } from '../theme/tokens'
 
 const KIND_LABEL: Record<DeviceKind, string> = {
   phone: 'celular',
@@ -18,6 +18,9 @@ const KIND_GLYPH: Record<DeviceKind, string> = {
   earbuds: 'M12 3.4a7 7 0 0 0-7 7v5.2M12 3.4a7 7 0 0 1 7 7v5.2',
   desktop: 'M3 5h18v11H3zM9 20h6M12 16v4'
 }
+
+const SOFT = { ...shadow.card, shadowOpacity: 0.06 }
+const LABEL_CAPS = 'font-strong text-caps text-label'
 
 export function SyncPanel() {
   const { code, deviceId, devices, open, connect, close } = useSyncChannel()
@@ -44,17 +47,25 @@ export function SyncPanel() {
   }
 
   if (!code) {
+    const joinOff = busy || typed.length !== 4
+
     return (
-      <View style={styles.block}>
-        <Pressable onPress={handleOpen} disabled={busy} style={[styles.primary, busy && styles.dim]}>
+      <View className="gap-2.5">
+        <Pressable
+          onPress={handleOpen}
+          disabled={busy}
+          className={`min-h-tap items-center justify-center rounded-large bg-fg ${
+            busy ? 'opacity-45' : ''
+          }`}
+        >
           {busy ? (
             <ActivityIndicator color={color.ink} />
           ) : (
-            <Text style={styles.primaryText}>Abrir uma sessão</Text>
+            <Text className="font-strong text-body text-ink">Abrir uma sessão</Text>
           )}
         </Pressable>
 
-        <View style={styles.joinRow}>
+        <View className="flex-row gap-2">
           <TextInput
             keyboardType="number-pad"
             maxLength={4}
@@ -63,20 +74,24 @@ export function SyncPanel() {
             placeholder="0000"
             placeholderTextColor={color.faint}
             accessibilityLabel="Código da sessão"
-            style={styles.input}
+            className="min-h-tap flex-1 rounded-large bg-surface text-center font-mid text-[20px] tracking-[6px] text-fg"
+            style={SOFT}
           />
           <Pressable
             onPress={handleJoin}
-            disabled={busy || typed.length !== 4}
-            style={[styles.join, (busy || typed.length !== 4) && styles.dim]}
+            disabled={joinOff}
+            className={`min-h-tap items-center justify-center rounded-large bg-surface px-5 ${
+              joinOff ? 'opacity-45' : ''
+            }`}
+            style={SOFT}
           >
-            <Text style={styles.joinText}>Entrar</Text>
+            <Text className="font-strong text-body text-fg">Entrar</Text>
           </Pressable>
         </View>
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text className="font-mid text-note text-mastery-low">{error}</Text>}
 
-        <Text style={styles.note}>
+        <Text className="font-book text-[11.5px] leading-[17px] text-faint">
           Abra a sessão aqui e digite o código no relógio. A ponte leva identificador, degrau e
           aresta — nunca a palavra.
         </Text>
@@ -85,15 +100,15 @@ export function SyncPanel() {
   }
 
   return (
-    <View style={styles.block}>
-      <View style={styles.codeCard}>
-        <View style={styles.codeBody}>
-          <Text style={styles.labelCaps}>CÓDIGO DA SESSÃO</Text>
-          <Text style={styles.code}>{code}</Text>
+    <View className="gap-2.5">
+      <View className="flex-row items-center rounded-large bg-surface p-4" style={SOFT}>
+        <View className="flex-1">
+          <Text className={LABEL_CAPS}>CÓDIGO DA SESSÃO</Text>
+          <Text className="mt-1 font-mid text-[28px] tracking-[5px] text-fg">{code}</Text>
         </View>
-        <View style={styles.live}>
-          <View style={styles.liveDot} />
-          <Text style={styles.liveText}>no ar</Text>
+        <View className="flex-row items-center gap-1.5">
+          <View className="size-1.5 rounded-full bg-mastery-high" />
+          <Text className="font-strong text-[11.5px] text-mastery-high">no ar</Text>
         </View>
       </View>
 
@@ -102,13 +117,17 @@ export function SyncPanel() {
       ))}
 
       {devices.length < 2 && (
-        <Text style={styles.waiting}>
+        <Text className="rounded-large border border-dashed border-line px-4 py-3.5 font-book text-note leading-[18px] text-faint">
           Esperando o segundo aparelho. Abra /watch no relógio ou noutro aparelho e digite {code}.
         </Text>
       )}
 
-      <Pressable onPress={close} style={styles.close}>
-        <Text style={styles.closeText}>Encerrar a sessão</Text>
+      <Pressable
+        onPress={close}
+        className="min-h-tap items-center justify-center rounded-large bg-surface"
+        style={SOFT}
+      >
+        <Text className="font-strong text-hint text-dim">Encerrar a sessão</Text>
       </Pressable>
     </View>
   )
@@ -116,7 +135,10 @@ export function SyncPanel() {
 
 function DeviceRow({ device, isSelf }: { device: Device; isSelf: boolean }) {
   return (
-    <View style={styles.deviceRow}>
+    <View
+      className="flex-row items-center gap-3 rounded-large bg-surface px-4 py-3"
+      style={SOFT}
+    >
       <Svg viewBox="0 0 24 24" width={20} height={20}>
         <Path
           d={KIND_GLYPH[device.kind]}
@@ -127,112 +149,14 @@ function DeviceRow({ device, isSelf }: { device: Device; isSelf: boolean }) {
           strokeLinejoin="round"
         />
       </Svg>
-      <View style={styles.deviceBody}>
-        <Text style={styles.deviceName} numberOfLines={1}>
+      <View className="min-w-0 flex-1">
+        <Text className="font-strong text-body text-fg" numberOfLines={1}>
           {device.name}
           {isSelf ? '  · este aqui' : ''}
         </Text>
-        <Text style={styles.labelCaps}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
+        <Text className={LABEL_CAPS}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
       </View>
-      <View style={styles.liveDot} />
+      <View className="size-1.5 rounded-full bg-mastery-high" />
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  block: { gap: 10 },
-  dim: { opacity: 0.45 },
-  primary: {
-    minHeight: tap.min,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.fg,
-    borderRadius: radius.large
-  },
-  primaryText: { fontFamily: font.semibold, fontSize: 14, color: color.ink },
-  joinRow: { flexDirection: 'row', gap: 8 },
-  input: {
-    flex: 1,
-    minHeight: tap.min,
-    borderRadius: radius.large,
-    backgroundColor: color.surface,
-    textAlign: 'center',
-    fontFamily: font.medium,
-    fontSize: 20,
-    letterSpacing: 6,
-    color: color.fg,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  join: {
-    minHeight: tap.min,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  joinText: { fontFamily: font.semibold, fontSize: 14, color: color.fg },
-  error: { fontFamily: font.medium, fontSize: 12, color: color.masteryLow },
-  note: { fontFamily: font.regular, fontSize: 11.5, lineHeight: 17, color: color.faint },
-
-  codeCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    padding: 16,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  codeBody: { flex: 1 },
-  code: {
-    fontFamily: font.medium,
-    fontSize: 28,
-    letterSpacing: 5,
-    color: color.fg,
-    marginTop: 4
-  },
-  live: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: color.masteryHigh },
-  liveText: { fontFamily: font.semibold, fontSize: 11.5, color: color.masteryHigh },
-
-  deviceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  deviceBody: { flex: 1, minWidth: 0 },
-  deviceName: { fontFamily: font.semibold, fontSize: 14, color: color.fg },
-  labelCaps: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 1.3, color: color.label },
-  waiting: {
-    fontFamily: font.regular,
-    fontSize: 12,
-    lineHeight: 18,
-    color: color.faint,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: color.line,
-    borderRadius: radius.large,
-    paddingHorizontal: 16,
-    paddingVertical: 14
-  },
-  close: {
-    minHeight: tap.min,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  closeText: { fontFamily: font.semibold, fontSize: 13, color: color.dim }
-})

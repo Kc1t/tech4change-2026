@@ -17,7 +17,7 @@ export function Screen({
   return (
     <section
       className={cn(
-        'relative flex h-full flex-col px-7 pb-[104px] pt-[calc(10px+env(safe-area-inset-top,0px))]',
+        'relative flex h-full flex-col gap-4 px-7 pb-[104px] pt-[calc(22px+env(safe-area-inset-top,0px))]',
         scroll ? 'overflow-y-auto' : 'overflow-hidden',
         className
       )}
@@ -27,21 +27,72 @@ export function Screen({
   )
 }
 
+export function ScreenTop({
+  children,
+  className
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        'flex shrink-0 flex-col gap-4 px-7 pt-[calc(22px+env(safe-area-inset-top,0px))]',
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+export function Tabs<T extends string>({
+  options,
+  value,
+  onChange
+}: {
+  options: ReadonlyArray<{ value: T; label: string }>
+  value: T
+  onChange: (next: T) => void
+}) {
+  return (
+    <div role="tablist" className="flex shrink-0 self-start rounded-full bg-surface-2 p-1">
+      {options.map(option => {
+        const on = option.value === value
+        return (
+          <button
+            key={option.value}
+            role="tab"
+            aria-selected={on}
+            onClick={() => onChange(option.value)}
+            className={cn(
+              'min-h-0 rounded-full px-4 py-2 text-[13px] transition-colors',
+              on ? 'bg-surface font-semibold text-fg shadow-soft' : 'font-medium text-dim'
+            )}
+          >
+            {option.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function ScreenHeader({
   label,
   title,
   sub,
   aside
 }: {
-  label: string
+  label?: string
   title: React.ReactNode
   sub?: React.ReactNode
   aside?: React.ReactNode
 }) {
   return (
     <header className="shrink-0">
-      <p className="label-caps">{label}</p>
-      <h2 className="voice mt-1.5 text-xl leading-tight">{title}</h2>
+      {label && <p className="label-caps">{label}</p>}
+      <h2 className={cn('voice text-xl leading-tight', label && 'mt-1.5')}>{title}</h2>
       {sub && <p className="mt-2 text-[15px] font-medium leading-relaxed text-dim">{sub}</p>}
       {aside && <div className="mt-3">{aside}</div>}
     </header>
@@ -75,7 +126,7 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-[24px] bg-surface p-5 shadow-[0_2px_4px_rgba(22,22,22,0.04),0_10px_28px_-8px_rgba(22,22,22,0.14)]',
+        'rounded-[24px] bg-surface p-5 shadow-[0_2px_4px_rgba(90,70,160,0.04),0_10px_28px_-8px_rgba(90,70,160,0.14)]',
         className
       )}
     >
@@ -87,7 +138,7 @@ export function Card({
 export function Insight({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex justify-center">
-      <p className="flex w-fit max-w-full items-center gap-2 overflow-hidden rounded-2xl bg-surface/80 px-5 py-3 text-[14px] font-medium text-dim shadow-[0_1px_3px_rgba(22,22,22,0.06)] backdrop-blur-md">
+      <p className="flex w-fit max-w-full items-center gap-2 overflow-hidden rounded-2xl bg-surface/80 px-5 py-3 text-[14px] font-medium text-dim shadow-[0_1px_3px_rgba(90,70,160,0.06)] backdrop-blur-md">
         <Sparkle />
         <span className="truncate">{children}</span>
       </p>
@@ -130,12 +181,7 @@ export function TopBar({
 }
 
 export function BrandMark() {
-  return (
-    <span className="flex items-center gap-1.5 text-[18px] font-semibold tracking-[-0.04em] text-fg">
-      <i aria-hidden="true" className="brand-mark" />
-      eilo
-    </span>
-  )
+  return <img src="/brand/logo.webp" alt="eilo" className="h-6 w-auto" />
 }
 
 export function BackButton({ label = 'Voltar' }: { label?: string }) {

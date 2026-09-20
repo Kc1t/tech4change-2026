@@ -1,18 +1,29 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useCallback, useState } from 'react'
+import { Pressable, Switch, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import * as Speech from 'expo-speech'
 import { BuzzPicker, DeviceList } from '../components/DevicePanel'
 import { SyncPanel } from '../components/SyncPanel'
 import { NotificationBell } from '../components/NotificationBell'
-import { BrandMark, Card, Screen, ScreenHeader, TopBar } from '../components/ui'
+import { BrandMark, Card, RowLink, Screen, ScreenHeader, Segmented, Tabs, TopBar } from '../components/ui'
 import { useApp } from '../store'
-import { color, font, radius, shadow, tap } from '../theme/tokens'
+import { broadcastCue } from '../sync/client'
+import { patternFor, pulse } from '../haptics'
+import { color, shadow } from '../theme/tokens'
 import type { HelpLevel, OutputMode } from '../domain/types'
+
+type Tab = 'devices' | 'help' | 'session'
+
+const TABS = [
+  { value: 'devices' as const, label: 'Aparelhos' },
+  { value: 'help' as const, label: 'Ajuda' },
+  { value: 'session' as const, label: 'Sessão' }
+]
 
 const HELP: Array<{ value: HelpLevel; label: string; hint: string }> = [
   { value: 'deliver', label: 'Entrega', hint: 'a palavra vem direto, sem escada' },
-  { value: 'hint', label: 'Dica', hint: 'um degrau por vez, do geral até o som' },
-  { value: 'ladder', label: 'Escada', hint: 'sempre começa do primeiro degrau' }
+  { value: 'hint', label: 'Dica', hint: 'um degrau por vez' },
+  { value: 'ladder', label: 'Escada', hint: 'sempre do primeiro degrau' }
 ]
 
 const OUTPUT: Array<{ value: OutputMode; label: string; hint: string }> = [
@@ -21,94 +32,85 @@ const OUTPUT: Array<{ value: OutputMode; label: string; hint: string }> = [
   { value: 'both', label: 'Ambos', hint: 'fala e mostra' }
 ]
 
-export function BodyScreen({ onBell }: { onBell: () => void }) {
-  const paired = useApp(s => s.paired)
-  const helpLevel = useApp(s => s.helpLevel)
-  const output = useApp(s => s.output)
-  const setHelpLevel = useApp(s => s.setHelpLevel)
-  const setOutput = useApp(s => s.setOutput)
+const CARD_LABEL = 'mb-3 font-strong text-caps text-label'
+const HINT = 'mt-3 font-book text-hint text-faint'
+const NOTE = 'font-book text-note leading-[18px] text-faint'
 
-  const live = paired.filter(device => device.on).length
+export function BodyScreen({
+  onBell,
+  onClinical,
+  onRestart,
+  onDemo
+}: {
+  onBell: () => void
+  onClinical: () => void
+  onRestart: () => void
+  onDemo: () => void
+}) {
+  const [tab, setTab] = useState<Tab>('devices')
 
   return (
-    <Screen gap={12}>
+    <Screen>
       <TopBar left={<BrandMark />} right={<NotificationBell onPress={onBell} />} />
+      <ScreenHeader title="Configurações" />
+      <Tabs options={TABS} value={tab} onChange={setTab} />
 
-      <ScreenHeader
-        label="os aparelhos"
-        title="Onde a ajuda chega"
-        sub={`${live} de ${paired.length} ligados. A dica chega em todos no mesmo instante.`}
-      />
-
-      <DeviceList />
-
-      <ScreenHeader
-        label="onde vibra"
-        title="O que bate junto com a dica"
-        sub="Escolha em que aparelho você quer sentir. A vibração marca o tempo, não a palavra."
-      />
-
-      <BuzzPicker />
-
-      <ScreenHeader
-        label="a mesma sessão"
-        title="Ligar celular e relógio"
-        sub="Um código de quatro dígitos põe os dois na mesma conversa. A ponte leva o degrau, nunca a palavra."
-      />
-
-      <SyncPanel />
-
-      <Card>
-        <Text style={styles.cardLabel}>QUANTA AJUDA</Text>
-        <Segmented options={HELP} value={helpLevel} onChange={setHelpLevel} />
-        <Text style={styles.hint}>{HELP.find(o => o.value === helpLevel)?.hint}</Text>
-      </Card>
-
-      <Card>
-        <Text style={styles.cardLabel}>POR ONDE</Text>
-        <Segmented options={OUTPUT} value={output} onChange={setOutput} />
-        <Text style={styles.hint}>{OUTPUT.find(o => o.value === output)?.hint}</Text>
-      </Card>
-
-      <Pressable
-        onPress={() => {
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-          Speech.speak('Letícia', { language: 'pt-BR' })
-        }}
-        style={styles.test}
-      >
-        <Text style={styles.testText}>Sentir e ouvir agora</Text>
-      </Pressable>
-
-      <Text style={styles.note}>
-        Esta tela é o controle de privacidade. O que estiver desligado aqui não é usado, e nenhum
-        áudio sai do aparelho.
-      </Text>
+      {tab === 'devices' && <Devices />}
+      {tab === 'help' && <Help />}
+      {tab === 'session' && <Session onClinical={onClinical} onRestart={onRestart} onDemo={onDemo} />}
     </Screen>
   )
 }
 
-function Segmented<T extends string>({
-  options,
-  value,
-  onChange
-}: {
-  options: Array<{ value: T; label: string }>
-  value: T
-  onChange: (next: T) => void
-}) {
+function Devices() {
+  const paired = useApp(s => s.paired)
+  const live = paired.filter(device => device.on).length
+
   return (
-    <View style={styles.options}>
-      {options.map(option => (
+    <>
+      <Text className={NOTE}>
+        {live} de {paired.length} ligados. A dica chega em todos no mesmo instante.
+      </Text>
+
+      <DeviceList />
+
+      <Text className={CARD_LABEL}>ONDE VIBRA</Text>
+      <BuzzPicker />
+
+      <Text className={CARD_LABEL}>FORÇA DA VIBRAÇÃO</Text>
+      <Strength />
+    </>
+  )
+}
+
+function Strength() {
+  const intensity = useApp(s => s.intensity)
+  const setIntensity = useApp(s => s.setIntensity)
+
+  return (
+    <View className="flex-row gap-1.5">
+      {[1, 2, 3, 4, 5].map(step => (
         <Pressable
-          key={option.value}
+          key={step}
           accessibilityRole="radio"
-          accessibilityState={{ selected: option.value === value }}
-          onPress={() => onChange(option.value)}
-          style={[styles.option, option.value === value && styles.optionOn]}
+          accessibilityLabel={`Força ${step} de 5`}
+          accessibilityState={{ selected: step === intensity }}
+          onPress={() => {
+            setIntensity(step)
+            void Haptics.impactAsync(
+              step >= 4
+                ? Haptics.ImpactFeedbackStyle.Heavy
+                : step <= 2
+                  ? Haptics.ImpactFeedbackStyle.Light
+                  : Haptics.ImpactFeedbackStyle.Medium
+            )
+          }}
+          className={`min-h-tap flex-1 items-center justify-center rounded-card ${
+            step <= intensity ? 'bg-fg' : 'bg-surface-2'
+          }`}
         >
-          <Text style={[styles.optionText, option.value === value && styles.optionTextOn]}>
-            {option.label}
+          <Text className={`font-strong text-body ${step <= intensity ? 'text-ink' : 'text-dim'}`}>
+            {step}
           </Text>
         </Pressable>
       ))}
@@ -116,36 +118,117 @@ function Segmented<T extends string>({
   )
 }
 
-const styles = StyleSheet.create({
-  cardLabel: {
-    fontFamily: font.semibold,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    color: color.label,
-    marginBottom: 12
-  },
-  options: { flexDirection: 'row', gap: 6 },
-  option: {
-    flex: 1,
-    minHeight: tap.min,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.card,
-    backgroundColor: color.surface2
-  },
-  optionOn: { backgroundColor: color.fg },
-  optionText: { fontFamily: font.medium, fontSize: 14, color: color.dim },
-  optionTextOn: { fontFamily: font.semibold, color: color.ink },
-  hint: { fontFamily: font.regular, fontSize: 13, color: color.faint, marginTop: 12 },
-  test: {
-    minHeight: tap.min,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  testText: { fontFamily: font.semibold, fontSize: 14, color: color.fg },
-  note: { fontFamily: font.regular, fontSize: 12, lineHeight: 19, color: color.faint, marginTop: 8 }
-})
+function Help() {
+  const helpLevel = useApp(s => s.helpLevel)
+  const output = useApp(s => s.output)
+  const setHelpLevel = useApp(s => s.setHelpLevel)
+  const setOutput = useApp(s => s.setOutput)
+
+  return (
+    <>
+      <Card>
+        <Text className={CARD_LABEL}>QUANTA AJUDA</Text>
+        <Segmented options={HELP} value={helpLevel} onChange={setHelpLevel} />
+        <Text className={HINT}>{HELP.find(o => o.value === helpLevel)?.hint}</Text>
+      </Card>
+
+      <Card>
+        <Text className={CARD_LABEL}>POR ONDE</Text>
+        <Segmented options={OUTPUT} value={output} onChange={setOutput} />
+        <Text className={HINT}>{OUTPUT.find(o => o.value === output)?.hint}</Text>
+      </Card>
+
+      <Pressable
+        onPress={() => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          Speech.speak('Letícia', { language: 'pt-BR' })
+        }}
+        className="min-h-tap items-center justify-center rounded-large bg-surface"
+        style={{ ...shadow.card, shadowOpacity: 0.06 }}
+      >
+        <Text className="font-strong text-body text-fg">Sentir e ouvir agora</Text>
+      </Pressable>
+
+      <Text className={NOTE}>
+        O que estiver desligado aqui não é usado, e nenhum áudio sai do aparelho.
+      </Text>
+    </>
+  )
+}
+
+function Session({
+  onClinical,
+  onRestart,
+  onDemo
+}: {
+  onClinical: () => void
+  onRestart: () => void
+  onDemo: () => void
+}) {
+  const output = useApp(s => s.output)
+  const setOutput = useApp(s => s.setOutput)
+  const sessionCode = useApp(s => s.sessionCode)
+  const deviceId = useApp(s => s.deviceId)
+  const devices = useApp(s => s.devices)
+  const intensity = useApp(s => s.intensity)
+  const aloud = output !== 'text'
+
+  const watchOn = devices.some(device => device.kind === 'watch')
+
+  const testPulse = useCallback(() => {
+    pulse(patternFor(3, false), intensity)
+    if (!sessionCode || !deviceId) return
+    broadcastCue(sessionCode, {
+      deviceId,
+      targetId: 'n_fd8f8a',
+      level: 3,
+      attr: 'city',
+      edge: null,
+      isFinal: false,
+      event: 'cue'
+    })
+  }, [sessionCode, deviceId, intensity])
+
+  return (
+    <>
+      <Text className={NOTE}>
+        Um código de quatro dígitos põe celular e relógio na mesma conversa.
+      </Text>
+
+      <View
+        className="min-h-tap flex-row items-center justify-between rounded-large bg-surface px-4 py-3"
+        style={{ ...shadow.card, shadowOpacity: 0.06 }}
+      >
+        <View className="flex-1 pr-3">
+          <Text className="font-strong text-body text-fg">Falar em voz alta</Text>
+          <Text className="mt-0.5 font-book text-note text-faint">
+            {aloud ? 'A dica é falada quando chega.' : 'A dica só vibra e aparece na tela.'}
+          </Text>
+        </View>
+        <Switch
+          value={aloud}
+          onValueChange={next => setOutput(next ? 'both' : 'text')}
+          trackColor={{ false: color.surface2, true: color.brand }}
+          thumbColor={color.surface}
+        />
+      </View>
+
+      <SyncPanel />
+
+      <RowLink onPress={testPulse}>Testar o degrau 3 nos dois</RowLink>
+      <Text className={NOTE}>
+        {watchOn
+          ? 'Três toques aqui e três no relógio, ao mesmo tempo.'
+          : 'O relógio não está na sessão — por enquanto só este celular vibra.'}
+      </Text>
+
+      <RowLink onPress={onClinical}>Painel do fonoaudiólogo</RowLink>
+
+      <RowLink onPress={onRestart}>Refazer o primeiro acesso</RowLink>
+
+      <RowLink onPress={onDemo} accent>
+        Disparar demo
+      </RowLink>
+    </>
+  )
+}

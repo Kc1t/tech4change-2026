@@ -55,7 +55,7 @@ export function GraphStill() {
       </p>
 
       <div className="mt-4">
-        <GraphCanvas seed={SEED} present={['owner', 'person', 'place']} highlight="person" />
+        <GraphCanvas seed={SEED} present={['owner', 'person', 'place']} />
       </div>
 
       <dl className="mt-auto flex flex-col gap-1.5">

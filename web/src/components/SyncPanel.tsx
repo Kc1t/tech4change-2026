@@ -70,12 +70,12 @@ export function SyncPanel() {
             onChange={event => setTyped(event.target.value.replace(/\D/g, '').slice(0, 4))}
             placeholder="0000"
             aria-label="Código da sessão"
-            className="tabular w-full min-w-0 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 py-4 text-center text-xl tracking-[0.3em] outline-none placeholder:text-faint"
+            className="tabular w-full min-w-0 rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-4 py-4 text-center text-xl tracking-[0.3em] outline-none placeholder:text-faint"
           />
           <button
             onClick={handleJoin}
             disabled={busy || typed.length !== 4}
-            className="shrink-0 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-5 font-semibold disabled:opacity-40"
+            className="shrink-0 rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-5 font-semibold disabled:opacity-40"
           >
             Entrar
           </button>
@@ -93,7 +93,7 @@ export function SyncPanel() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-4">
+      <div className="flex items-center gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] p-4">
         <div className="min-w-0 flex-1">
           <span className="label-caps">código da sessão</span>
           <p className="voice tabular mt-0.5 text-2xl leading-none tracking-[0.18em]">{code}</p>
@@ -118,7 +118,7 @@ export function SyncPanel() {
 
       <button
         onClick={close}
-        className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 py-4 text-xs font-semibold"
+        className="rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-4 py-4 text-xs font-semibold"
       >
         Encerrar a sessão
       </button>
@@ -128,7 +128,7 @@ export function SyncPanel() {
 
 function DeviceRow({ device, isSelf }: { device: Device; isSelf: boolean }) {
   return (
-    <div className="flex items-center gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 py-3">
+    <div className="flex items-center gap-3 rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-4 py-3">
       <svg
         viewBox="0 0 24 24"
         aria-hidden="true"

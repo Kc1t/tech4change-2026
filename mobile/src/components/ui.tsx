@@ -1,29 +1,47 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, ScrollView, Text, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
-import { color, font, radius, shadow, tap } from '../theme/tokens'
+import { color, shadow } from '../theme/tokens'
 import { TOP_INSET } from '../theme/insets'
+
+const SCREEN = 'px-6 pb-32'
+const SCREEN_GAP = 12
 
 export function Screen({
   children,
   scroll = true,
-  gap = 0
+  gap = SCREEN_GAP
 }: {
   children: React.ReactNode
   scroll?: boolean
   gap?: number
 }) {
+  const pad = { paddingTop: TOP_INSET, ...(gap > 0 ? { gap } : null) }
+
   if (!scroll) {
-    return <View style={[styles.screen, gap > 0 && { gap }]}>{children}</View>
+    return (
+      <View className={SCREEN} style={pad}>
+        {children}
+      </View>
+    )
   }
 
   return (
     <ScrollView
-      style={styles.flex}
-      contentContainerStyle={[styles.screen, gap > 0 && { gap }]}
+      className="flex-1"
+      contentContainerClassName={SCREEN}
+      contentContainerStyle={pad}
       showsVerticalScrollIndicator={false}
     >
       {children}
     </ScrollView>
+  )
+}
+
+export function ScreenTop({ children }: { children: React.ReactNode }) {
+  return (
+    <View className="px-6" style={{ paddingTop: TOP_INSET, gap: SCREEN_GAP }}>
+      {children}
+    </View>
   )
 }
 
@@ -32,40 +50,117 @@ export function ScreenHeader({
   title,
   sub
 }: {
-  label: string
+  label?: string
   title: string
   sub?: string
 }) {
   return (
     <View>
-      <Text style={styles.labelCaps}>{label.toUpperCase()}</Text>
-      <Text style={styles.title}>{title}</Text>
-      {sub ? <Text style={styles.sub}>{sub}</Text> : null}
+      {label ? (
+        <Text className="mb-1.5 font-strong text-[11px] tracking-[1.4px] text-label">
+          {label.toUpperCase()}
+        </Text>
+      ) : null}
+      <Text className="font-mid text-[26px] leading-[30px] tracking-[-0.9px] text-fg">{title}</Text>
+      {sub ? <Text className="mt-2 font-mid text-[15px] leading-[22px] text-dim">{sub}</Text> : null}
+    </View>
+  )
+}
+
+export function Tabs<T extends string>({
+  options,
+  value,
+  onChange
+}: {
+  options: ReadonlyArray<{ value: T; label: string }>
+  value: T
+  onChange: (next: T) => void
+}) {
+  return (
+    <View className="flex-row self-start rounded-full bg-surface-2 p-1">
+      {options.map(option => {
+        const on = option.value === value
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(option.value)}
+            className={`rounded-full px-4 py-2 ${on ? 'bg-surface' : ''}`}
+            style={on ? { ...shadow.card, shadowOpacity: 0.07 } : undefined}
+          >
+            <Text
+              className={`text-[13px] ${on ? 'font-strong text-fg' : 'font-mid text-dim'}`}
+            >
+              {option.label}
+            </Text>
+          </Pressable>
+        )
+      })}
+    </View>
+  )
+}
+
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange
+}: {
+  options: ReadonlyArray<{ value: T; label: string }>
+  value: T
+  onChange: (next: T) => void
+}) {
+  return (
+    <View className="flex-row gap-1.5">
+      {options.map(option => {
+        const on = option.value === value
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(option.value)}
+            className={`min-h-tap flex-1 items-center justify-center rounded-card ${
+              on ? 'bg-fg' : 'bg-surface-2'
+            }`}
+          >
+            <Text className={`text-body ${on ? 'font-strong text-ink' : 'font-mid text-dim'}`}>
+              {option.label}
+            </Text>
+          </Pressable>
+        )
+      })}
     </View>
   )
 }
 
 export function TopBar({ left, right }: { left?: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <View style={styles.topBar}>
-      <View style={styles.topBarSide}>{left}</View>
-      <View style={styles.topBarSide}>{right}</View>
+    <View className="h-11 flex-row items-center justify-between">
+      <View className="flex-row items-center gap-1">{left}</View>
+      <View className="flex-row items-center gap-1">{right}</View>
     </View>
   )
 }
 
 export function BrandMark() {
   return (
-    <View style={styles.brand}>
-      <View style={styles.brandMark} />
-      <Text style={styles.brandText}>eilo</Text>
-    </View>
+    <Image
+      source={require('../../assets/wordmark.png')}
+      accessibilityLabel="eilo"
+      resizeMode="contain"
+      style={{ width: 72, height: 23 }}
+    />
   )
 }
 
 export function BackButton({ onPress, label = 'Voltar' }: { onPress: () => void; label?: string }) {
   return (
-    <Pressable onPress={onPress} style={styles.back} hitSlop={8}>
+    <Pressable
+      onPress={onPress}
+      className="flex-row items-center gap-1 py-2 pr-2"
+      hitSlop={8}
+    >
       <Svg viewBox="0 0 20 20" width={16} height={16}>
         <Path
           d="M12 4.5 6.5 10l5.5 5.5"
@@ -76,13 +171,17 @@ export function BackButton({ onPress, label = 'Voltar' }: { onPress: () => void;
           strokeLinejoin="round"
         />
       </Svg>
-      <Text style={styles.backText}>{label}</Text>
+      <Text className="font-strong text-body text-dim">{label}</Text>
     </Pressable>
   )
 }
 
 export function Card({ children, style }: { children: React.ReactNode; style?: object }) {
-  return <View style={[styles.card, style]}>{children}</View>
+  return (
+    <View className="rounded-large bg-surface p-5" style={[shadow.card, style]}>
+      {children}
+    </View>
+  )
 }
 
 export function Sparkle({ muted = false, size = 18 }: { muted?: boolean; size?: number }) {
@@ -104,10 +203,13 @@ export function Sparkle({ muted = false, size = 18 }: { muted?: boolean; size?: 
 
 export function Insight({ children }: { children: string }) {
   return (
-    <View style={styles.insightRow}>
-      <View style={styles.insight}>
+    <View className="flex-row justify-center">
+      <View
+        className="flex-row items-center gap-2 rounded-panel bg-surface px-[18px] py-3"
+        style={{ ...shadow.card, shadowOpacity: 0.06 }}
+      >
         <Sparkle />
-        <Text style={styles.insightText} numberOfLines={1}>
+        <Text className="shrink font-mid text-body text-dim" numberOfLines={1}>
           {children}
         </Text>
       </View>
@@ -125,8 +227,14 @@ export function RowLink({
   accent?: boolean
 }) {
   return (
-    <Pressable onPress={onPress} style={styles.rowLink}>
-      <Text style={[styles.rowLinkText, accent && { color: color.brand }]}>{children}</Text>
+    <Pressable
+      onPress={onPress}
+      className="min-h-tap flex-row items-center justify-between rounded-panel bg-surface px-4"
+      style={{ ...shadow.card, shadowOpacity: 0.06 }}
+    >
+      <Text className={`font-strong text-body ${accent ? 'text-brand' : 'text-fg'}`}>
+        {children}
+      </Text>
       <Svg viewBox="0 0 20 20" width={16} height={16}>
         <Path
           d="m7.5 4.5 5.5 5.5-5.5 5.5"
@@ -140,83 +248,3 @@ export function RowLink({
     </Pressable>
   )
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  screen: { paddingHorizontal: 24, paddingBottom: 128, paddingTop: TOP_INSET },
-  labelCaps: {
-    fontFamily: font.semibold,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    color: color.label
-  },
-  title: {
-    fontFamily: font.medium,
-    fontSize: 26,
-    lineHeight: 30,
-    letterSpacing: -0.9,
-    color: color.fg,
-    marginTop: 6
-  },
-  sub: {
-    fontFamily: font.medium,
-    fontSize: 15,
-    lineHeight: 22,
-    color: color.dim,
-    marginTop: 8
-  },
-  topBar: {
-    height: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  topBarSide: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  brandMark: {
-    width: 10,
-    height: 10,
-    borderRadius: 3,
-    backgroundColor: color.brandRose,
-    transform: [{ rotate: '45deg' }]
-  },
-  brandText: {
-    fontFamily: font.semibold,
-    fontSize: 18,
-    letterSpacing: -0.72,
-    color: color.fg
-  },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 8, paddingRight: 8 },
-  backText: { fontFamily: font.semibold, fontSize: 14, color: color.dim },
-  card: {
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    padding: 20,
-    ...shadow.card
-  },
-  insightRow: { flexDirection: 'row', justifyContent: 'center' },
-  insight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: color.surface,
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  insightText: { fontFamily: font.medium, fontSize: 14, color: color.dim, flexShrink: 1 },
-  rowLink: {
-    minHeight: tap.min,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: color.surface,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  rowLinkText: { fontFamily: font.semibold, fontSize: 14, color: color.fg }
-})

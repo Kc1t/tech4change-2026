@@ -27,8 +27,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'O caminho até a palavra',
   description:
-    'Um app que ajuda quem teve AVC a alcançar a palavra que travou, no segundo em que ela falta.',
-  icons: { icon: '/favicon.svg' }
+    'Um app que ajuda quem teve AVC a alcançar a palavra que travou, no segundo em que ela falta.'
 }
 
 export const viewport: Viewport = {

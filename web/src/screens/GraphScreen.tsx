@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { NodeSheet } from '@/components/graph/NodeSheet'
 import { SOURCE_LABEL, SourceMark } from '@/components/graph/SourceMark'
 import { WordCloud, type CloudWord } from '@/components/graph/WordCloud'
-import { BrandMark, ScreenHeader, TopBar } from '@/components/layout'
+import { BrandMark, ScreenHeader, ScreenTop, TopBar } from '@/components/layout'
 import { memoriesAbout, memoriesOf, memoryTags } from '@/domain/memories'
 import { lifeGraph, useApp } from '@/store'
 import type { NodeId } from '@/domain/types'
@@ -95,7 +95,7 @@ export function GraphScreen() {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden">
-      <div className="shrink-0 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
+      <ScreenTop>
         <TopBar
           left={<BrandMark />}
           right={
@@ -119,12 +119,8 @@ export function GraphScreen() {
           }
         />
 
-        <ScreenHeader
-          label="a vida dela"
-          title="Como tudo se conecta"
-          sub="Cada memória revela um pouco mais da história."
-        />
-      </div>
+        <ScreenHeader title="Mapa" sub="Toque numa palavra para ver de onde ela veio." />
+      </ScreenTop>
 
       <div className="relative min-h-0 flex-1 px-4 pt-4">
         <WordCloud

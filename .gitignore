@@ -9,6 +9,7 @@ next-env.d.ts
 .env
 .vercel
 *.tsbuildinfo
+tmp/
 ingest/input/*
 !ingest/input/.gitkeep
 
@@ -24,3 +25,13 @@ watch/local.properties
 # Crash dump da JVM e cache do Kotlin
 watch/.kotlin/
 hs_err_pid*.log
+
+# Ferramentas de agente e saida local
+.codex/
+.claude/
+CLAUDE.md
+
+# Material de apresentacao e capturas de trabalho
+presentation/
+shots/
+output/

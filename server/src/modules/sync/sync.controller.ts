@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Sse } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { BroadcastCueDto } from './dto/broadcast-cue.dto'
-import { JoinSessionDto } from './dto/join-session.dto'
+import { HeartbeatDto, JoinSessionDto } from './dto/join-session.dto'
 import { SyncService } from './sync.service'
 
 @ApiTags('sync')
@@ -30,8 +30,12 @@ export class SyncController {
   }
 
   @Post('sessions/:code/devices/:deviceId/heartbeat')
-  heartbeat(@Param('code') code: string, @Param('deviceId') deviceId: string) {
-    return this.sync.heartbeat(code, deviceId)
+  heartbeat(
+    @Param('code') code: string,
+    @Param('deviceId') deviceId: string,
+    @Body() body: HeartbeatDto
+  ) {
+    return this.sync.heartbeat(code, deviceId, body)
   }
 
   @Delete('sessions/:code/devices/:deviceId')

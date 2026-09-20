@@ -1,7 +1,8 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { ArrowRight, Download, Globe } from 'lucide-react'
-import { PhoneShell, ScreenLadder, ScreenListening } from './phone'
+import { Device, ScreenMoment, ScreenProgress } from './app-screens'
+import { PhoneShell } from './phone'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3010'
 
@@ -62,12 +63,16 @@ export function Cta() {
         >
           <div className="absolute top-0 left-0 z-10 h-[360px] w-[178px] rotate-[-8deg]">
             <PhoneShell cropped className="h-full w-full">
-              <ScreenListening />
+              <Device width={166}>
+                <ScreenMoment />
+              </Device>
             </PhoneShell>
           </div>
           <div className="absolute top-8 left-[166px] h-[360px] w-[178px] rotate-[-8deg]">
             <PhoneShell cropped className="h-full w-full">
-              <ScreenLadder />
+              <Device width={166}>
+                <ScreenProgress />
+              </Device>
             </PhoneShell>
           </div>
         </div>

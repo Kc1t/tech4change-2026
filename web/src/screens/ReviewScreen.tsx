@@ -59,7 +59,7 @@ export function ReviewScreen() {
   }
 
   return (
-    <Screen className="gap-4">
+    <Screen>
       <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">primeiro acesso · revisão</p>

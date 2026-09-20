@@ -1,31 +1,36 @@
 export const color = {
   stage: '#000000',
 
-  ink: '#f2f2f0',
+  ink: '#f6f5fb',
   surface: '#ffffff',
-  surface2: '#e8e8e4',
-  line: '#d6d6d1',
-  lineSoft: '#e4e4df',
-  fg: '#161616',
-  dim: '#4a4a48',
-  faint: '#6f6f6c',
-  label: '#6b6b68',
+  surface2: '#e8e4f4',
+  line: '#e6e3ef',
+  lineSoft: '#efedf6',
+  fg: '#1b1a22',
+  dim: '#57546a',
+  faint: '#6a6779',
+  label: '#6a6779',
 
-  brand: '#bf3f63',
+  brand: '#6b5fa8',
   brandInk: '#ffffff',
-  brandSoft: '#f8e0e6',
-  brandWarm: '#f0a36b',
-  brandRose: '#d65a7a',
+  brandSoft: '#e4e0fb',
+  brandWarm: '#efb6ec',
+  brandRose: '#8e7ff0',
 
-  auroraBase: '#fbd9c4',
-  aurora1: '#f39a6b',
-  aurora2: '#d8577c',
-  aurora3: '#6b3f8f',
-  aurora4: '#ffe3a8',
+  auroraBase: '#e7dffb',
+  aurora1: '#b9a3f7',
+  aurora2: '#efb6ec',
+  aurora3: '#a9dcff',
+  aurora4: '#ffe0f2',
 
   deltaUp: '#5145cd',
   deltaNote: '#b07708',
   deltaDown: '#b03a4e',
+
+  warnSoft: '#fcefd9',
+  warnInk: '#7a4800',
+  goodSoft: '#e3f4ea',
+  goodInk: '#1a6b43',
 
   masteryHigh: '#2f7a5c',
   masteryMedium: '#a06210',
@@ -55,26 +60,16 @@ export const font = {
   bold: 'Manrope_700Bold'
 } as const
 
-export const radius = {
-  card: 14,
-  panel: 18,
-  large: 24,
-  cloud: 30,
-  pill: 999
-} as const
-
-export const tap = { min: 48 } as const
-
 export const shadow = {
   card: {
-    shadowColor: '#161616',
+    shadowColor: '#5a46a0',
     shadowOpacity: 0.1,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 6 },
     elevation: 3
   },
   bar: {
-    shadowColor: '#161616',
+    shadowColor: '#5a46a0',
     shadowOpacity: 0.14,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },

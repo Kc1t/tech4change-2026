@@ -69,7 +69,7 @@ export function RowButton({ children, onClick }: RowButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-4 py-4 text-xs font-semibold active:scale-[0.99]"
+      className="w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-4 py-4 text-xs font-semibold active:scale-[0.99]"
     >
       {children}
     </button>

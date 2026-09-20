@@ -21,6 +21,7 @@ import type {
   Mastery,
   NodeId,
   OutputMode,
+  Backdrop,
   Resolution,
   Scene
 } from '@/domain/types'
@@ -99,6 +100,7 @@ interface AppState {
   intensity: number
   helpLevel: HelpLevel
   output: OutputMode
+  backdrop: Backdrop
   confirmations: Record<NodeId, boolean>
   sessionCode: string | null
   deviceId: string | null
@@ -134,6 +136,7 @@ interface AppState {
   setIntensity: (value: number) => void
   setHelpLevel: (level: HelpLevel) => void
   setOutput: (mode: OutputMode) => void
+  setBackdrop: (backdrop: Backdrop) => void
   confirm: (id: NodeId) => void
   setSession: (code: string | null, deviceId: string | null) => void
   setDevices: (devices: Device[]) => void
@@ -155,6 +158,7 @@ export const useApp = create<AppState>()(
       intensity: 3,
       helpLevel: 'hint',
       output: 'both',
+      backdrop: 'wave',
       confirmations: {},
       sessionCode: null,
       deviceId: null,
@@ -350,6 +354,7 @@ export const useApp = create<AppState>()(
       setIntensity: value => set({ intensity: value }),
       setHelpLevel: level => set({ helpLevel: level }),
       setOutput: mode => set({ output: mode }),
+      setBackdrop: backdrop => set({ backdrop }),
       confirm: id =>
         set(state => ({ confirmations: { ...state.confirmations, [id]: true } })),
 
@@ -380,6 +385,7 @@ export const useApp = create<AppState>()(
         intensity: state.intensity,
         helpLevel: state.helpLevel,
         output: state.output,
+        backdrop: state.backdrop,
         confirmations: state.confirmations,
         sessionCode: state.sessionCode
       })

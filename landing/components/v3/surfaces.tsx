@@ -5,21 +5,21 @@ import { Reveal } from './reveal'
 
 const CARDS = [
   {
-    file: 'pulso',
+    file: 'art/watch-3d',
     icon: Watch,
-    alt: 'Um relógio de pulso claro com uma onda sonora na tela.',
+    alt: 'Um relógio no pulso mostrando o eilo, com a frase “toque quando a palavra travar”.',
     title: 'No pulso',
     body: 'A dica chega como vibração discreta.'
   },
   {
-    file: 'celular',
+    file: 'art/phone-lilac',
     icon: Smartphone,
-    alt: 'Um celular deitado na mesa, com a tela de escuta acesa.',
+    alt: 'Um celular na mesa com a tela do eilo esperando a palavra.',
     title: 'No celular',
     body: 'Escuta o ambiente e avisa quando precisa.'
   },
   {
-    file: 'ouvido',
+    file: 'art/ouvido',
     icon: Headphones,
     alt: 'Uma mulher ajustando o fone de ouvido sem fio.',
     title: 'No ouvido',
@@ -28,7 +28,7 @@ const CARDS = [
 ]
 
 export function Surfaces() {
-  const dir = join(process.cwd(), 'public', 'art')
+  const dir = join(process.cwd(), 'public')
 
   return (
     <section id="gadgets" className="mx-auto max-w-6xl px-6 pb-24 sm:px-10 sm:pb-32">
@@ -47,7 +47,7 @@ export function Surfaces() {
 
       <div className="mt-14 grid gap-5 md:grid-cols-3">
         {CARDS.map((card, i) => {
-          const src = `/art/${card.file}.webp`
+          const src = `/${card.file}.webp`
           const has = existsSync(join(dir, `${card.file}.webp`))
 
           return (

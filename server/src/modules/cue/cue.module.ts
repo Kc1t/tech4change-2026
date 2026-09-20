@@ -7,6 +7,6 @@ import { RerankService } from './rerank.service'
 @Module({
   controllers: [CueController],
   providers: [CueService, CandidatesService, RerankService],
-  exports: [CueService]
+  exports: [CueService, RerankService]
 })
 export class CueModule {}

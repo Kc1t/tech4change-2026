@@ -30,7 +30,7 @@ export function LearningCard() {
   return (
     <Link
       href="/graph"
-      className="animate-rise flex items-center gap-3 rounded-[18px] bg-surface p-3 shadow-[0_2px_8px_rgba(22,22,22,0.08),0_14px_32px_rgba(22,22,22,0.16)]"
+      className="animate-rise flex items-center gap-3 rounded-[18px] bg-surface p-3 shadow-[0_2px_8px_rgba(90,70,160,0.08),0_14px_32px_rgba(90,70,160,0.16)]"
     >
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-soft">
         <svg

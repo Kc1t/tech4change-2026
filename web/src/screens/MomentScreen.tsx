@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { lifeGraph, useApp } from '@/store'
 import { notifyWatch, patternFor, pulse, speak, unlockAudio, vibrate } from '@/channels'
 import { recordEvent } from '@/api/client'
+import { BackdropToggle } from '@/components/BackdropToggle'
+import { GlassOrb } from '@/components/GlassOrb'
 import type { OrbState } from '@/components/Orb'
 import { AuroraField } from '@/components/AuroraField'
 import { LearningCard } from '@/components/LearningCard'
@@ -13,7 +15,7 @@ import { speakEntrained, stopEntrainment, type Mark } from '@/channels/entrain'
 import { SpokenPhrase } from '@/components/SpokenPhrase'
 import { broadcastCue } from '@/sync/client'
 import type { HelpLevel, LadderStep, OutputMode } from '@/domain/types'
-import { BrandMark, NotificationBell, TopBar } from '@/components/layout'
+import { BrandMark, NotificationBell, ScreenTop, TopBar } from '@/components/layout'
 
 const HELP_OPTIONS: Array<{ value: HelpLevel; label: string; hint: string }> = [
   { value: 'deliver', label: 'Entrega', hint: 'diz a palavra' },
@@ -178,6 +180,7 @@ export function MomentScreen() {
     emit(useApp.getState().level - 1)
   }, [helpLevel, resolvedAt, deliver, start, advance, emit, channels, intensity, target])
 
+  const backdrop = useApp(s => s.backdrop)
   const { levelRef, state: listening, start: listen, stop: unlisten } = useListening(trigger)
 
   useEffect(() => {
@@ -271,32 +274,56 @@ export function MomentScreen() {
 
   return (
     <section className="relative flex h-full flex-col overflow-hidden">
-      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[54%]">
+      <span
+        aria-hidden="true"
+        className={`absolute inset-x-0 bottom-0 h-[54%] transition-opacity duration-500 ${
+          backdrop === 'wave' ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
         <AuroraField state={orbState} levelRef={levelRef} />
       </span>
 
-      <div className="relative z-10 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
-        <TopBar left={<BrandMark />} right={<NotificationBell />} />
-      </div>
+      <ScreenTop className="relative z-10">
+        <TopBar
+          left={<BrandMark />}
+          right={
+            <>
+              <BackdropToggle />
+              <NotificationBell />
+            </>
+          }
+        />
 
-      <div className="relative z-10 px-7 pt-3">
-        <p className="label-caps">{status}</p>
-        <p className="mt-2 max-w-[26ch] text-[19px] leading-snug text-dim">
-          {spoken}
-          {armed && (
-            <span
-              aria-hidden="true"
-              className="ml-1 inline-block h-[0.9em] w-[2.5px] translate-y-[0.12em] rounded-sm bg-aurora-1 [animation:blink_1.1s_step-end_infinite]"
-            />
-          )}
-        </p>
-      </div>
+        <div>
+          <p className="label-caps">{status}</p>
+          <p className="mt-2 max-w-[26ch] text-[19px] leading-snug text-dim">
+            {spoken}
+            {armed && (
+              <span
+                aria-hidden="true"
+                className="ml-1 inline-block h-[0.9em] w-[2.5px] translate-y-[0.12em] rounded-sm bg-aurora-1 [animation:blink_1.1s_step-end_infinite]"
+              />
+            )}
+          </p>
+        </div>
+      </ScreenTop>
 
       <button
         onClick={() => (armed ? trigger() : void listen())}
         aria-label={armed ? 'Travou — pedir ajuda agora' : 'Ativar a escuta'}
         className="relative z-10 flex flex-1 flex-col items-center justify-center px-7 text-center"
       >
+        <span
+          aria-hidden="true"
+          className={`block shrink-0 overflow-hidden transition-all duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+            backdrop === 'orb'
+              ? 'mb-9 max-h-[200px] scale-100 opacity-100'
+              : 'mb-0 max-h-0 scale-75 opacity-0'
+          }`}
+        >
+          <GlassOrb state={orbState} size={196} />
+        </span>
+
         <span className="label-caps">
           {expectedKind === 'word'
             ? 'a palavra'

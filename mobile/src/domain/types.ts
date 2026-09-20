@@ -90,6 +90,7 @@ export type DiscretionMode = 'discreet' | 'normal' | 'home'
 export type HelpLevel = 'deliver' | 'hint' | 'ladder'
 
 export type OutputMode = 'voice' | 'text' | 'both'
+export type Backdrop = 'wave' | 'orb'
 
 export interface ChannelState {
   phone: boolean

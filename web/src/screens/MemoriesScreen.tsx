@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { MemoryRow } from '@/components/graph/MemoryRow'
-import { BackButton, ScreenHeader, TopBar } from '@/components/layout'
+import { BackButton, BrandMark, ScreenHeader, ScreenTop, TopBar } from '@/components/layout'
 import { memoriesAbout, memoriesOf, memoryTags } from '@/domain/memories'
 import { lifeGraph, useApp } from '@/store'
 
@@ -16,12 +16,11 @@ export function MemoriesScreen() {
 
   return (
     <section className="flex h-full flex-col overflow-hidden">
-      <div className="shrink-0 px-7 pt-[calc(10px+env(safe-area-inset-top,0px))]">
-        <TopBar left={<BackButton />} />
+      <ScreenTop>
+        <TopBar left={focus ? <BackButton /> : <BrandMark />} />
 
         <ScreenHeader
-          label="as memórias"
-          title={focus ? focus.label : 'Tudo o que sustenta o mapa'}
+          title={focus ? focus.label : 'Memórias'}
           sub={
             focus
               ? `${listed.length} ${listed.length === 1 ? 'memória sustenta' : 'memórias sustentam'} essa ligação.`
@@ -32,7 +31,7 @@ export function MemoriesScreen() {
         {focus && (
           <button
             onClick={() => setMemoryFilter(null)}
-            className="mt-3 flex min-h-0 items-center gap-2 rounded-full bg-fg px-3 py-2 text-[12px] font-semibold text-ink"
+            className="flex min-h-0 items-center gap-2 self-start rounded-full bg-fg px-3 py-2 text-[12px] font-semibold text-ink"
           >
             {focus.label}
             <svg
@@ -48,7 +47,7 @@ export function MemoriesScreen() {
             </svg>
           </button>
         )}
-      </div>
+      </ScreenTop>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-[96px] pt-4">
         <div className="flex flex-col gap-2">

@@ -8,7 +8,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated'
 import Svg, { Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg'
-import { color, radius, shadow } from '../theme/tokens'
+import { color, shadow } from '../theme/tokens'
 import { BAR_INSET } from '../theme/insets'
 import type { Route } from '../navigation'
 
@@ -63,8 +63,12 @@ export function BottomBar({
   const pillStyle = useAnimatedStyle(() => ({ transform: [{ translateX: pill.value }] }))
 
   return (
-    <View style={styles.wrap} pointerEvents="box-none">
-      <View style={styles.bar} onLayout={event => setWidth(event.nativeEvent.layout.width)}>
+    <View className="absolute inset-x-0 bottom-0 z-30 px-6" style={styles.wrap} pointerEvents="box-none">
+      <View
+        className="flex-row items-center rounded-full bg-surface px-2 py-2"
+        style={shadow.bar}
+        onLayout={event => setWidth(event.nativeEvent.layout.width)}
+      >
         {route !== 'moment' && slot > 0 && (
           <Animated.View style={[styles.pill, pillStyle]} pointerEvents="none" />
         )}
@@ -73,7 +77,7 @@ export function BottomBar({
           <Tab key={tab.route} tab={tab} active={route === tab.route} onPress={onNavigate} />
         ))}
 
-        <View style={styles.slot}>
+        <View className="flex-1 items-center justify-center">
           <Orb onPress={onHome} />
         </View>
 
@@ -95,7 +99,7 @@ function Tab({
   onPress: (next: Route) => void
 }) {
   return (
-    <View style={styles.slot}>
+    <View className="flex-1 items-center justify-center">
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={tab.label}
@@ -187,24 +191,7 @@ function Orb({ onPress }: { onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 24,
-    paddingBottom: BAR_INSET,
-    zIndex: 30
-  },
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.pill,
-    paddingHorizontal: BAR_PAD,
-    paddingVertical: 8,
-    ...shadow.bar
-  },
+  wrap: { paddingBottom: BAR_INSET },
   pill: {
     position: 'absolute',
     left: BAR_PAD,
@@ -214,7 +201,6 @@ const styles = StyleSheet.create({
     borderRadius: TAB_SIZE / 2,
     backgroundColor: color.fg
   },
-  slot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   tab: {
     width: TAB_SIZE,
     height: TAB_SIZE,

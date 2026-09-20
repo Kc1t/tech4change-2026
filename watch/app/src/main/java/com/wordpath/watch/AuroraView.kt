@@ -2,12 +2,9 @@ package com.wordpath.watch
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
 import android.graphics.Shader
 import android.provider.Settings
 import android.util.AttributeSet
@@ -40,25 +37,26 @@ class AuroraView @JvmOverloads constructor(
     private val pink = ContextCompat.getColor(context, R.color.orb_2)
     private val sky = ContextCompat.getColor(context, R.color.orb_3)
     private val blush = ContextCompat.getColor(context, R.color.orb_4)
+    private val orbBase = ContextCompat.getColor(context, R.color.orb_base)
 
     private val layers = listOf(
         Layer(
-            base = 0.34f, amp = 0.035f, boost = 0.09f, freq = 1.1f, drift = 0.00021f, alpha = 204,
-            colors = intArrayOf(blush, lilac, pink), stops = floatArrayOf(0f, 0.55f, 1f)
+            base = 0.15f, amp = 0.070f, boost = 0.09f, freq = 0.9f, drift = 0.00019f, alpha = 150,
+            colors = intArrayOf(blush, orbBase, lilac), stops = floatArrayOf(0f, 0.5f, 1f)
         ),
         Layer(
-            base = 0.52f, amp = 0.045f, boost = 0.15f, freq = 1.8f, drift = -0.00034f, alpha = 230,
-            colors = intArrayOf(lilac, pink, lilac), stops = floatArrayOf(0f, 0.62f, 1f)
+            base = 0.32f, amp = 0.075f, boost = 0.14f, freq = 1.2f, drift = -0.00027f, alpha = 200,
+            colors = intArrayOf(lilac, blush, pink), stops = floatArrayOf(0f, 0.55f, 1f)
         ),
         Layer(
-            base = 0.74f, amp = 0.035f, boost = 0.2f, freq = 2.7f, drift = 0.00047f, alpha = 242,
+            base = 0.56f, amp = 0.065f, boost = 0.18f, freq = 1.5f, drift = 0.00034f, alpha = 216,
             colors = intArrayOf(pink, lilac, sky), stops = floatArrayOf(0f, 0.5f, 1f)
+        ),
+        Layer(
+            base = 0.80f, amp = 0.055f, boost = 0.20f, freq = 1.8f, drift = -0.00044f, alpha = 236,
+            colors = intArrayOf(lilac, sky, lilac), stops = floatArrayOf(0f, 0.55f, 1f)
         )
     )
-
-    private val veilPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
-    }
 
     private val still = Settings.Global.getFloat(
         context.contentResolver,
@@ -87,7 +85,8 @@ class AuroraView @JvmOverloads constructor(
         val now = if (still) 0f else (System.currentTimeMillis() % PERIOD_MS).toFloat()
         val top = height - band
 
-        val saved = canvas.saveLayer(0f, top, width, height.toFloat(), null)
+        val saved = canvas.save()
+        canvas.clipRect(0f, top, width, height.toFloat())
         canvas.translate(0f, top)
 
         for (layer in layers) {
@@ -107,9 +106,8 @@ class AuroraView @JvmOverloads constructor(
                 val u = i.toFloat() / STEPS
                 val x = u * width
                 val wave =
-                    sin(u * PI.toFloat() * layer.freq * 2f + phase) * 0.6f +
-                        sin(u * PI.toFloat() * layer.freq * 5f + phase * 1.7f) * 0.3f +
-                        sin(u * PI.toFloat() * layer.freq * 9f + phase * 2.4f) * 0.12f
+                    sin(u * PI.toFloat() * layer.freq * 2f + phase) * 0.78f +
+                        sin(u * PI.toFloat() * layer.freq * 3.4f + phase * 1.6f) * 0.22f
                 val y = layer.base * band - wave * amplitude
                 if (i == 0) layer.path.moveTo(x, y) else layer.path.lineTo(x, y)
             }
@@ -120,15 +118,6 @@ class AuroraView @JvmOverloads constructor(
             canvas.drawPath(layer.path, layer.paint)
         }
 
-        if (veilPaint.shader == null) {
-            veilPaint.shader = LinearGradient(
-                0f, 0f, 0f, band,
-                intArrayOf(Color.TRANSPARENT, Color.argb(191, 255, 255, 255), Color.WHITE),
-                floatArrayOf(0f, 0.22f, 0.6f),
-                Shader.TileMode.CLAMP
-            )
-        }
-        canvas.drawRect(0f, 0f, width, band, veilPaint)
         canvas.restoreToCount(saved)
 
         if (!still || abs(target - level) > 0.001f) postInvalidateOnAnimation()
@@ -136,7 +125,7 @@ class AuroraView @JvmOverloads constructor(
 
     private companion object {
         const val STEPS = 56
-        const val BAND = 0.45f
+        const val BAND = 0.36f
         const val HOLD_MS = 900L
         const val PERIOD_MS = 1_000_000L
     }

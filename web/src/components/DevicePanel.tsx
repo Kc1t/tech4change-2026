@@ -14,7 +14,7 @@ import {
 } from '@/domain/devices'
 
 const CARD =
-  'rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)]'
+  'rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)]'
 
 const SCAN_MS = 1400
 

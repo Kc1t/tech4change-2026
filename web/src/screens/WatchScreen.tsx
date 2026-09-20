@@ -59,7 +59,7 @@ export function WatchScreen() {
               onChange={event => setTyped(event.target.value.replace(/\D/g, '').slice(0, 4))}
               placeholder="0000"
               aria-label="Código da sessão"
-              className="tabular w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-2 py-3 text-center text-xl tracking-[0.3em] outline-none placeholder:text-faint"
+              className="tabular w-full rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-2 py-3 text-center text-xl tracking-[0.3em] outline-none placeholder:text-faint"
             />
             <button
               onClick={handleJoin}

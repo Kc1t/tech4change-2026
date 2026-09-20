@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { useApp } from '../store'
-import { color, font } from '../theme/tokens'
+import { color } from '../theme/tokens'
 
 export function NotificationBell({ onPress }: { onPress: () => void }) {
   const count = useApp(s => s.unseenLearning.length)
@@ -15,7 +15,7 @@ export function NotificationBell({ onPress }: { onPress: () => void }) {
           : 'Nada novo no mapa'
       }
       onPress={onPress}
-      style={styles.bell}
+      className="size-11 items-center justify-center"
       hitSlop={6}
     >
       <Svg viewBox="0 0 24 24" width={21} height={21}>
@@ -37,29 +37,10 @@ export function NotificationBell({ onPress }: { onPress: () => void }) {
       </Svg>
 
       {count > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{count > 9 ? '9+' : String(count)}</Text>
+        <View className="absolute right-[7px] top-[7px] h-[17px] min-w-[17px] items-center justify-center rounded-[9px] border-2 border-ink bg-brand px-1">
+          <Text className="font-heavy text-[9px] text-brand-ink">{count > 9 ? '9+' : String(count)}</Text>
         </View>
       )}
     </Pressable>
   )
 }
-
-const styles = StyleSheet.create({
-  bell: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', minHeight: 0 },
-  badge: {
-    position: 'absolute',
-    right: 7,
-    top: 7,
-    minWidth: 17,
-    height: 17,
-    borderRadius: 9,
-    paddingHorizontal: 4,
-    backgroundColor: color.brand,
-    borderWidth: 2,
-    borderColor: color.ink,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  badgeText: { fontFamily: font.bold, fontSize: 9, color: color.brandInk }
-})

@@ -1,5 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Device, ScreenMap, ScreenMoment, ScreenProgress } from './app-screens'
+import { PhoneShell } from './phone'
 import { Reveal } from './reveal'
 
 const SCREENS = [
@@ -8,43 +10,21 @@ const SCREENS = [
     tile: 'v3-tile-1',
     title: 'O Momento',
     body: 'A única tela que se usa com a palavra travada. Quatro degraus, um toque, e a conversa continua.',
-    art: (
-      <div className="v3-orb size-24 rounded-full" />
-    )
+    screen: <ScreenMoment state="word" orb={150} footer={12} bar={false} />
   },
   {
     tag: 'Nos bastidores',
     tile: 'v3-tile-2',
     title: 'O Mapa',
     body: 'O grafo que se monta das fotos do próprio aparelho. A família confirma uma vez e ninguém preenche formulário toda semana.',
-    art: (
-      <svg viewBox="0 0 120 96" className="h-24 w-32" aria-hidden="true">
-        <g stroke="#9b87c8" strokeWidth="1.6" fill="none" opacity="0.8">
-          <path d="M28 66 L60 30 L96 58 M60 30 L60 78" />
-        </g>
-        <circle cx="60" cy="30" r="11" fill="#fff" stroke="#6b5fa8" strokeWidth="2" />
-        <circle cx="28" cy="66" r="8" fill="#6b5fa8" />
-        <circle cx="96" cy="58" r="8" fill="#c9a6e0" />
-        <circle cx="60" cy="78" r="8" fill="#fff" stroke="#9b87c8" strokeWidth="2" />
-      </svg>
-    )
+    screen: <ScreenMap bar={false} />
   },
   {
     tag: 'Uma vez por semana',
     tile: 'v3-tile-3',
-    title: 'O Painel',
-    body: 'O que o fonoaudiólogo vê na quarta-feira: onde travou, em que degrau saiu, e o que mudou desde o mês passado.',
-    art: (
-      <div className="flex h-24 items-end gap-2.5" aria-hidden="true">
-        {[34, 58, 46, 76, 62, 92].map((h, i) => (
-          <i
-            key={i}
-            className="w-3.5 rounded-t-[4px] bg-[#8d7fbe]"
-            style={{ height: `${h}%`, opacity: 0.45 + i * 0.09 }}
-          />
-        ))}
-      </div>
-    )
+    title: 'O Progresso',
+    body: 'O degrau médio caindo semana a semana. Cada ponto é uma palavra alcançada neste aparelho — nada aqui é estimativa.',
+    screen: <ScreenProgress bar={false} />
   }
 ]
 
@@ -85,16 +65,23 @@ export function Screens() {
         {SCREENS.map((screen, i) => (
           <Reveal key={screen.title} delay={i * 80} className="h-full">
           <article
-            className={`${screen.tile} relative flex min-h-[380px] flex-col rounded-[1.5rem] p-7`}
+            className={`${screen.tile} relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-[1.5rem] p-7`}
           >
             <span className="self-start rounded-full bg-white/70 px-3 py-1.5 text-[0.66rem] font-semibold tracking-[0.12em] text-[#4b4462] uppercase">
               {screen.tag}
             </span>
-            <div className="flex flex-1 items-center justify-center py-8">{screen.art}</div>
-            <h3 className="text-[1.25rem] leading-snug font-medium tracking-[-0.025em]">
+            <h3 className="mt-6 text-[1.25rem] leading-snug font-medium tracking-[-0.025em]">
               {screen.title}
             </h3>
             <p className="mt-2.5 text-[0.9rem] leading-relaxed text-[#6b687a]">{screen.body}</p>
+            <div aria-hidden="true" className="relative mt-auto h-[256px]">
+              <PhoneShell
+                cropped
+                className="absolute bottom-[-32px] left-1/2 h-[calc(100%+32px)] w-[186px] -translate-x-1/2"
+              >
+                <Device width={174}>{screen.screen}</Device>
+              </PhoneShell>
+            </div>
           </article>
           </Reveal>
         ))}

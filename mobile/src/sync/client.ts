@@ -12,6 +12,7 @@ export interface Device {
   name: string
   joinedAt: number
   seenAt: number
+  battery: number | null
 }
 
 export interface CuePayload {
@@ -56,6 +57,11 @@ export function describeDevice(): { kind: DeviceKind; name: string } {
   return { kind: 'phone', name: Platform.OS === 'android' ? 'Celular Android' : 'iPhone' }
 }
 
+export async function discoverSession(): Promise<string | null> {
+  const open = await call<{ code: string | null }>('/sessions/open')
+  return open?.code ?? null
+}
+
 export function createSession(): Promise<{ code: string } | null> {
   return call<{ code: string }>('/sessions', { method: 'POST' })
 }
@@ -75,7 +81,10 @@ export function leaveSession(code: string, deviceId: string): void {
 }
 
 export function heartbeat(code: string, deviceId: string): void {
-  void call(`/sessions/${code}/devices/${deviceId}/heartbeat`, { method: 'POST' })
+  void call(`/sessions/${code}/devices/${deviceId}/heartbeat`, {
+    method: 'POST',
+    body: JSON.stringify({})
+  })
 }
 
 export function broadcastCue(code: string, cue: CuePayload): void {

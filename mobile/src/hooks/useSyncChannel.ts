@@ -3,6 +3,7 @@ import { useApp } from '../store'
 import {
   createSession,
   describeDevice,
+  discoverSession,
   heartbeat,
   joinSession,
   leaveSession,
@@ -42,6 +43,9 @@ export function useSyncChannel() {
   )
 
   const open = useCallback(async () => {
+    const waiting = await discoverSession()
+    if (waiting && (await connect(waiting))) return waiting
+
     const created = await createSession()
     if (!created) return null
     return (await connect(created.code)) ? created.code : null

@@ -1,13 +1,13 @@
 {
-  "name": "O caminho ate a palavra",
-  "short_name": "Caminho",
-  "description": "Assistente de palavra para afasia pos-AVC",
+  "name": "Eilo",
+  "short_name": "Eilo",
+  "description": "O caminho ate a palavra, para quem teve AVC",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0e1417",
-  "theme_color": "#0e1417",
+  "background_color": "#f6f5fb",
+  "theme_color": "#f6f5fb",
   "lang": "pt-BR",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },

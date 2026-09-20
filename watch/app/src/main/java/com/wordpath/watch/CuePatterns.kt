@@ -12,8 +12,8 @@ object CuePatterns {
     private val LEVEL_2 = longArrayOf(0, 60, 80, 60)
     private val LEVEL_3 = longArrayOf(0, 60, 80, 60, 80, 60)
     private val FINAL = longArrayOf(0, 220)
-    private val SUCCESS = longArrayOf(0, 30, 40, 30, 40, 120)
-    private val CONFIRM = longArrayOf(0, 40)
+    val SUCCESS = longArrayOf(0, 30, 40, 30, 40, 120)
+    val CONFIRM = longArrayOf(0, 40)
 
     fun forLevel(level: Int, isFinal: Boolean): LongArray = when {
         isFinal -> FINAL
@@ -22,18 +22,14 @@ object CuePatterns {
         else -> LEVEL_1
     }
 
-    fun confirm(context: Context, intensity: Int) = play(context, CONFIRM, intensity)
-
-    fun success(context: Context, intensity: Int) = play(context, SUCCESS, intensity)
-
-    fun play(context: Context, pattern: LongArray, intensity: Int) {
-        val vibrator = vibrator(context) ?: return
-        if (!vibrator.hasVibrator()) return
-
+    fun play(context: Context, pattern: LongArray, intensity: Int): LongArray {
         val scale = 0.5 + intensity * 0.2
         val scaled = pattern.mapIndexed { index, ms ->
             if (index % 2 == 1) (ms * scale).toLong() else ms
         }.toLongArray()
+
+        val vibrator = vibrator(context)
+        if (vibrator == null || !vibrator.hasVibrator()) return scaled
 
         if (vibrator.hasAmplitudeControl()) {
             val amplitudes = scaled.mapIndexed { index, _ ->
@@ -43,6 +39,8 @@ object CuePatterns {
         } else {
             vibrator.vibrate(VibrationEffect.createWaveform(scaled, -1))
         }
+
+        return scaled
     }
 
     private fun vibrator(context: Context): Vibrator? =

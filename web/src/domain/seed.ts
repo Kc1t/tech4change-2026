@@ -1,83 +1,85 @@
 import { cueable, firstSyllable, syllables } from './phonology'
 import type { GraphEdge, GraphNode, LifeGraph, NodeKind, Provenance, Scene } from './types'
 
-const STORAGE_KEY = 'seed-answers'
 const MAX_ANSWER = 40
 
 export interface Seed {
   owner: string
   person: string
   place: string
+  relation?: string
+  object?: string
+  activity?: string
 }
 
-function clean(value: unknown): string {
+export type SeedKey = keyof Seed
+
+export const SEED_QUESTIONS: Array<{
+  key: SeedKey
+  question: string
+  note: string
+  placeholder: string
+  optional?: boolean
+}> = [
+  {
+    key: 'owner',
+    question: 'Como a gente te chama?',
+    note: 'Só o primeiro nome basta.',
+    placeholder: 'seu nome'
+  },
+  {
+    key: 'person',
+    question: 'O nome de alguém que você vê toda semana.',
+    note: 'Alguém que aparece muito na sua vida.',
+    placeholder: 'um nome'
+  },
+  {
+    key: 'relation',
+    question: 'Quem essa pessoa é para você?',
+    note: 'Filha, neto, vizinha, amigo.',
+    placeholder: 'o parentesco',
+    optional: true
+  },
+  {
+    key: 'place',
+    question: 'Em que cidade essa pessoa mora?',
+    note: 'A cidade ajuda a montar uma dica.',
+    placeholder: 'uma cidade'
+  },
+  {
+    key: 'object',
+    question: 'Uma coisa que você pega todo dia.',
+    note: 'O chinelo, a bengala, o controle.',
+    placeholder: 'uma coisa',
+    optional: true
+  },
+  {
+    key: 'activity',
+    question: 'Algo que vocês fazem juntos.',
+    note: 'O almoço de domingo, a caminhada.',
+    placeholder: 'o que vocês fazem',
+    optional: true
+  }
+]
+
+export function clean(value: unknown): string {
   return typeof value === 'string' ? value.trim().slice(0, MAX_ANSWER) : ''
 }
 
-export function decodeSeed(raw: string): Seed | null {
-  try {
-    const padded = raw.replace(/-/g, '+').replace(/_/g, '/')
-    const binary = atob(padded + '='.repeat((4 - (padded.length % 4)) % 4))
-    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
-    const parsed = JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>
-    const seed = {
-      owner: clean(parsed.owner),
-      person: clean(parsed.person),
-      place: clean(parsed.place)
-    }
-    return seed.owner && seed.person && seed.place ? seed : null
-  } catch {
-    return null
+export function parseSeed(parsed: Record<string, unknown>): Seed | null {
+  const seed: Seed = {
+    owner: clean(parsed.owner),
+    person: clean(parsed.person),
+    place: clean(parsed.place),
+    relation: clean(parsed.relation) || undefined,
+    object: clean(parsed.object) || undefined,
+    activity: clean(parsed.activity) || undefined
   }
+  return seed.owner && seed.person && seed.place ? seed : null
 }
 
-function encodedFromHash(hash: string): string | null {
-  const raw = hash.replace(/^#/, '')
-  if (!raw) return null
-  const params = new URLSearchParams(raw.includes('?') ? raw.slice(raw.indexOf('?') + 1) : raw)
-  return params.get('seed')
-}
-
-export function readSeed(): Seed | null {
-  if (typeof window === 'undefined') return null
-
-  const encoded = encodedFromHash(window.location.hash)
-
-  if (encoded) {
-    const seed = decodeSeed(encoded)
-    if (seed) {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(seed))
-      } catch {
-        void 0
-      }
-      history.replaceState(null, '', window.location.pathname + window.location.search)
-      return seed
-    }
-  }
-
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return null
-    const parsed = JSON.parse(stored) as Record<string, unknown>
-    const seed = {
-      owner: clean(parsed.owner),
-      person: clean(parsed.person),
-      place: clean(parsed.place)
-    }
-    return seed.owner && seed.person && seed.place ? seed : null
-  } catch {
-    return null
-  }
-}
-
-export function forgetSeed(): void {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.removeItem(STORAGE_KEY)
-  } catch {
-    void 0
-  }
+export function isComplete(answers: Partial<Seed>): boolean {
+  return Boolean(clean(answers.owner) && clean(answers.person) && clean(answers.place))
 }
 
 async function digest(input: string, length: number): Promise<string> {
@@ -126,6 +128,10 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
   const kinship = await edgeId(ownerId, personId, 'close_to')
   const residence = await edgeId(personId, placeId, 'lives_in')
 
+  const bond = seed.relation
+    ? `é ${article(seed.relation)} ${seed.relation.toLowerCase()}`
+    : 'é uma pessoa próxima de você'
+
   const nodes: Record<string, GraphNode> = {
     [ownerId]: {
       id: ownerId,
@@ -138,10 +144,7 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
       id: personId,
       label: seed.person,
       kind: 'person',
-      attrs: {
-        family: 'é uma pessoa próxima de você',
-        city: `mora em ${seed.place}`
-      },
+      attrs: { family: bond, city: `mora em ${seed.place}` },
       phon: phonologyFor(seed.person),
       layout: { x: 0.76, y: 0.28 }
     },
@@ -149,48 +152,26 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
       id: placeId,
       label: seed.place,
       kind: 'place',
-      attrs: {
-        category: 'é um lugar no mapa',
-        region: `é onde ${seed.person} mora`
-      },
+      attrs: { category: 'é um lugar no mapa', region: `é onde ${seed.person} mora` },
       phon: phonologyFor(seed.place),
       layout: { x: 0.28, y: 0.72 }
     }
   }
 
   const edges: GraphEdge[] = [
-    {
-      id: kinship,
-      from: ownerId,
-      to: personId,
-      rel: 'close_to',
-      weight: 0.92,
-      provenance: [declared]
-    },
-    {
-      id: residence,
-      from: personId,
-      to: placeId,
-      rel: 'lives_in',
-      weight: 0.74,
-      provenance: [declared]
-    }
+    { id: kinship, from: ownerId, to: personId, rel: 'close_to', weight: 0.92, provenance: [declared] },
+    { id: residence, from: personId, to: placeId, rel: 'lives_in', weight: 0.74, provenance: [declared] }
   ]
 
-  const graph: LifeGraph = {
-    owner: ownerId,
-    nodes,
-    edges,
-    ladderPlans: {
-      [personId]: [
-        { attr: 'family', edge: kinship },
-        { attr: 'city', edge: residence }
-      ],
-      [placeId]: [
-        { attr: 'category', edge: residence },
-        { attr: 'region', edge: residence }
-      ]
-    }
+  const ladderPlans: LifeGraph['ladderPlans'] = {
+    [personId]: [
+      { attr: 'family', edge: kinship },
+      { attr: 'city', edge: residence }
+    ],
+    [placeId]: [
+      { attr: 'category', edge: residence },
+      { attr: 'region', edge: residence }
+    ]
   }
 
   const scenes: Scene[] = [
@@ -208,5 +189,132 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
     }
   ]
 
-  return { graph, scenes }
+  if (seed.object) {
+    const objectId = await nodeId(seed.object, 'object')
+    const handles = await edgeId(ownerId, objectId, 'uses')
+
+    nodes[objectId] = {
+      id: objectId,
+      label: seed.object,
+      kind: 'object',
+      attrs: { category: 'é uma coisa que você pega todo dia', use: 'fica sempre por perto' },
+      phon: phonologyFor(seed.object),
+      layout: { x: 0.22, y: 0.3 }
+    }
+    edges.push({
+      id: handles,
+      from: ownerId,
+      to: objectId,
+      rel: 'uses',
+      weight: 0.7,
+      provenance: [declared]
+    })
+    ladderPlans[objectId] = [
+      { attr: 'category', edge: handles },
+      { attr: 'use', edge: handles }
+    ]
+    scenes.push({
+      targetId: objectId,
+      speaker: 'alguém em casa',
+      prompt: 'Você viu onde foi parar?',
+      attempt: 'O… o…'
+    })
+  }
+
+  if (seed.activity) {
+    const activityId = await nodeId(seed.activity, 'event')
+    const shares = await edgeId(ownerId, activityId, 'shares')
+
+    nodes[activityId] = {
+      id: activityId,
+      label: seed.activity,
+      kind: 'event',
+      attrs: {
+        category: 'é algo que vocês fazem juntos',
+        who: `é com ${seed.person}`
+      },
+      phon: phonologyFor(seed.activity),
+      layout: { x: 0.74, y: 0.74 }
+    }
+    edges.push({
+      id: shares,
+      from: ownerId,
+      to: activityId,
+      rel: 'shares',
+      weight: 0.68,
+      provenance: [declared]
+    })
+    ladderPlans[activityId] = [
+      { attr: 'category', edge: shares },
+      { attr: 'who', edge: shares }
+    ]
+    scenes.push({
+      targetId: activityId,
+      speaker: 'alguém na mesa',
+      prompt: 'O que vocês fizeram no fim de semana?',
+      attempt: 'A gente foi… foi…'
+    })
+  }
+
+  return { graph: { owner: ownerId, nodes, edges, ladderPlans }, scenes }
+}
+
+function article(relation: string): string {
+  return /^(filha|neta|irmã|mãe|vizinha|amiga|esposa|prima|tia|sobrinha|nora|cunhada)/i.test(
+    relation
+  )
+    ? 'a sua'
+    : 'o seu'
+}
+
+const STORAGE_KEY = 'seed-answers'
+
+export function decodeSeed(raw: string): Seed | null {
+  try {
+    const padded = raw.replace(/-/g, '+').replace(/_/g, '/')
+    const binary = atob(padded + '='.repeat((4 - (padded.length % 4)) % 4))
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0))
+    return parseSeed(JSON.parse(new TextDecoder().decode(bytes)) as Record<string, unknown>)
+  } catch {
+    return null
+  }
+}
+
+export function readSeed(): Seed | null {
+  const query = window.location.hash.split('?')[1]
+  const encoded = query ? new URLSearchParams(query).get('seed') : null
+
+  if (encoded) {
+    const seed = decodeSeed(encoded)
+    if (seed) {
+      saveSeed(seed)
+      const route = window.location.hash.split('?')[0] || '#/moment'
+      history.replaceState(null, '', window.location.pathname + window.location.search + route)
+      return seed
+    }
+  }
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return null
+    return parseSeed(JSON.parse(stored) as Record<string, unknown>)
+  } catch {
+    return null
+  }
+}
+
+export function saveSeed(seed: Seed): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed))
+  } catch {
+    void 0
+  }
+}
+
+export function forgetSeed(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    void 0
+  }
 }

@@ -43,7 +43,7 @@ export function MemoryRow({
 
   const shape = [
     'flex w-full items-start gap-3 rounded-card p-3 text-left',
-    flat ? 'bg-transparent' : 'bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)]'
+    flat ? 'bg-transparent' : 'bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)]'
   ].join(' ')
 
   if (!onOpen) return <div className={shape}>{body}</div>

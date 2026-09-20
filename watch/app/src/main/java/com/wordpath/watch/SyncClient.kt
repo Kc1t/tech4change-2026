@@ -1,5 +1,7 @@
 package com.wordpath.watch
 
+import android.content.Context
+import android.os.BatteryManager
 import android.util.Log
 import java.net.HttpURLConnection
 import java.net.URL
@@ -34,8 +36,14 @@ object SyncClient {
         }
     }
 
-    suspend fun join(code: String): String? = withContext(Dispatchers.IO) {
-        val payload = """{"kind":"watch","name":"Relógio"}"""
+    fun batteryLevel(context: Context): Int? {
+        val manager = context.getSystemService(BatteryManager::class.java) ?: return null
+        val level = manager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        return level.takeIf { it in 0..100 }
+    }
+
+    suspend fun join(code: String, battery: Int?): String? = withContext(Dispatchers.IO) {
+        val payload = """{"kind":"watch","name":"Relógio","battery":${battery ?: "null"}}"""
         try {
             val connection = open("/v1/sync/sessions/$code/devices", "POST")
             connection.outputStream.use { it.write(payload.toByteArray()) }
@@ -48,9 +56,19 @@ object SyncClient {
         }
     }
 
-    suspend fun heartbeat(code: String, deviceId: String) = withContext(Dispatchers.IO) {
-        runCatching { open("/v1/sync/sessions/$code/devices/$deviceId/heartbeat", "POST").responseCode }
-    }
+    suspend fun heartbeat(code: String, deviceId: String, battery: Int?): Int? =
+        withContext(Dispatchers.IO) {
+            try {
+                val connection = open("/v1/sync/sessions/$code/devices/$deviceId/heartbeat", "POST")
+                connection.outputStream.use {
+                    it.write("""{"battery":${battery ?: "null"}}""".toByteArray())
+                }
+                connection.responseCode
+            } catch (error: Exception) {
+                Log.w(TAG, "Heartbeat failed: ${error.javaClass.simpleName}")
+                null
+            }
+        }
 
     suspend fun stream(code: String, onCue: (SyncCue) -> Unit) = withContext(Dispatchers.IO) {
         while (isActive) {

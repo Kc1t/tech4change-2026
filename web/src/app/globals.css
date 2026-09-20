@@ -249,14 +249,6 @@
     box-shadow: var(--shadow-glass);
   }
 
-  .brand-mark {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    background: linear-gradient(135deg, var(--brand-warm), var(--brand-rose));
-    transform: rotate(45deg);
-  }
-
   .grain {
     background-image: var(--grain);
     mix-blend-mode: overlay;
@@ -270,5 +262,15 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-19deg);
+  }
+  50% {
+    transform: rotate(-11deg);
   }
 }

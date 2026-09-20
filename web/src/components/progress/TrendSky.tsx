@@ -63,18 +63,18 @@ export function TrendSky({ series, marks }: { series: number[]; marks: string[] 
           </linearGradient>
 
           <filter id={glow} x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="8" stdDeviation="5" floodColor="#e08a63" floodOpacity="0.3" />
+            <feDropShadow dx="0" dy="8" stdDeviation="5" floodColor="#8e7ff0" floodOpacity="0.3" />
           </filter>
         </defs>
 
         <path
           d="M-20,115 Q 30,95 80,105 T 180,100 T 260,110 T 340,90 T 410,115 L410,150 L-20,150 Z"
-          fill="#eecfcf"
+          fill="#dcd4f2"
           opacity="0.3"
         />
         <path
           d="M-20,125 Q 50,110 110,120 T 220,115 T 310,125 T 410,110 L410,150 L-20,150 Z"
-          fill="#fdf2f2"
+          fill="#f6f2fd"
           opacity="0.6"
         />
 

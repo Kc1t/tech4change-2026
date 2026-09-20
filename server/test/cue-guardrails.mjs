@@ -35,7 +35,12 @@ async function wait(url, tries = 40) {
   return false
 }
 
-async function withStack(mode, fn) {
+const PROVIDERS = [
+  { name: 'anthropic', env: { ANTHROPIC_API_KEY: 'stub-key', CUE_MODEL: 'claude-sonnet-5' } },
+  { name: 'gratuito', env: { OPENAI_COMPAT_API_KEY: 'stub-key', CUE_MODEL: 'stub-free' } }
+]
+
+async function withStack(mode, provider, fn) {
   const stub = spawn(process.execPath, [STUB], {
     env: { ...process.env, STUB_MODE: mode },
     stdio: 'ignore'
@@ -45,9 +50,8 @@ async function withStack(mode, fn) {
     env: {
       ...process.env,
       PORT: '3399',
-      ANTHROPIC_API_KEY: 'stub-key',
       MODEL_BASE_URL: 'http://127.0.0.1:4444',
-      CUE_MODEL: 'claude-sonnet-5'
+      ...provider.env
     },
     stdio: 'ignore'
   })
@@ -79,6 +83,7 @@ function rank() {
 
 const results = []
 
+for (const provider of PROVIDERS)
 for (const [mode, expectation] of [
   ['valid', 'model'],
   ['ghostEdge', 'deterministic'],
@@ -87,7 +92,7 @@ for (const [mode, expectation] of [
   ['error', 'deterministic'],
   ['timeout', 'deterministic']
 ]) {
-  const outcome = await withStack(mode, async () => {
+  const outcome = await withStack(mode, provider, async () => {
     const plan = await rank()
     const sent = await fetch('http://127.0.0.1:4444/__received').then(r => r.json())
     const prompt = JSON.stringify(sent ?? {})
@@ -96,6 +101,7 @@ for (const [mode, expectation] of [
 
   const leak = /Let[ií]cia|Marina|Sorocaba|Ubatuba|Escumadeira|Lel[eê]/i.exec(outcome.prompt)
   results.push({
+    provedor: provider.name,
     modo: mode,
     esperado: expectation,
     origem: outcome.origin,

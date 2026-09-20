@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { NodeSheet } from '../components/NodeSheet'
 import { MemoryRow, SOURCE_LABEL, SourceMark } from '../components/MemoryRow'
 import { WordCloud, type CloudWord } from '../components/WordCloud'
-import { BrandMark, ScreenHeader, TopBar } from '../components/ui'
+import { BrandMark, ScreenHeader, ScreenTop, TopBar } from '../components/ui'
 import { memoriesAbout, memoriesOf, memoryTags } from '../domain/memories'
 import { lifeGraph, useApp } from '../store'
-import { color, font, radius, shadow } from '../theme/tokens'
-import { TOP_INSET } from '../theme/insets'
+import { shadow } from '../theme/tokens'
 import type { NodeId } from '../domain/types'
 
 type Lens = 'life' | 'learning'
@@ -56,19 +55,23 @@ export function GraphScreen({ onOpenMemories }: { onOpenMemories: (id: NodeId | 
   const selectedNode = selected ? lifeGraph.nodes[selected] : null
 
   return (
-    <View style={styles.screen}>
-      <View style={styles.head}>
+    <View className="flex-1 bg-ink">
+      <ScreenTop>
         <TopBar
           left={<BrandMark />}
           right={
-            <View style={styles.lens}>
+            <View className="flex-row rounded-full bg-surface-2 p-[3px]">
               {(['life', 'learning'] as Lens[]).map(option => (
                 <Pressable
                   key={option}
                   onPress={() => setLens(option)}
-                  style={[styles.lensTab, option === lens && styles.lensTabOn]}
+                  className={`rounded-full px-3 py-1.5 ${option === lens ? 'bg-surface' : ''}`}
                 >
-                  <Text style={[styles.lensText, option === lens && styles.lensTextOn]}>
+                  <Text
+                    className={`font-strong text-[11px] ${
+                      option === lens ? 'text-fg' : 'text-dim'
+                    }`}
+                  >
                     {option === 'life' ? 'Vida' : 'Aprendizado'}
                   </Text>
                 </Pressable>
@@ -76,14 +79,10 @@ export function GraphScreen({ onOpenMemories }: { onOpenMemories: (id: NodeId | 
             </View>
           }
         />
-        <ScreenHeader
-          label="a vida dela"
-          title="Como tudo se conecta"
-          sub="Cada memória revela um pouco mais da história."
-        />
-      </View>
+        <ScreenHeader title="Mapa" sub="Toque numa palavra para ver de onde ela veio." />
+      </ScreenTop>
 
-      <View style={styles.cloud}>
+      <View className="flex-1 px-4 pt-4">
         <WordCloud
           words={words}
           tinted={lens === 'learning'}
@@ -92,26 +91,37 @@ export function GraphScreen({ onOpenMemories }: { onOpenMemories: (id: NodeId | 
         />
       </View>
 
-      <View style={styles.foot}>
+      <View className="gap-2 px-6 pb-32 pt-3">
         {anchorNode && featured ? (
-          <Pressable onPress={() => setSelected(anchorNode.id)} style={styles.featured}>
+          <Pressable
+            onPress={() => setSelected(anchorNode.id)}
+            className="flex-row items-center gap-3 rounded-card bg-surface p-3"
+            style={{ ...shadow.card, shadowOpacity: 0.07 }}
+          >
             <SourceMark source={featured.source} seed={featured.id} size={38} />
-            <View style={styles.featuredBody}>
-              <Text style={styles.featuredLabel} numberOfLines={1}>
+            <View className="min-w-0 flex-1">
+              <Text
+                className="font-strong text-[11px] tracking-[1.4px] text-label"
+                numberOfLines={1}
+              >
                 {SOURCE_LABEL[featured.source].toUpperCase()} · {anchorNode.label.toUpperCase()}
               </Text>
-              <Text style={styles.featuredText} numberOfLines={1}>
+              <Text className="mt-1 font-mid text-hint text-fg" numberOfLines={1}>
                 {featured.detail}
               </Text>
             </View>
             {anchorMemories.length > 1 && (
-              <Text style={styles.more}>+{anchorMemories.length - 1}</Text>
+              <Text className="overflow-hidden rounded-full bg-surface-2 px-2 py-1 font-strong text-[11px] text-dim">
+                +{anchorMemories.length - 1}
+              </Text>
             )}
           </Pressable>
         ) : null}
 
-        <Pressable onPress={() => onOpenMemories(null)} style={styles.allButton}>
-          <Text style={styles.allText}>Ver todas as {memories.length} memórias</Text>
+        <Pressable onPress={() => onOpenMemories(null)} className="items-center py-2">
+          <Text className="font-strong text-[12.5px] text-dim">
+            Ver todas as {memories.length} memórias
+          </Text>
         </Pressable>
       </View>
 
@@ -132,41 +142,3 @@ export function GraphScreen({ onOpenMemories }: { onOpenMemories: (id: NodeId | 
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.ink },
-  head: { paddingHorizontal: 24, paddingTop: TOP_INSET },
-  cloud: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
-  foot: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 128, gap: 8 },
-  lens: { flexDirection: 'row', backgroundColor: color.surface2, borderRadius: radius.pill, padding: 3 },
-  lensTab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, minHeight: 0 },
-  lensTabOn: { backgroundColor: color.surface },
-  lensText: { fontFamily: font.semibold, fontSize: 11, color: color.dim },
-  lensTextOn: { color: color.fg },
-  featured: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: color.surface,
-    borderRadius: radius.card,
-    padding: 12,
-    minHeight: 0,
-    ...shadow.card,
-    shadowOpacity: 0.07
-  },
-  featuredBody: { flex: 1, minWidth: 0 },
-  featuredLabel: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 1.4, color: color.label },
-  featuredText: { fontFamily: font.medium, fontSize: 13, color: color.fg, marginTop: 4 },
-  more: {
-    backgroundColor: color.surface2,
-    borderRadius: radius.pill,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    fontFamily: font.semibold,
-    fontSize: 11,
-    color: color.dim,
-    overflow: 'hidden'
-  },
-  allButton: { minHeight: 0, paddingVertical: 8, alignItems: 'center' },
-  allText: { fontFamily: font.semibold, fontSize: 12.5, color: color.dim }
-})

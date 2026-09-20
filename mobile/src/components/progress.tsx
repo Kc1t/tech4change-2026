@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
 import { Card } from './ui'
-import { color, font, radius } from '../theme/tokens'
+import { color, font } from '../theme/tokens'
 
 const H = 150
 const PAD = { top: 26, bottom: 30 }
@@ -37,7 +37,7 @@ export function TrendSky({ series, marks }: { series: number[]; marks: string[] 
 
   return (
     <View onLayout={event => setWidth(event.nativeEvent.layout.width)}>
-      <View style={styles.sky}>
+      <View className="overflow-hidden" style={{ height: H }}>
         {width > 0 && (
           <Svg width={width} height={H}>
             <Defs>
@@ -56,7 +56,7 @@ export function TrendSky({ series, marks }: { series: number[]; marks: string[] 
 
             <Path
               d={`M-20,115 Q 30,95 80,105 T 180,100 T 260,110 T 340,90 T ${width + 20},115 L${width + 20},${H} L-20,${H} Z`}
-              fill="#eecfcf"
+              fill="#dcd4f2"
               opacity={0.3}
             />
 
@@ -104,9 +104,12 @@ export function TrendSky({ series, marks }: { series: number[]; marks: string[] 
         )}
       </View>
 
-      <View style={styles.marks}>
+      <View className="mt-1.5 flex-row justify-between px-6">
         {marks.map((mark, index) => (
-          <Text key={`${mark}-${index}`} style={styles.mark}>
+          <Text
+            key={`${mark}-${index}`}
+            className="font-strong text-[11px] tracking-[0.8px] text-faint"
+          >
             {mark.toUpperCase()}
           </Text>
         ))}
@@ -132,13 +135,15 @@ export function StatCard({
     tone === 'up' ? color.deltaUp : tone === 'note' ? color.deltaNote : color.deltaDown
 
   return (
-    <Card style={styles.stat}>
-      <Text style={styles.statLabel}>{label}</Text>
-      <View style={styles.statValueRow}>
-        <Text style={styles.statValue}>{value}</Text>
-        {unit ? <Text style={styles.statUnit}>{unit}</Text> : null}
+    <Card style={{ flex: 1 }}>
+      <Text className="mb-1 font-mid text-body text-faint">{label}</Text>
+      <View className="flex-row items-baseline">
+        <Text className="font-heavy text-[24px] tracking-[-0.7px] text-fg">{value}</Text>
+        {unit ? <Text className="ml-1 font-strong text-[18px] text-faint">{unit}</Text> : null}
       </View>
-      <Text style={[styles.statDelta, { color: deltaColor }]}>{delta ?? ' '}</Text>
+      <Text className="mt-2 font-strong text-note" style={{ color: deltaColor }}>
+        {delta ?? ' '}
+      </Text>
     </Card>
   )
 }
@@ -155,17 +160,21 @@ export function Gauge({ value }: { value: number }) {
 
   return (
     <View>
-      <View style={styles.markerRow}>
-        <View style={[styles.marker, { left: `${clamped}%` }]}>
+      <View className="h-2">
+        <View className="absolute -ml-1" style={{ left: `${clamped}%` }}>
           <Svg viewBox="0 0 8 6" width={8} height={6}>
             <Path d="M4 6 0 0h8z" fill={color.faint} />
           </Svg>
         </View>
       </View>
 
-      <View style={styles.gauge}>
+      <View className="mt-1 h-6 flex-row gap-1.5">
         {SEGMENTS.map((segment, index) => (
-          <View key={index} style={[styles.segment, { flexGrow: segment.grow }]}>
+          <View
+            key={index}
+            className="h-6 overflow-hidden rounded-full"
+            style={{ flexGrow: segment.grow }}
+          >
             <Svg width="100%" height={24}>
               <Defs>
                 <LinearGradient id={`g-${index}`} x1="0" y1="0" x2="1" y2="0">
@@ -181,19 +190,3 @@ export function Gauge({ value }: { value: number }) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  sky: { height: H, overflow: 'hidden' },
-  marks: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, marginTop: 6 },
-  mark: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 0.8, color: color.faint },
-  stat: { flex: 1 },
-  statLabel: { fontFamily: font.medium, fontSize: 14, color: color.faint, marginBottom: 4 },
-  statValueRow: { flexDirection: 'row', alignItems: 'baseline' },
-  statValue: { fontFamily: font.bold, fontSize: 24, letterSpacing: -0.7, color: color.fg },
-  statUnit: { fontFamily: font.semibold, fontSize: 18, color: color.faint, marginLeft: 4 },
-  statDelta: { fontFamily: font.semibold, fontSize: 12, marginTop: 8 },
-  markerRow: { height: 8 },
-  marker: { position: 'absolute', marginLeft: -4 },
-  gauge: { flexDirection: 'row', gap: 6, height: 24, marginTop: 4 },
-  segment: { height: 24, borderRadius: radius.pill, overflow: 'hidden' }
-})

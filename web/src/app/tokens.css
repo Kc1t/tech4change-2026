@@ -2,30 +2,30 @@
   color-scheme: light;
 
   --stage: #000000;
-  --frame: #1c1d21;
-  --frame-line: #2c2d33;
+  --frame: #433d56;
+  --frame-line: #5b5470;
 
-  --ink: #f2f2f0;
+  --ink: #f6f5fb;
   --surface: #ffffff;
-  --surface-2: #e8e8e4;
-  --line: #d6d6d1;
-  --line-soft: #e4e4df;
-  --fg: #161616;
-  --dim: #4a4a48;
-  --faint: #6f6f6c;
-  --label: #6b6b68;
+  --surface-2: #e8e4f4;
+  --line: #e6e3ef;
+  --line-soft: #efedf6;
+  --fg: #1b1a22;
+  --dim: #57546a;
+  --faint: #6a6779;
+  --label: #6a6779;
 
-  --brand: #bf3f63;
+  --brand: #6b5fa8;
   --brand-ink: #ffffff;
-  --brand-soft: #f8e0e6;
-  --brand-warm: #f0a36b;
-  --brand-rose: #d65a7a;
+  --brand-soft: #e4e0fb;
+  --brand-warm: #efb6ec;
+  --brand-rose: #8e7ff0;
 
-  --aurora-base: #fbd9c4;
-  --aurora-1: #f39a6b;
-  --aurora-2: #d8577c;
-  --aurora-3: #6b3f8f;
-  --aurora-4: #ffe3a8;
+  --aurora-base: #e7dffb;
+  --aurora-1: #b9a3f7;
+  --aurora-2: #efb6ec;
+  --aurora-3: #a9dcff;
+  --aurora-4: #ffe0f2;
 
   --glass: rgba(255, 255, 255, 0.55);
   --glass-line: rgba(255, 255, 255, 0.5);
@@ -49,8 +49,8 @@
   --mastery-medium: #a06210;
   --mastery-low: #b03a4e;
 
-  --shadow: 0 1px 2px rgba(22, 22, 22, 0.05), 0 8px 24px rgba(22, 22, 22, 0.07);
-  --shadow-glass: inset 0 0 0 1px var(--glass-line), 0 6px 20px rgba(22, 22, 22, 0.1);
+  --shadow: 0 1px 2px rgba(27, 26, 34, 0.05), 0 8px 24px rgba(90, 70, 160, 0.1);
+  --shadow-glass: inset 0 0 0 1px var(--glass-line), 0 6px 20px rgba(90, 70, 160, 0.14);
   --shadow-stage: 0 0 0 1px var(--frame-line), 0 0 90px rgba(190, 200, 255, 0.18),
     30px 60px 80px rgba(0, 0, 0, 0.8);
 

@@ -1,15 +1,10 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { ChevronRight, Ear, Fingerprint, Link2, Pause, Sprout } from 'lucide-react'
+import { Ear, Fingerprint, Link2, Sprout } from 'lucide-react'
+import { Device, ScreenMoment } from './app-screens'
 import { GraphArt, SeedArt } from './how-art'
 import { PhoneShell } from './phone'
 import { Reveal } from './reveal'
-
-const RUNGS = [
-  { level: 'degrau 1', text: 'Alguém da sua família' },
-  { level: 'degrau 2', text: 'Um lugar que você conhece' },
-  { level: 'degrau 3', text: 'Alguém mais novo que você' }
-]
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
@@ -48,83 +43,9 @@ function Card({
   )
 }
 
-function Screen() {
-  return (
-    <div className="flex h-full flex-col bg-white px-5 pt-12 pb-6">
-      <p className="flex items-center gap-1.5 text-[0.78rem] text-[var(--v3-muted)]">
-        <ChevronRight className="size-3.5 rotate-180" />A palavra travou
-      </p>
-
-      <div className="mt-4 space-y-2.5">
-        {RUNGS.map(rung => (
-          <div
-            key={rung.level}
-            className="flex items-center gap-3 rounded-2xl bg-[#f6f4fc] px-3 py-2.5"
-          >
-            <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[#e2dbf7] text-[var(--v3-accent)]">
-              <Sprout className="size-3.5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[0.58rem] font-semibold tracking-[0.12em] text-[var(--v3-accent)] uppercase">
-                {rung.level}
-              </span>
-              <span className="block truncate text-[0.78rem] leading-snug">{rung.text}</span>
-            </span>
-            <ChevronRight className="size-3.5 shrink-0 text-[#b6b0c6]" />
-          </div>
-        ))}
-
-        <div className="flex items-center gap-3 rounded-2xl bg-[linear-gradient(140deg,#7a6bb4,#4a4166)] px-3 py-3 text-white">
-          <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-white/20">
-            <Sprout className="size-3.5" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[0.58rem] font-semibold tracking-[0.12em] text-white/60 uppercase">
-              degrau 4
-            </span>
-            <span className="block text-[1.05rem] leading-snug font-semibold">Letícia</span>
-          </span>
-          <ChevronRight className="size-3.5 shrink-0 text-white/70" />
-        </div>
-      </div>
-
-      <div className="my-auto">
-      <div aria-hidden="true" className="flex h-9 items-center justify-center gap-[3px]">
-        {[6, 13, 9, 20, 26, 16, 30, 22, 34, 18, 28, 12, 20, 8, 14, 6].map((h, i) => (
-          <i
-            key={i}
-            className="w-[3px] rounded-full bg-[var(--v3-accent)]/70"
-            style={{ height: `${h}px` }}
-          />
-        ))}
-      </div>
-      <p className="mt-2 text-center text-[0.72rem] text-[var(--v3-muted)]">A conversa continua…</p>
-      </div>
-
-      <div className="flex items-center gap-3 rounded-full bg-[#f6f4fc] p-2">
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--v3-accent)] text-white">
-          <Pause className="size-3.5 fill-current" />
-        </span>
-        <span className="tabular flex-1 text-center text-[0.74rem] text-[var(--v3-muted)]">
-          0:38 / 2:14
-        </span>
-        <span className="mr-1 flex items-end gap-[2px]" aria-hidden="true">
-          {[6, 11, 8, 12, 7].map((h, i) => (
-            <i
-              key={i}
-              className="w-[2px] rounded-full bg-[var(--v3-accent)]/70"
-              style={{ height: `${h}px` }}
-            />
-          ))}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 export function How() {
-  const hasPortrait = existsSync(join(process.cwd(), 'public', 'art', 'listening.webp'))
-  const hasShield = existsSync(join(process.cwd(), 'public', 'art', 'shield.webp'))
+  const hasPortrait = existsSync(join(process.cwd(), 'public', 'art', 'woman.webp'))
+  const hasShield = existsSync(join(process.cwd(), 'public', 'art', 'shield-phone.webp'))
 
   return (
     <section
@@ -171,9 +92,9 @@ export function How() {
 
         <Reveal delay={40} className="h-full">
           <PhoneShell className="mx-auto h-full max-w-full min-h-[600px] w-[318px]">
-            <div className="h-full">
-              <Screen />
-            </div>
+            <Device width={306}>
+              <ScreenMoment state="cue" />
+            </Device>
           </PhoneShell>
         </Reveal>
 
@@ -188,13 +109,13 @@ export function How() {
               {hasPortrait ? (
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 right-0 w-[48%] overflow-hidden"
+                  className="v3-art-fade pointer-events-none absolute inset-y-0 right-0 w-[50%] overflow-hidden"
                 >
                   <img
-                    src="/art/listening.webp"
+                    src="/art/woman.webp"
                     alt=""
                     loading="lazy"
-                    className="size-full object-cover object-[40%_30%]"
+                    className="size-full object-cover object-[46%_34%]"
                   />
                 </span>
               ) : null}
@@ -209,11 +130,11 @@ export function How() {
             >
               {hasShield ? (
                 <img
-                  src="/art/shield.webp"
+                  src="/art/shield-phone.webp"
                   alt=""
                   aria-hidden="true"
                   loading="lazy"
-                  className="pointer-events-none absolute -right-[6%] -bottom-[8%] w-[52%]"
+                  className="v3-art-soft pointer-events-none absolute -right-[1%] -bottom-[4%] w-[46%]"
                 />
               ) : null}
             </Card>

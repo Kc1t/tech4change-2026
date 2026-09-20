@@ -1,138 +1,129 @@
 'use client'
 
 export type GraphSeed = { owner: string; person: string; place: string }
-export type GraphHighlight = 'family' | 'person' | 'place' | 'syllable' | null
 
-const POSITION = {
-  owner: { x: 150, y: 152 },
-  person: { x: 150, y: 64 },
-  place: { x: 246, y: 198 }
-} as const
+const NODES = [
+  { id: 'owner', x: 128, y: 140, r: 15, ask: 'você' },
+  { id: 'person', x: 214, y: 70, r: 12, ask: 'quem?' },
+  { id: 'place', x: 196, y: 210, r: 11, ask: 'onde?' }
+] as const
 
-type NodeId = keyof typeof POSITION
+const EDGES = [
+  { id: 'family', from: 'owner', to: 'person', label: 'é da família' },
+  { id: 'place', from: 'person', to: 'place', label: 'mora em' }
+] as const
 
-export function GraphCanvas({
-  seed,
-  present,
-  highlight = null,
-  syllable = ''
-}: {
-  seed: GraphSeed
-  present: NodeId[]
-  highlight?: GraphHighlight
-  syllable?: string
-}) {
+type NodeId = (typeof NODES)[number]['id']
+
+const DRIFT = { owner: '0s', person: '-2.6s', place: '-5.1s' } as const
+
+export function GraphCanvas({ seed, present }: { seed: GraphSeed; present: NodeId[] }) {
   const has = (id: NodeId) => present.includes(id)
-  const edges = [
-    { id: 'family', from: 'owner' as NodeId, to: 'person' as NodeId, label: 'é da família' },
-    { id: 'place', from: 'person' as NodeId, to: 'place' as NodeId, label: 'mora em' }
-  ].filter(edge => has(edge.from) && has(edge.to))
+  const spot = (id: NodeId) => NODES.find(node => node.id === id)!
+  const name = (id: NodeId) =>
+    id === 'owner' ? seed.owner : id === 'person' ? seed.person : seed.place
+  const edges = EDGES.filter(edge => has(edge.from) && has(edge.to))
+  const newest = present[present.length - 1]
 
   return (
-    <div className="flex flex-col gap-3">
-      <svg viewBox="0 0 300 250" className="w-full" role="img" aria-label="O seu mapa">
-        {present.length === 0 && (
-          <g>
-            <circle
-              cx={POSITION.owner.x}
-              cy={POSITION.owner.y}
-              r={22}
-              fill="none"
-              stroke="var(--line)"
-              strokeWidth={1.5}
-              strokeDasharray="4 5"
-            />
-            <text
-              x={POSITION.owner.x}
-              y={POSITION.owner.y + 5}
-              textAnchor="middle"
-              fill="var(--faint)"
-              fontSize="15"
-            >
-              ?
-            </text>
-          </g>
-        )}
+    <div className="v3-graph relative overflow-hidden rounded-[1.25rem]">
+      <svg viewBox="0 0 300 260" className="w-full" role="img" aria-label="O seu mapa">
+        <defs>
+          <radialGradient id="v3-node-glow">
+            <stop offset="0" stopColor="#b9a3f7" stopOpacity="0.55" />
+            <stop offset="1" stopColor="#b9a3f7" stopOpacity="0" />
+          </radialGradient>
+        </defs>
 
-        {edges.map(edge => {
-          const from = POSITION[edge.from]
-          const to = POSITION[edge.to]
-          const lit = highlight === edge.id
-          const midX = (from.x + to.x) / 2
-          const midY = (from.y + to.y) / 2
+        {EDGES.map(edge => {
+          const from = spot(edge.from)
+          const to = spot(edge.to)
+          const live = has(edge.from) && has(edge.to)
           return (
-            <g key={edge.id} className="transition-opacity duration-700" style={{ opacity: 1 }}>
-              <line
-                x1={from.x}
-                y1={from.y}
-                x2={to.x}
-                y2={to.y}
-                stroke={lit ? 'var(--brand)' : 'var(--line)'}
-                strokeWidth={lit ? 2.4 : 1.4}
-                className="transition-all duration-500"
-              />
-              <text
-                x={midX + 16}
-                y={midY + 4}
-                fill={lit ? 'var(--brand)' : 'var(--faint)'}
-                fontSize="9"
-                className="transition-colors duration-500"
-                style={{ letterSpacing: '0.04em' }}
-              >
-                {edge.label}
-              </text>
-            </g>
+            <line
+              key={edge.id}
+              x1={from.x}
+              y1={from.y}
+              x2={to.x}
+              y2={to.y}
+              stroke={live ? 'rgba(185,163,247,0.62)' : 'rgba(185,163,247,0.13)'}
+              strokeWidth={live ? 1.5 : 1}
+              strokeDasharray={live ? undefined : '3 6'}
+              className="transition-all duration-700"
+            />
           )
         })}
 
-        {(Object.keys(POSITION) as NodeId[]).map(id => {
-          if (!has(id)) return null
-          const spot = POSITION[id]
-          const lit =
-            (highlight === 'person' && id === 'person') ||
-            (highlight === 'place' && id === 'place') ||
-            (highlight === 'syllable' && id === 'person')
-          const isOwner = id === 'owner'
-          const label = id === 'owner' ? seed.owner : id === 'person' ? seed.person : seed.place
-          const shown = highlight === 'syllable' && id === 'person' ? `${syllable}…` : label
+        {edges.map(edge => {
+          const from = spot(edge.from)
+          const to = spot(edge.to)
+          const dx = to.x - from.x
+          const dy = to.y - from.y
+          const len = Math.hypot(dx, dy) || 1
+          return (
+            <text
+              key={edge.id}
+              x={(from.x + to.x) / 2 - (dy / len) * 13}
+              y={(from.y + to.y) / 2 + (dx / len) * 13 + 3}
+              textAnchor="middle"
+              fill="rgba(214,206,240,0.6)"
+              fontSize="8.5"
+              style={{ letterSpacing: '0.05em' }}
+            >
+              {edge.label}
+            </text>
+          )
+        })}
+
+        {NODES.map(node => {
+          const live = has(node.id)
+          const fresh = live && node.id === newest
 
           return (
-            <g key={id}>
-              {lit && (
+            <g
+              key={node.id}
+              className="v3-graph-node"
+              style={{ animationDelay: DRIFT[node.id], transformOrigin: `${node.x}px ${node.y}px` }}
+            >
+              {live ? (
                 <circle
-                  cx={spot.x}
-                  cy={spot.y}
-                  r={26}
-                  fill="var(--brand)"
-                  opacity={0.16}
-                  className="[animation:pulse-ring_2s_ease-out_infinite]"
-                  style={{ transformOrigin: `${spot.x}px ${spot.y}px` }}
+                  cx={node.x}
+                  cy={node.y}
+                  r={node.r * 2.6}
+                  fill="url(#v3-node-glow)"
+                  opacity={fresh ? 0.9 : 0.5}
+                  className="transition-opacity duration-700"
                 />
-              )}
+              ) : null}
+
               <circle
-                cx={spot.x}
-                cy={spot.y}
-                r={isOwner ? 19 : 16}
-                fill={lit ? 'var(--brand)' : isOwner ? 'var(--fg)' : 'var(--mastery-medium)'}
-                className="transition-all duration-500"
+                cx={node.x}
+                cy={node.y}
+                r={live ? node.r : node.r * 0.72}
+                fill={live ? (node.id === 'owner' ? '#efeafc' : '#b9a3f7') : 'transparent'}
+                stroke={live ? 'none' : 'rgba(185,163,247,0.35)'}
+                strokeWidth={1.2}
+                strokeDasharray={live ? undefined : '3 4'}
+                className="transition-all duration-700"
               />
+
               <text
-                x={spot.x}
-                y={spot.y + (id === 'person' ? -26 : isOwner ? 40 : 34)}
+                x={node.x}
+                y={node.y + node.r + 17}
                 textAnchor="middle"
-                fill={lit ? 'var(--brand)' : 'var(--dim)'}
-                fontSize="12"
-                fontWeight="600"
-                className="transition-colors duration-500"
+                fill={live ? '#e6e1f4' : 'rgba(214,206,240,0.45)'}
+                fontSize="11.5"
+                fontWeight={live ? 600 : 400}
+                className="transition-colors duration-700"
               >
-                {shown}
+                {live ? name(node.id) : node.ask}
               </text>
             </g>
           )
         })}
       </svg>
 
-      <p className="tabular text-center text-[0.72rem] text-faint">
+      <p className="tabular absolute right-4 bottom-3 text-[0.68rem] text-[rgba(214,206,240,0.48)]">
         {present.length} {present.length === 1 ? 'nó' : 'nós'} · {edges.length}{' '}
         {edges.length === 1 ? 'aresta' : 'arestas'}
       </p>

@@ -58,9 +58,15 @@ createServer((req, res) => {
     }
 
     const plan = PLANS[MODE] ?? PLANS.valid
-    const text = JSON.stringify(plan).slice(1)
+    const whole = JSON.stringify(plan)
 
     res.writeHead(200, { 'content-type': 'application/json' })
-    res.end(JSON.stringify({ content: [{ type: 'text', text }] }))
+
+    if (req.url?.includes('/chat/completions')) {
+      res.end(JSON.stringify({ choices: [{ message: { content: whole } }] }))
+      return
+    }
+
+    res.end(JSON.stringify({ content: [{ type: 'text', text: whole.slice(1) }] }))
   })
 }).listen(4444, () => console.log(`stub em :4444 modo=${MODE}`))

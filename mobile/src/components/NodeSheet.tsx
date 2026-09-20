@@ -1,7 +1,7 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { MemoryRow } from './MemoryRow'
-import { color, font, kindColor, radius } from '../theme/tokens'
+import { color, kindColor } from '../theme/tokens'
 import type { Memory } from '../domain/memories'
 import type { GraphNode, NodeKind } from '../domain/types'
 
@@ -32,23 +32,34 @@ export function NodeSheet({
 
   return (
     <Modal transparent animationType="slide" visible onRequestClose={onClose}>
-      <Pressable style={styles.scrim} onPress={onClose} />
+      <Pressable
+        className="flex-1"
+        style={{ backgroundColor: 'rgba(34,31,43,0.55)' }}
+        onPress={onClose}
+      />
 
-      <View style={styles.sheet}>
-        <View style={styles.grabber} />
+      <View className="max-h-[76%] rounded-t-[26px] bg-surface pb-7">
+        <View className="mt-3 h-1 w-10 self-center rounded-sm bg-line" />
 
-        <View style={styles.head}>
-          <View style={[styles.dot, { backgroundColor: kindColor[node.kind] }]} />
-          <View style={styles.headText}>
-            <Text style={styles.title} numberOfLines={1}>
+        <View className="flex-row items-start gap-3 px-5 pb-3 pt-4">
+          <View
+            className="mt-1 size-3 rounded-full"
+            style={{ backgroundColor: kindColor[node.kind] }}
+          />
+          <View className="min-w-0 flex-1">
+            <Text className="font-strong text-[19px] tracking-[-0.6px] text-fg" numberOfLines={1}>
               {node.label}
             </Text>
-            <Text style={styles.kind}>
+            <Text className="mt-0.5 font-book text-[12.5px] text-faint">
               {KIND_LABEL[node.kind]}
               {node.aliases?.length ? ` · também chamada de ${node.aliases.join(', ')}` : ''}
             </Text>
           </View>
-          <Pressable onPress={onClose} style={styles.close} hitSlop={8}>
+          <Pressable
+            onPress={onClose}
+            className="size-9 items-center justify-center rounded-full bg-surface-2"
+            hitSlop={8}
+          >
             <Svg viewBox="0 0 20 20" width={16} height={16}>
               <Path
                 d="m5.5 5.5 9 9M14.5 5.5l-9 9"
@@ -61,8 +72,8 @@ export function NodeSheet({
           </Pressable>
         </View>
 
-        <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-          <Text style={styles.count}>
+        <ScrollView className="px-5" showsVerticalScrollIndicator={false}>
+          <Text className="mb-1 font-strong text-[11px] tracking-[1.4px] text-label">
             {total === 1 ? 'APARECE EM 1 MEMÓRIA' : `APARECE EM ${total} MEMÓRIAS`}
           </Text>
 
@@ -72,69 +83,14 @@ export function NodeSheet({
         </ScrollView>
 
         {total > PREVIEW && (
-          <Pressable onPress={onSeeAll} style={styles.all}>
-            <Text style={styles.allText}>Ver todas ({total})</Text>
+          <Pressable
+            onPress={onSeeAll}
+            className="mx-5 mt-3 items-center rounded-card bg-surface-2 py-3.5"
+          >
+            <Text className="font-strong text-hint text-fg">Ver todas ({total})</Text>
           </Pressable>
         )}
       </View>
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  scrim: { flex: 1, backgroundColor: 'rgba(18,16,15,0.55)' },
-  sheet: {
-    backgroundColor: color.surface,
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-    paddingBottom: 28,
-    maxHeight: '76%'
-  },
-  grabber: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: color.line,
-    alignSelf: 'center',
-    marginTop: 12
-  },
-  head: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12
-  },
-  dot: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
-  headText: { flex: 1, minWidth: 0 },
-  title: { fontFamily: font.semibold, fontSize: 19, letterSpacing: -0.6, color: color.fg },
-  kind: { fontFamily: font.regular, fontSize: 12.5, color: color.faint, marginTop: 2 },
-  close: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: color.surface2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 0
-  },
-  list: { paddingHorizontal: 20 },
-  count: {
-    fontFamily: font.semibold,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    color: color.label,
-    marginBottom: 4
-  },
-  all: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    backgroundColor: color.surface2,
-    borderRadius: radius.card,
-    paddingVertical: 14,
-    alignItems: 'center',
-    minHeight: 0
-  },
-  allText: { fontFamily: font.semibold, fontSize: 13, color: color.fg }
-})

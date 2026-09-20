@@ -28,11 +28,13 @@ const BLOBS = [
 export function Orb({
   className = '',
   rings = true,
-  interactive = false
+  interactive = false,
+  style
 }: {
   className?: string
   rings?: boolean
   interactive?: boolean
+  style?: React.CSSProperties
 }) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -84,13 +86,14 @@ export function Orb({
       style={
         interactive
           ? ({
+              ...style,
               '--level': 0,
               '--px': 0,
               '--py': 0,
               transform:
                 'translate3d(calc(var(--px) * 14px), calc(var(--py) * 14px), 0) scale(calc(1 + var(--level) * 0.09))'
             } as React.CSSProperties)
-          : undefined
+          : style
       }
       className={`relative grid aspect-square place-items-center will-change-transform ${className}`}
     >

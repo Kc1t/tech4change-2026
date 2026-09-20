@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { randomInt } from 'crypto'
 import { Observable, Subject, defer, filter, map, startWith } from 'rxjs'
-import type { JoinSessionInput } from './dto/join-session.dto'
+import type { HeartbeatInput, JoinSessionInput } from './dto/join-session.dto'
 import type { BroadcastCueInput } from './dto/broadcast-cue.dto'
 
 const DEVICE_TTL_MS = 45_000
@@ -19,6 +19,7 @@ export interface Device {
   name: string
   joinedAt: number
   seenAt: number
+  battery: number | null
 }
 
 interface Session {
@@ -68,7 +69,8 @@ export class SyncService {
       kind: input.kind,
       name: input.name,
       joinedAt: Date.now(),
-      seenAt: Date.now()
+      seenAt: Date.now(),
+      battery: input.battery ?? null
     }
 
     session.devices.set(device.id, device)
@@ -76,11 +78,18 @@ export class SyncService {
     return device
   }
 
-  heartbeat(code: string, deviceId: string): Device {
+  heartbeat(code: string, deviceId: string, input?: HeartbeatInput): Device {
     const session = this.require(code)
     const device = session.devices.get(deviceId)
     if (!device) throw new NotFoundException('device not in session')
     device.seenAt = Date.now()
+
+    const battery = input?.battery
+    if (battery !== undefined && battery !== device.battery) {
+      device.battery = battery
+      this.announce(session)
+    }
+
     return device
   }
 

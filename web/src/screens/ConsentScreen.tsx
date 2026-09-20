@@ -73,7 +73,7 @@ export function ConsentScreen() {
   }
 
   return (
-    <Screen className="gap-4">
+    <Screen>
       <TopBar left={<BackButton />} />
       <div>
         <p className="label-caps">
@@ -95,7 +95,7 @@ export function ConsentScreen() {
         ))}
       </div>
 
-      <div className="rounded-panel bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] p-6">
+      <div className="rounded-panel bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] p-6">
         <div className="mb-4 text-[3.4rem] leading-none" aria-hidden="true">
           {question.pictogram}
         </div>
@@ -118,7 +118,7 @@ export function ConsentScreen() {
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => answer(false)}
-          className="rounded-card bg-surface shadow-[0_1px_2px_rgba(22,22,22,0.04),0_6px_18px_-6px_rgba(22,22,22,0.12)] px-3 py-4 font-semibold"
+          className="rounded-card bg-surface shadow-[0_1px_2px_rgba(90,70,160,0.04),0_6px_18px_-6px_rgba(90,70,160,0.12)] px-3 py-4 font-semibold"
         >
           Não
         </button>

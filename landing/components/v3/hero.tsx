@@ -1,8 +1,8 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from './logo'
-import { HeroBackground } from './hero-background'
-import { PhoneShell, ScreenGreeting, ScreenLadder, ScreenListening } from './phone'
+import { Device, ScreenMap, ScreenMoment, ScreenProgress } from './app-screens'
+import { PhoneShell } from './phone'
 
 const NAV = [
   { label: 'O que é', href: '#jornada' },
@@ -14,13 +14,16 @@ export function Hero() {
   return (
     <div className="p-3 sm:p-4">
       <section className="v3-hero-surface relative isolate flex min-h-[max(88vh,720px)] flex-col items-center overflow-hidden rounded-[1.75rem] px-6 pb-[clamp(300px,34vw,430px)] text-center sm:rounded-[2rem]">
-        <HeroBackground />
+        <div aria-hidden="true" className="absolute inset-0 -z-10">
+          <img src="/sky.webp" alt="" className="size-full object-cover object-center" />
+          <div className="v3-hero-veil absolute inset-0" />
+        </div>
 
         <nav
           aria-label="Principal"
           className="v3-nav-surface relative z-30 mt-5 flex w-full max-w-[660px] items-center gap-4 rounded-full p-2 pl-5 text-white"
         >
-          <a href="/v3" className="flex flex-1 shrink-0 items-center">
+          <a href="/" className="flex flex-1 shrink-0 items-center">
             <Logo className="h-7" />
           </a>
 
@@ -86,18 +89,24 @@ export function Hero() {
         >
           <PhoneShell
             cropped
-            className="hidden h-[78%] w-[clamp(200px,17vw,250px)] opacity-95 lg:block"
+            className="hidden h-[78%] w-[250px] opacity-95 lg:block"
           >
-            <ScreenGreeting />
+            <Device width={238}>
+              <ScreenMap bar={false} />
+            </Device>
           </PhoneShell>
-          <PhoneShell cropped className="z-10 h-full w-[clamp(220px,20vw,286px)]">
-            <ScreenListening />
+          <PhoneShell cropped className="z-10 h-full w-[286px]">
+            <Device width={274}>
+              <ScreenMoment orb={132} footer={0} bar={false} />
+            </Device>
           </PhoneShell>
           <PhoneShell
             cropped
-            className="hidden h-[78%] w-[clamp(200px,17vw,250px)] opacity-95 lg:block"
+            className="hidden h-[78%] w-[250px] opacity-95 lg:block"
           >
-            <ScreenLadder />
+            <Device width={238}>
+              <ScreenProgress bar={false} />
+            </Device>
           </PhoneShell>
         </div>
       </section>

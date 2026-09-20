@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Modal, Pressable, StyleSheet, Switch, Text, View } from 'react-native'
+import { Modal, Pressable, Switch, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import Svg, { Path, Rect } from 'react-native-svg'
 import { useApp } from '../store'
-import { color, font, radius, shadow, tap } from '../theme/tokens'
+import { color, shadow } from '../theme/tokens'
 import {
   KIND_GLYPH,
   KIND_LABEL,
@@ -14,6 +14,14 @@ import {
 } from '../domain/devices'
 
 const SCAN_MS = 1400
+
+const SOFT = { ...shadow.card, shadowOpacity: 0.06 }
+const LABEL_CAPS = 'font-strong text-caps text-label'
+const HINT = 'font-book text-[12.5px] leading-[18px]'
+const DEVICE_ROW = 'flex-row items-center gap-3 rounded-large bg-surface p-3.5'
+const DEVICE_ICON = 'size-11 items-center justify-center rounded-full'
+const DEVICE_NAME = 'font-strong text-[15.5px] tracking-[-0.4px]'
+const DEVICE_META = 'mt-1 flex-row flex-wrap items-center gap-2'
 
 function DeviceGlyph({ device, size, tint }: { device: PairedDevice; size: number; tint: string }) {
   return (
@@ -32,7 +40,7 @@ function DeviceGlyph({ device, size, tint }: { device: PairedDevice; size: numbe
 
 function Battery({ level }: { level: number }) {
   return (
-    <View style={styles.battery}>
+    <View className="flex-row items-center gap-1">
       <Svg viewBox="0 0 24 12" width={20} height={10}>
         <Rect
           x={0.8}
@@ -54,7 +62,7 @@ function Battery({ level }: { level: number }) {
         />
         <Path d="M21.6 4.2v3.6" stroke={color.faint} strokeWidth={1.8} strokeLinecap="round" />
       </Svg>
-      <Text style={styles.batteryText}>{level}%</Text>
+      <Text className="font-strong text-caps tracking-normal text-faint">{level}%</Text>
     </View>
   )
 }
@@ -67,8 +75,8 @@ export function BuzzPicker() {
   const chosen = options.filter(device => device.buzz)
 
   return (
-    <View style={styles.block}>
-      <View style={styles.chips}>
+    <View className="gap-2.5">
+      <View className="flex-row flex-wrap gap-2">
         {options.map(device => (
           <Pressable
             key={device.id}
@@ -78,20 +86,27 @@ export function BuzzPicker() {
               if (!device.buzz) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
               toggleBuzz(device.id)
             }}
-            style={[styles.chip, device.buzz ? styles.chipOn : styles.chipOff]}
+            className={`min-h-tap flex-row items-center gap-2 rounded-full px-4 ${
+              device.buzz ? 'bg-fg' : 'bg-surface'
+            }`}
+            style={device.buzz ? undefined : SOFT}
           >
             <DeviceGlyph device={device} size={18} tint={device.buzz ? color.ink : color.dim} />
-            <Text style={[styles.chipText, device.buzz && styles.chipTextOn]}>{device.name}</Text>
+            <Text
+              className={`font-strong text-[13.5px] ${device.buzz ? 'text-ink' : 'text-dim'}`}
+            >
+              {device.name}
+            </Text>
           </Pressable>
         ))}
       </View>
 
       {chosen.length === 0 ? (
-        <Text style={[styles.hint, { color: color.masteryLow }]}>
+        <Text className={`${HINT} text-mastery-low`}>
           Nenhum aparelho vibra agora. A dica vai chegar só por voz ou pela tela.
         </Text>
       ) : (
-        <Text style={styles.hint}>
+        <Text className={`${HINT} text-faint`}>
           A vibração marca o tempo em {chosen.map(device => device.name.toLowerCase()).join(' e ')}.
         </Text>
       )}
@@ -101,38 +116,52 @@ export function BuzzPicker() {
 
 export function DeviceList() {
   const paired = useApp(s => s.paired)
+  const live = useApp(s => s.devices)
+  const selfId = useApp(s => s.deviceId)
   const toggleDevice = useApp(s => s.toggleDevice)
   const unpairDevice = useApp(s => s.unpairDevice)
   const [pairing, setPairing] = useState(false)
 
+  const rows = paired.map(device => {
+    const match = live.find(
+      entry => entry.kind === device.kind && (device.kind !== 'phone' || entry.id === selfId)
+    )
+    return {
+      ...device,
+      battery: match ? match.battery : device.channel === null ? device.battery : null,
+      live: match !== undefined
+    }
+  })
+
   return (
-    <View style={styles.block}>
-      {paired.map(device => (
-        <View key={device.id} style={styles.device}>
+    <View className="gap-2.5">
+      {rows.map(device => (
+        <View key={device.id} className={DEVICE_ROW} style={SOFT}>
           <View
-            style={[
-              styles.deviceIcon,
-              { backgroundColor: device.on ? color.brandSoft : color.surface2 }
-            ]}
+            className={`${DEVICE_ICON} ${device.on ? 'bg-brand-soft' : 'bg-surface-2'}`}
           >
             <DeviceGlyph device={device} size={22} tint={device.on ? color.fg : color.faint} />
           </View>
 
-          <View style={styles.deviceBody}>
+          <View className="min-w-0 flex-1">
             <Text
-              style={[styles.deviceName, !device.on && { color: color.faint }]}
+              className={`${DEVICE_NAME} ${device.on ? 'text-fg' : 'text-faint'}`}
               numberOfLines={1}
             >
               {device.name}
             </Text>
 
-            <View style={styles.deviceMeta}>
-              <Text style={styles.labelCaps}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
+            <View className={DEVICE_META}>
+              <Text className={LABEL_CAPS}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
               {device.battery !== null && <Battery level={device.battery} />}
-              {device.channel === null && <Text style={styles.tag}>SIMULADO</Text>}
+              {device.live && (
+                <Text className="overflow-hidden rounded-full bg-brand-soft px-1.5 py-0.5 font-strong text-[8.5px] tracking-[1px] text-brand">
+                  NA SESSÃO
+                </Text>
+              )}
             </View>
 
-            <Text style={styles.deviceRole}>{roleOf(device)}</Text>
+            <Text className="mt-1 font-book text-[12.5px] text-dim">{roleOf(device)}</Text>
           </View>
 
           {device.channel === null && (
@@ -140,7 +169,7 @@ export function DeviceList() {
               onPress={() => unpairDevice(device.id)}
               accessibilityLabel={`Remover ${device.name}`}
               hitSlop={8}
-              style={styles.remove}
+              className="size-[30px] items-center justify-center"
             >
               <Svg viewBox="0 0 20 20" width={15} height={15}>
                 <Path
@@ -164,7 +193,10 @@ export function DeviceList() {
         </View>
       ))}
 
-      <Pressable onPress={() => setPairing(true)} style={styles.add}>
+      <Pressable
+        onPress={() => setPairing(true)}
+        className="min-h-tap flex-row items-center justify-center gap-2 rounded-large border border-dashed border-line"
+      >
         <Svg viewBox="0 0 20 20" width={16} height={16}>
           <Path
             d="M10 4.5v11M4.5 10h11"
@@ -174,7 +206,7 @@ export function DeviceList() {
             strokeLinecap="round"
           />
         </Svg>
-        <Text style={styles.addText}>Adicionar aparelho</Text>
+        <Text className="font-strong text-[13.5px] text-brand">Adicionar aparelho</Text>
       </Pressable>
 
       {pairing && <PairSheet onClose={() => setPairing(false)} />}
@@ -196,22 +228,31 @@ function PairSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal transparent animationType="slide" visible onRequestClose={onClose}>
-      <Pressable style={styles.scrim} onPress={onClose} />
+      <Pressable
+        className="absolute inset-0"
+        style={{ backgroundColor: '#1b1a2259' }}
+        onPress={onClose}
+      />
 
-      <View style={styles.sheet}>
-        <View style={styles.grabber} />
+      <View className="absolute inset-x-0 bottom-0 rounded-t-[28px] bg-ink px-6 pb-7 pt-3">
+        <View className="mb-4 h-1 w-10 self-center rounded-full bg-line" />
 
-        <Text style={styles.labelCaps}>PAREAR</Text>
-        <Text style={styles.sheetTitle}>Aparelhos por perto</Text>
-        <Text style={styles.sheetSub}>
+        <Text className={LABEL_CAPS}>PAREAR</Text>
+        <Text className="mt-1.5 font-mid text-[22px] tracking-[-0.8px] text-fg">
+          Aparelhos por perto
+        </Text>
+        <Text className="mt-1.5 font-book text-hint text-dim">
           Deixe o aparelho perto do celular e ligado. Nesta versão a busca é simulada.
         </Text>
 
-        <View style={styles.sheetList}>
+        <View className="mt-4 gap-2.5">
           {scanning && (
-            <View style={styles.scanning}>
-              <View style={styles.scanDot} />
-              <Text style={styles.scanText}>Procurando aparelhos…</Text>
+            <View
+              className="flex-row items-center gap-3 rounded-large bg-surface p-4"
+              style={SOFT}
+            >
+              <View className="size-2.5 rounded-full bg-brand" />
+              <Text className="font-strong text-[13.5px] text-dim">Procurando aparelhos…</Text>
             </View>
           )}
 
@@ -224,184 +265,42 @@ function PairSheet({ onClose }: { onClose: () => void }) {
                   pairDevice(device.id)
                   onClose()
                 }}
-                style={styles.device}
+                className={DEVICE_ROW}
+                style={SOFT}
               >
-                <View style={[styles.deviceIcon, { backgroundColor: color.surface2 }]}>
+                <View className={`${DEVICE_ICON} bg-surface-2`}>
                   <DeviceGlyph device={device} size={22} tint={color.dim} />
                 </View>
-                <View style={styles.deviceBody}>
-                  <Text style={styles.deviceName} numberOfLines={1}>
+                <View className="min-w-0 flex-1">
+                  <Text className={`${DEVICE_NAME} text-fg`} numberOfLines={1}>
                     {device.name}
                   </Text>
-                  <View style={styles.deviceMeta}>
-                    <Text style={styles.labelCaps}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
+                  <View className={DEVICE_META}>
+                    <Text className={LABEL_CAPS}>{KIND_LABEL[device.kind].toUpperCase()}</Text>
                     {device.battery !== null && <Battery level={device.battery} />}
                   </View>
                 </View>
-                <Text style={styles.pair}>Parear</Text>
+                <Text className="font-strong text-hint text-brand">Parear</Text>
               </Pressable>
             ))}
 
           {!scanning && found.length === 0 && (
-            <Text style={styles.empty}>
+            <Text
+              className={`${HINT} rounded-large border border-dashed border-line px-4 py-5 text-center text-faint`}
+            >
               Nada novo por perto. Todos os aparelhos conhecidos já estão na lista.
             </Text>
           )}
         </View>
 
-        <Pressable onPress={onClose} style={styles.close}>
-          <Text style={styles.closeText}>Fechar</Text>
+        <Pressable
+          onPress={onClose}
+          className="mt-3 min-h-tap items-center justify-center rounded-large bg-surface"
+          style={SOFT}
+        >
+          <Text className="font-strong text-[13.5px] text-dim">Fechar</Text>
         </Pressable>
       </View>
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  block: { gap: 10 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    minHeight: tap.min,
-    paddingHorizontal: 16,
-    borderRadius: radius.pill
-  },
-  chipOn: { backgroundColor: color.fg },
-  chipOff: { backgroundColor: color.surface, ...shadow.card, shadowOpacity: 0.06 },
-  chipText: { fontFamily: font.semibold, fontSize: 13.5, color: color.dim },
-  chipTextOn: { color: color.ink },
-  hint: { fontFamily: font.regular, fontSize: 12.5, lineHeight: 18, color: color.faint },
-
-  device: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    padding: 14,
-    minHeight: 0,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  deviceIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  deviceBody: { flex: 1, minWidth: 0 },
-  deviceName: { fontFamily: font.semibold, fontSize: 15.5, letterSpacing: -0.4, color: color.fg },
-  deviceMeta: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 4
-  },
-  deviceRole: { fontFamily: font.regular, fontSize: 12.5, color: color.dim, marginTop: 4 },
-  tag: {
-    fontFamily: font.semibold,
-    fontSize: 8.5,
-    letterSpacing: 1,
-    color: color.faint,
-    backgroundColor: color.surface2,
-    borderRadius: radius.pill,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    overflow: 'hidden'
-  },
-  labelCaps: { fontFamily: font.semibold, fontSize: 10.5, letterSpacing: 1.3, color: color.label },
-  battery: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  batteryText: { fontFamily: font.semibold, fontSize: 10.5, color: color.faint },
-  remove: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-
-  add: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    minHeight: tap.min,
-    borderRadius: radius.large,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: color.line
-  },
-  addText: { fontFamily: font.semibold, fontSize: 13.5, color: color.brand },
-
-  scrim: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#16161659' },
-  sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: color.ink,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 28
-  },
-  grabber: {
-    alignSelf: 'center',
-    width: 40,
-    height: 4,
-    borderRadius: radius.pill,
-    backgroundColor: color.line,
-    marginBottom: 16
-  },
-  sheetTitle: {
-    fontFamily: font.medium,
-    fontSize: 22,
-    letterSpacing: -0.8,
-    color: color.fg,
-    marginTop: 6
-  },
-  sheetSub: {
-    fontFamily: font.regular,
-    fontSize: 13,
-    lineHeight: 19,
-    color: color.dim,
-    marginTop: 6
-  },
-  sheetList: { gap: 10, marginTop: 16 },
-  scanning: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    padding: 16,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  scanDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: color.brand },
-  scanText: { fontFamily: font.semibold, fontSize: 13.5, color: color.dim },
-  pair: { fontFamily: font.semibold, fontSize: 13, color: color.brand },
-  empty: {
-    fontFamily: font.regular,
-    fontSize: 12.5,
-    lineHeight: 18,
-    color: color.faint,
-    textAlign: 'center',
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: color.line,
-    borderRadius: radius.large,
-    paddingHorizontal: 16,
-    paddingVertical: 20
-  },
-  close: {
-    minHeight: tap.min,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: color.surface,
-    borderRadius: radius.large,
-    marginTop: 12,
-    ...shadow.card,
-    shadowOpacity: 0.06
-  },
-  closeText: { fontFamily: font.semibold, fontSize: 13.5, color: color.dim }
-})

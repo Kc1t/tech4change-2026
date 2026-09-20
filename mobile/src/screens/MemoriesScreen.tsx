@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { MemoryRow } from '../components/MemoryRow'
-import { BackButton, Screen, ScreenHeader, TopBar } from '../components/ui'
+import { BackButton, BrandMark, Screen, ScreenHeader, TopBar } from '../components/ui'
 import { memoriesAbout, memoriesOf, memoryTags } from '../domain/memories'
 import { lifeGraph, useApp } from '../store'
-import { color, font, radius } from '../theme/tokens'
+import { color } from '../theme/tokens'
 
 export function MemoriesScreen({ onBack }: { onBack: () => void }) {
   const filter = useApp(s => s.memoryFilter)
@@ -16,12 +16,11 @@ export function MemoriesScreen({ onBack }: { onBack: () => void }) {
   const listed = focus ? memoriesAbout(memories, focus.id) : memories
 
   return (
-    <Screen gap={8}>
-      <TopBar left={<BackButton onPress={onBack} />} />
+    <Screen>
+      <TopBar left={focus ? <BackButton onPress={onBack} /> : <BrandMark />} />
 
       <ScreenHeader
-        label="as memórias"
-        title={focus ? focus.label : 'Tudo o que sustenta o mapa'}
+        title={focus ? focus.label : 'Memórias'}
         sub={
           focus
             ? `${listed.length} ${listed.length === 1 ? 'memória sustenta' : 'memórias sustentam'} essa ligação.`
@@ -30,8 +29,11 @@ export function MemoriesScreen({ onBack }: { onBack: () => void }) {
       />
 
       {focus && (
-        <Pressable onPress={() => setMemoryFilter(null)} style={styles.chip}>
-          <Text style={styles.chipText}>{focus.label}</Text>
+        <Pressable
+          onPress={() => setMemoryFilter(null)}
+          className="flex-row items-center gap-2 self-start rounded-full bg-fg px-3 py-2"
+        >
+          <Text className="font-strong text-note text-ink">{focus.label}</Text>
           <Svg viewBox="0 0 20 20" width={14} height={14}>
             <Path
               d="m5.5 5.5 9 9M14.5 5.5l-9 9"
@@ -44,7 +46,7 @@ export function MemoriesScreen({ onBack }: { onBack: () => void }) {
         </Pressable>
       )}
 
-      <View style={styles.list}>
+      <View className="gap-2">
         {listed.map(memory => (
           <MemoryRow
             key={memory.id}
@@ -54,7 +56,7 @@ export function MemoriesScreen({ onBack }: { onBack: () => void }) {
         ))}
       </View>
 
-      <Text style={styles.note}>
+      <Text className="font-book text-[11px] leading-[17px] text-faint">
         Toda memória fica presa à ligação que ela sustenta. Se o modelo citar uma ligação que não
         existe no grafo, a resposta inteira é rejeitada — por isso o sistema não consegue inventar
         uma parente.
@@ -62,26 +64,3 @@ export function MemoriesScreen({ onBack }: { onBack: () => void }) {
     </Screen>
   )
 }
-
-const styles = StyleSheet.create({
-  chip: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: color.fg,
-    borderRadius: radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 0
-  },
-  chipText: { fontFamily: font.semibold, fontSize: 12, color: color.ink },
-  list: { gap: 8, marginTop: 8 },
-  note: {
-    fontFamily: font.regular,
-    fontSize: 11,
-    lineHeight: 17,
-    color: color.faint,
-    marginTop: 12
-  }
-})

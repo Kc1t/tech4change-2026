@@ -43,14 +43,14 @@ export function NodeSheet({
       <button
         onClick={onClose}
         aria-label="Fechar"
-        className="animate-in fade-in absolute inset-0 z-40 min-h-0 cursor-default bg-[#12100f]/55 duration-300"
+        className="animate-in fade-in absolute inset-0 z-40 min-h-0 cursor-default bg-[#221f2b]/55 duration-300"
       />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-label={node.label}
-        className="animate-rise absolute inset-x-0 bottom-0 z-50 flex max-h-[76%] flex-col rounded-t-[26px] bg-surface pb-[calc(86px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(18,16,15,0.22)]"
+        className="animate-rise absolute inset-x-0 bottom-0 z-50 flex max-h-[76%] flex-col rounded-t-[26px] bg-surface pb-[calc(86px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_40px_rgba(34,31,43,0.22)]"
       >
         <span aria-hidden="true" className="mx-auto mt-3 h-1 w-10 rounded-full bg-line" />
 

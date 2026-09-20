@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
-import { color, font, kindColor, radius, shadow } from '../theme/tokens'
+import { color, kindColor, shadow } from '../theme/tokens'
 import type { Memory } from '../domain/memories'
 import type { ProvenanceSource } from '../domain/types'
 
@@ -51,10 +51,8 @@ export function SourceMark({
 }) {
   return (
     <View
-      style={[
-        styles.mark,
-        { width: size, height: size, borderRadius: size / 2, backgroundColor: TINT[source] }
-      ]}
+      className="items-center justify-center"
+      style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: TINT[source] }}
     >
       {source === 'audio' ? <Wave seed={seed} /> : <Icon source={source} />}
     </View>
@@ -121,15 +119,18 @@ export function MemoryRow({
   const body = (
     <>
       <SourceMark source={memory.source} seed={memory.id} />
-      <View style={styles.rowBody}>
-        <Text style={styles.detail}>{memory.detail}</Text>
-        <Text style={styles.meta}>
+      <View className="min-w-0 flex-1">
+        <Text className="font-mid text-[13.5px] leading-[19px] text-fg">{memory.detail}</Text>
+        <Text className="mt-1.5 font-strong text-[11px] tracking-[1.4px] text-label">
           {SOURCE_LABEL[memory.source].toUpperCase()} · {memory.ref.toUpperCase()}
         </Text>
         {tags.length > 0 && (
-          <View style={styles.tags}>
+          <View className="mt-2 flex-row flex-wrap gap-1.5">
             {tags.map(tag => (
-              <Text key={tag} style={styles.tag}>
+              <Text
+                key={tag}
+                className="overflow-hidden rounded-full bg-surface-2 px-2 py-[3px] font-book text-[11px] text-dim"
+              >
                 {tag}
               </Text>
             ))}
@@ -139,40 +140,19 @@ export function MemoryRow({
     </>
   )
 
-  const shape = [styles.row, flat ? styles.rowFlat : styles.rowCard]
+  const shape = `flex-row items-start gap-3 p-3 ${flat ? '' : 'rounded-card bg-surface'}`
+  const lift = flat ? undefined : { ...shadow.card, shadowOpacity: 0.06 }
 
-  if (!onPress) return <View style={shape}>{body}</View>
+  if (!onPress)
+    return (
+      <View className={shape} style={lift}>
+        {body}
+      </View>
+    )
 
   return (
-    <Pressable onPress={onPress} style={shape}>
+    <Pressable onPress={onPress} className={shape} style={lift}>
       {body}
     </Pressable>
   )
 }
-
-const styles = StyleSheet.create({
-  mark: { alignItems: 'center', justifyContent: 'center' },
-  row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, padding: 12, minHeight: 0 },
-  rowCard: { backgroundColor: color.surface, borderRadius: radius.card, ...shadow.card, shadowOpacity: 0.06 },
-  rowFlat: { backgroundColor: 'transparent' },
-  rowBody: { flex: 1, minWidth: 0 },
-  detail: { fontFamily: font.medium, fontSize: 13.5, lineHeight: 19, color: color.fg },
-  meta: {
-    fontFamily: font.semibold,
-    fontSize: 11,
-    letterSpacing: 1.4,
-    color: color.label,
-    marginTop: 6
-  },
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
-  tag: {
-    backgroundColor: color.surface2,
-    borderRadius: radius.pill,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    fontFamily: font.regular,
-    fontSize: 11,
-    color: color.dim,
-    overflow: 'hidden'
-  }
-})

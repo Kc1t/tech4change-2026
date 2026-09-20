@@ -1,358 +1,405 @@
-# Eilo
+<a id="readme-top"></a>
 
-**O caminho até a palavra.**
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/Kc1t/tech4change-2026">
+    <img src="docs/media/icon.webp" alt="Eilo" width="96" />
+  </a>
 
-Quem teve AVC e ficou com afasia reconhece a pessoa na frente dela, sabe o que quer dizer, e o nome
-não vem. O Eilo ajuda a alcançar essa palavra no segundo em que ela falta — usando a própria história
-da pessoa como caminho.
+  <h1 align="center">Eilo</h1>
 
-O nome vem de *ei-lo*: **aqui está**.
+  <p align="center">
+    O caminho até a palavra. Para quem teve AVC e ficou com anomia, o Eilo devolve <strong>a rota</strong> até o nome que travou — pistas que sobem em degraus, tiradas do <strong>mapa da vida da própria pessoa</strong>, no segundo da conversa em que a palavra falta.
+    <br />
+    <a href="docs/ARQUITETURA.md"><strong>📄 Documentação técnica</strong></a>
+    ·
+    <a href="https://www.youtube.com/watch?v=uXWnjCYHHWE" target="_blank"><strong>🎥 Vídeo do pitch</strong></a>
+  </p>
 
-Tech4Change 2026 — PosTech FIAP. Tema: *Potencializando o ser humano com Inteligência Artificial*.
+  <p align="center">
+    <a href="https://eilo.kc1t.com" target="_blank"><strong>🌐 Testar o MVP — eilo.kc1t.com »</strong></a>
+  </p>
 
----
+  <p align="center">
+    <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white">
+    <img alt="NestJS" src="https://img.shields.io/badge/NestJS-11-E0234E?style=flat-square&logo=nestjs&logoColor=white">
+    <img alt="Expo" src="https://img.shields.io/badge/Expo-SDK%2057-000020?style=flat-square&logo=expo&logoColor=white">
+    <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-Prisma-4169E1?style=flat-square&logo=postgresql&logoColor=white">
+    <img alt="Hackathon" src="https://img.shields.io/badge/Tech4Change-2026-6B5FA8?style=flat-square">
+    <img alt="Grupo" src="https://img.shields.io/badge/FIAP%20PosTech-Grupo%2024-black?style=flat-square">
+  </p>
+</div>
 
-## Descrição da solução
+> [!IMPORTANT]
+> Entrega do **Tech4Change 2026 — FIAP PosTech**, tema *Potencializando o ser humano com Inteligência Artificial*. Protótipo acadêmico: **não é dispositivo médico**, não substitui fonoaudiologia e nunca foi usado em terapia real. A persona da demonstração é fictícia.
 
-Depois de um AVC, cerca de 30% dos sobreviventes ficam com afasia. O quadro mais comum é a **anomia**:
-não é perda de memória, é perda de acesso. O conteúdo continua inteiro; a via até ele é que se rompeu.
+<div align="center">
+  <img src="docs/media/hero-mvp.jpg" alt="O MVP do Eilo rodando no celular e no relógio" width="820">
+</div>
 
-O sistema monta um mapa da vida da pessoa — pessoas, lugares, objetos e histórias, ligados entre si —
-a partir do que já existe no celular dela. Quando a palavra trava, ela toca uma vez e o sistema
-**não entrega a resposta**: entrega pistas que sobem em degraus, do geral para o específico,
-terminando no som da palavra, até a própria pessoa dizer.
+<p align="center">
+  <strong>700 mil</strong> brasileiros com afasia · <strong>4</strong> degraus até a palavra · <strong>11</strong> profissionais e familiares ouvidos · <strong>0</strong> palavras saindo do aparelho
+</p>
+
+> [!TIP]
+> **Teste em menos de um minuto, sem instalar nada.** Abra **[eilo.kc1t.com](https://eilo.kc1t.com)** no celular, toque em *Ver com um exemplo pronto* e experimente travar numa palavra — a escada de dicas aparece no mesmo quadro do toque, sem rede e sem chave de API. &nbsp;·&nbsp; 🎥 **[Assista ao pitch de 4 min](https://www.youtube.com/watch?v=uXWnjCYHHWE)**
+
+## Resumo para avaliação
+
+O Eilo não é um app de exercícios de fonoaudiologia nem um assistente que responde quando chamado. É o único que age **no segundo em que a palavra trava, dentro da conversa** — e que trabalha para deixar de ser necessário.
+
+- **Conceito próprio:** a dica é a história da pessoa, não um dicionário. A anomia trava quase sempre em *nome próprio* — a neta, a cidade, o cachorro — exatamente o que nenhum modelo de linguagem sabe, porque nunca esteve na internet.
+- **IA onde ela resolve:** o modelo não escreve a dica, ele **ordena candidatos do grafo e devolve só identificadores**. Cada degrau precisa citar uma aresta que existe; se falhar, a resposta inteira é rejeitada.
+- **Privacidade estrutural, não promessa:** o backend recebe uma projeção opaca do grafo. O schema de entrada **recusa** nome próprio — uma requisição com um rótulo volta `400`.
+- **A métrica é o recuo:** o indicador de sucesso é o **degrau médio caindo** semana a semana, não o uso subindo. É uma ferramenta desenhada para ser abandonada.
+- **Validação com quem trata:** 11 fonoaudiólogos e familiares entrevistados, e a clínica **ProSense** confirmou o mesmo gap e quer seguir conosco.
+- **Funciona sem rede e sem IA:** sem `ANTHROPIC_API_KEY` o produto inteiro continua de pé pela escada determinística — e isso tem teste automatizado.
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Índice</summary>
+  <ol>
+    <li><a href="#resumo-para-avaliação">Resumo para avaliação</a></li>
+    <li>
+      <a href="#sobre-o-projeto">Sobre o projeto</a>
+      <ul>
+        <li><a href="#os-dois-modos">Os dois modos</a></li>
+        <li><a href="#de-onde-vem-a-dica">De onde vem a dica</a></li>
+      </ul>
+    </li>
+    <li><a href="#funcionalidades">Funcionalidades</a></li>
+    <li><a href="#construído-com">Construído com</a></li>
+    <li><a href="#arquitetura--o-motor-de-dica">Arquitetura — o motor de dica</a></li>
+    <li><a href="#aderência-ao-desafio">Aderência ao desafio</a></li>
+    <li>
+      <a href="#começando">Começando</a>
+      <ul>
+        <li><a href="#pré-requisitos">Pré-requisitos</a></li>
+        <li><a href="#instalação">Instalação</a></li>
+      </ul>
+    </li>
+    <li><a href="#aplicações">Aplicações</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#privacidade-e-conformidade">Privacidade e conformidade</a></li>
+    <li><a href="#licença">Licença</a></li>
+    <li><a href="#equipe">Equipe</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ol>
+</details>
+
+## Sobre o projeto
+
+Depois de um AVC, cerca de 3 em cada 10 sobreviventes ficam com afasia. O quadro mais comum é a **anomia**: não é perda de memória, é perda de acesso. O conteúdo continua inteiro; a via até ele é que se rompeu. A pessoa reconhece quem está na frente dela, sabe o que quer dizer, e o nome não vem.
+
+No dia a dia a palavra que falta quase nunca é "maçã". É o nome da neta, a rua de casa, o rosto na frente dela — e é aí que o tratamento de consultório não alcança, porque ninguém tem um fonoaudiólogo na sala às três da tarde de um domingo.
+
+O Eilo monta um **mapa da vida** da pessoa a partir do que já existe no celular dela — pessoas, lugares, objetos e histórias, ligados entre si — e a família confirma cada ligação. Quando a palavra trava, o relógio vibra e o sistema **não entrega a resposta**: entrega pistas que sobem em degraus, do geral para o específico, até a própria pessoa dizer.
 
 ```
 é da família  →  da geração dos netos  →  mora em Sorocaba  →  Le…  →  Letícia
 ```
 
-A vibração marca o intervalo entre a tentativa e a dica, porque o que melhora a retenção não é
-receber a resposta pronta: é o esforço que termina em acerto.
+O nome vem de *ei-lo*: **aqui está**.
 
-**O indicador de sucesso é o degrau médio de destravamento caindo semana a semana.** É uma ferramenta
-desenhada para deixar de ser necessária.
+### Os dois modos
 
----
+<div id="os-dois-modos"></div>
 
-## O diferencial
+- **🫱 Fazer lembrar** — o relógio vibra e vai dando pistas cada vez mais próximas, até a palavra sair da boca dela. É o modo padrão, e é o que gera aprendizado.
+- **🗣️ Completar, se ela pedir** — quando continuar tentando já atrapalha a conversa, o Eilo fala a palavra, no fone ou na tela. É saída de emergência, não atalho.
 
-Existem aplicativos de comunicação aumentativa, de terapia de nomeação e de tradução por prancha de
-símbolos. Cinco coisas separam o Eilo deles.
+> Dar pista em hierarquia não é invenção nossa: está descrito na fonoaudiologia desde 1977, no trabalho de Love e Webb, e sempre dependeu de um terapeuta na sala para decidir a hora. O que muda aqui é **quem decide a hora**. E o motivo de não entregar a palavra pronta também está medido: prática de recuperação retém mais do que receber a resposta (Middleton et al., 2015).
 
-**1. A dica é a história dela, não um dicionário.** O problema da anomia é quase sempre com *nome
-próprio* — a neta, a cidade, o cachorro. É exatamente onde nenhum modelo de linguagem tem a
-informação, porque ela nunca esteve na internet. O grafo pessoal resolve o que o modelo não pode.
+### De onde vem a dica
 
-**2. O sistema não pode inventar uma parente.** Cada degrau precisa citar uma aresta que existe no
-grafo e conecta o nó alvo. Se um degrau falhar na validação, **a resposta inteira é rejeitada** e cai
-na escada determinística. Não é promessa: é o passo 3 do motor, e tem teste automatizado.
+<div id="de-onde-vem-a-dica"></div>
 
-**3. A palavra nunca sai do aparelho.** O backend recebe uma *projeção* do grafo — identificador
-opaco, tipo do nó, quais chaves de atributo existem, arestas com peso. Rótulo, apelido, texto do
-degrau e separação silábica ficam no dispositivo. O schema de entrada **recusa** qualquer coisa que
-não seja identificador opaco: uma requisição com um nome próprio volta `400`.
+| Camada | O que fornece | No que o Eilo transforma |
+|---|---|---|
+| **Grafo da vida** (no aparelho) | pessoas, lugares, objetos, histórias e as arestas confirmadas pela família | o universo de candidatos e o texto de cada degrau |
+| **Modelo de linguagem** (no backend) | ordenação dos candidatos a partir do rodeio que a pessoa está fazendo | qual pista devolver agora, e em que degrau começar |
+| **Aparelhos** (pulso, fone, tela) | vibração, voz e o campo de aurora que ondula com o microfone | o canal certo para o grau de discrição que ela escolheu |
 
-**4. Recuar é o objetivo declarado.** O achado mais bem documentado contra produtos assim é a
-dependência de pista externa. O antídoto que a literatura prescreve — desvanecimento progressivo,
-pista parcial em vez da palavra inteira, transferência para auto-dica — é a arquitetura do modelo de
-aprendizado, e é por isso que a métrica de sucesso é o degrau médio caindo, não o uso subindo.
+O valor está na divisão: **o grafo sabe o que o modelo não pode saber**, e o modelo escolhe o caminho que o grafo sozinho não saberia priorizar.
 
-**5. Nunca espera a rede.** A escada determinística aparece no mesmo quadro do toque. Se o modelo
-responder em até 2,5 s, ela é substituída pela ranqueada; se não responder, ninguém percebe. Sem
-`ANTHROPIC_API_KEY` o produto inteiro funciona — e isso é testado.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
----
+## Funcionalidades
 
-## Como funciona
+<!-- A escada de dicas -->
+<table width="100%">
+<tr>
+<td>
 
-### O motor de dica, em quatro etapas
+<h3>🪜 A escada de dicas, no momento em que trava</h3>
 
-Só a segunda usa modelo.
+<p>A pessoa toca uma vez e a escada sobe um degrau por vez — <strong>categoria → lugar → sílaba → a palavra</strong>. A primeira lista vai para a tela <strong>antes de qualquer chamada de rede</strong>, com alvo de 300 ms. Quem diz a palavra é sempre ela.</p>
 
-1. **Candidatos** — propagação de ativação no grafo, casamento textual e prior de recência. Local,
-   sem rede, alvo de 300 ms. A primeira lista vai para a tela antes de qualquer chamada.
-2. **Reordenação** — o modelo recebe o recorte de candidatos e devolve **apenas identificadores** de
-   nó e de aresta. Nunca texto livre.
-3. **Validação** — cada degrau precisa citar uma aresta existente que conecte o nó alvo. Um degrau
-   inválido derruba a resposta inteira.
-4. **Montagem** — o texto de cada degrau sai do grafo, não da saída do modelo. A pista sonora é
-   recorte de string sobre a separação silábica e **nunca passa pelo modelo**.
+<div align="center">
+  <img src="docs/media/dois-modos.jpg" alt="Os dois modos: fazer lembrar e completar, se ela pedir" width="100%">
+</div>
 
-**Portão de confiança.** A pista sonora só é emitida acima de `PHONOLOGICAL_CONFIDENCE_GATE`. Abaixo
-dele a escada para no degrau semântico: errar no semântico é barato e reversível, mas pista fonêmica
-errada pode induzir perseveração e bloquear o alvo correto.
+</td>
+</tr>
+</table>
 
-**Caminho de segurança.** Validação falhou, modelo demorou, ou não há chave: cai na escada
-determinística montada dos atributos do nó. Não existe estado de erro visível.
+<!-- O mapa da vida -->
+<table width="100%">
+<tr>
+<td>
 
-### As telas
+<h3>🕸️ O mapa da vida, montado do que já existe no celular</h3>
 
-| tela | o que faz |
+<p>A ingestão roda <strong>offline</strong>: visão computacional detecta e agrupa rostos, Whisper transcreve os áudios da família, o EXIF dá lugar e data. Nada disso vira grafo sozinho — <strong>a família confirma cada identidade e cada relação</strong> na tela de Revisão, e cada ligação guarda de onde veio (foto, áudio, conversa ou confirmação).</p>
+
+<div align="center">
+  <img src="docs/media/mapa-da-vida.jpg" alt="O grafo da vida e os degraus de vibração" width="100%">
+</div>
+
+</td>
+</tr>
+</table>
+
+<!-- Painel do fonoaudiólogo + validação -->
+<table width="100%">
+<tr>
+<td colspan="2">
+
+<h3>📊 Painel do fonoaudiólogo · 🔬 validação com quem trata</h3>
+
+<p>O profissional acompanha os seis dias da semana em que <em>não</em> está na sala: <strong>degrau médio por semana e por alvo</strong>, quais palavras ficaram mais fáceis, e o que fazer na próxima sessão. O indicador de sucesso do produto é esse número <strong>caindo</strong>.</p>
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="docs/media/painel-fono.jpg" alt="Painel do fonoaudiólogo" width="100%"></td>
+<td width="50%" valign="top"><img src="docs/media/validacao.jpg" alt="Validação com profissionais e familiares" width="100%"></td>
+</tr>
+<tr>
+<td colspan="2">
+
+<ul>
+  <li><strong>11/12</strong> — vezes em que um modelo acertou a palavra que a pessoa queria dizer, só pelo rodeio.</li>
+  <li><strong>17×</strong> — dar o som do começo destrava 17% das vezes; o significado, 1%. Por isso a escada termina no som.</li>
+  <li><strong>11</strong> fonoaudiólogos e familiares entrevistados, e a clínica <strong>ProSense</strong> confirmou o mesmo gap.</li>
+</ul>
+
+</td>
+</tr>
+</table>
+
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
+
+## Construído com
+
+- **Aplicativo web:** Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Zustand · Tailwind CSS v4 sobre tokens próprios · shadcn/ui e Base UI · PWA com service worker
+- **Aplicativo de celular:** React Native 0.86 via Expo SDK 57 · Reanimated 4 · `react-native-svg` · `expo-haptics` (vibração) · `expo-speech` (voz)
+- **Backend:** NestJS 11 · Prisma · PostgreSQL · Zod nos contratos de entrada · Swagger · Server-Sent Events
+- **Canais do aparelho:** Vibration API · Web Speech API (`SpeechSynthesis` e `SpeechRecognition`, pt-BR) · Web Audio (`AnalyserNode`) para detectar a pausa da fala · Notification API com espelhamento para Wear OS
+- **Camada de modelo:** chamada só pelo backend, com tempo limite de 2,5 s e endpoint configurável por `MODEL_BASE_URL` — roda com Gemini, Anthropic ou qualquer provedor compatível, sem mudar código
+- **Ingestão do grafo:** Python · InsightFace (detecção e embedding de rostos) · agrupamento não supervisionado (HDBSCAN quando instalado, senão aglomerativo por cosseno em numpy) · Whisper (transcrição pt-BR) · Pillow/EXIF · separação silábica de pt-BR por regras
+- **Relógio:** Kotlin para Wear OS, cliente direto da mesma API
+- **Publicação:** Vercel (aplicativo e landing) · Railway (backend)
+
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
+
+## Arquitetura — o motor de dica
+
+O motor tem quatro etapas. **Só a segunda usa modelo.**
+
+```
+        toque na tela  /  pausa detectada no microfone
+                          ▼
+[web] 1. candidatos  ── propagação de ativação no grafo, local, alvo 300 ms
+                          │  a primeira escada já vai para a tela aqui
+                          ▼
+[api] 2. reordenação ── modelo recebe o recorte e devolve SÓ identificadores
+                          ▼
+[api] 3. validação   ── cada degrau tem de citar uma aresta existente
+                          │  degrau inválido → resposta inteira rejeitada
+                          ▼
+[web] 4. montagem    ── o texto do degrau sai do grafo, não do modelo
+                          ▼
+     vibração no pulso · voz no fone · palavra na tela
+```
+
+**O que isso garante, na ordem:**
+
+1. **Candidatos** — propagação de ativação no grafo, casamento textual e prior de recência. Local, sem rede. A primeira lista vai para a tela antes de qualquer chamada.
+2. **Reordenação** — o modelo recebe o recorte de candidatos e devolve **apenas identificadores** de nó e de aresta. Nunca texto livre. Nunca um nome próprio, nem na ida nem na volta.
+3. **Validação** — cada degrau precisa citar uma aresta existente que conecte o nó alvo. **O sistema não consegue inventar uma parente:** um degrau inválido derruba a resposta inteira e cai na escada determinística.
+4. **Montagem** — o texto de cada degrau sai do grafo. A pista sonora é recorte de string sobre a separação silábica e **nunca passa pelo modelo**.
+
+**Portão de confiança.** A pista sonora só é emitida acima de `PHONOLOGICAL_CONFIDENCE_GATE`. Abaixo dele a escada para no degrau semântico: errar no semântico é barato e reversível, mas pista fonêmica errada pode induzir perseveração e bloquear o alvo correto.
+
+**Caminho de segurança.** Validação falhou, modelo demorou, ou não há chave: cai na escada determinística montada dos atributos do nó. Não existe estado de erro visível — e o produto inteiro funciona sem nenhuma chave de API.
+
+**Onde os dados ficam.** PostgreSQL via Prisma guarda três tabelas — `AuditEvent`, `CuePlanCache` e `ConsentRecord` — e **nenhuma delas guarda palavra**: o alvo é sempre identificador opaco. O grafo é um JSON versionado no aparelho e o estado de aprendizado fica em `localStorage`. O backend opera degradado, em memória, se o banco cair.
+
+> 📄 **Mais fundo:** [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md) detalha cada etapa do motor, os contratos entre as aplicações, o modelo de dados, a ingestão do grafo e — na seção 10 — o que ainda não está de pé.
+
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
+
+## Aderência ao desafio
+
+Como o Eilo responde a cada item do Tech4Change 2026:
+
+| Critério | Como o Eilo responde |
 |---|---|
-| **Momento** (`/`) | a home. O que foi ouvido em cima, a palavra esperada grande no centro, e o campo de aurora embaixo cuja própria borda ondula com o microfone |
-| **Grafo** (`/graph`) | duas abas — **Mapa**, o grafo da vida com ícone por tipo de nó, e **Memórias**, a lista de tudo que sustenta cada ligação |
-| **Clínico** (`/clinical`) | degrau médio por semana e por alvo, para o fonoaudiólogo |
-| **Aparelhos** (`/body`) | canais de saída, discrição, intensidade e a sessão entre dois aparelhos |
-| **Consentimento** (`/consent`) | pictogramas, áudio e frases curtas, para a própria pessoa autorizar |
-| **Revisão** (`/review`) | a família confirma cada identidade e cada relação propostas pela ingestão |
-| **Relógio** (`/watch`) | interface redonda que pareia por código de quatro dígitos |
+| **Problema e contexto** | Anomia pós-AVC: 700 mil brasileiros vivendo com afasia, até 940 novos AVCs por dia, 3 em cada 10 saindo com afasia. O tratamento existe, mas a evolução depende do dia a dia — onde não há terapeuta. |
+| **Público-alvo** | Começa na afasia pós-AVC, com expansão possível para outros quadros de acesso à palavra (Alzheimer inicial, TCE, Parkinson, fala atípica). |
+| **Solução e proposta de valor** | Não devolvemos a palavra, devolvemos o caminho até ela. A ajuda chega no segundo do bloqueio, dentro da conversa, e recua conforme a pessoa melhora. |
+| **MVP** | Funcional e público em [eilo.kc1t.com](https://eilo.kc1t.com) — escada de dicas, grafo, painel clínico, consentimento, pareamento com o relógio. Demonstrado no vídeo em celular e Galaxy Watch reais. |
+| **Tecnologias** | Next 16 · React 19 · NestJS 11 · Prisma/PostgreSQL · Expo/React Native · Python (visão computacional, ML não supervisionado, Whisper) · modelo de linguagem com endpoint configurável. |
+| **Modelo de negócio** | Quem assina é o fonoaudiólogo e ele traz os pacientes dele: R$ 119/mês profissional, R$ 59/mês família, parceria com clínicas. 61.054 fonoaudiólogos registrados no CFFa, 88% autônomos — decidem a compra sozinhos. |
+| **Validação** | 11 fonoaudiólogos e familiares entrevistados; ProSense confirmou o gap e quer seguir. 11/12 de acerto do modelo só pelo rodeio; 17× de vantagem da pista fonológica sobre a semântica. |
+| **Diferenciais e inovação** | A dica é a história dela, não um dicionário · o sistema não pode inventar uma parente · a palavra nunca sai do aparelho · recuar é o objetivo declarado · nunca espera a rede. |
+| **Impactos esperados** | Menos degraus para chegar à palavra, mais autonomia, mais conversa real — e o produto se aproximando de deixar de ser necessário. |
+| **Próximos passos** | Piloto de quatro semanas com uma clínica de fonoaudiologia, medindo quantos degraus a pessoa precisa até chegar na palavra. |
 
-Na tela de Grafo, tocar um nó abre a folha com **de onde veio cada ligação** — foto, áudio, conversa
-ou confirmação da família. É a proveniência do passo 3 ficando visível para quem usa, não só para
-quem programou.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
----
+## Começando
 
-## Tecnologias, linguagens e frameworks
+Quatro aplicações independentes, **sem monorepo**. Cada uma tem seu `package.json`, seu `node_modules` e seu deploy. A raiz não tem `package.json` — rode cada uma do seu próprio diretório.
 
-| Camada | O que é usado |
-|---|---|
-| Aplicativo web | Next 16 (App Router, Turbopack), React 19, TypeScript, Zustand, Tailwind CSS v4 sobre tokens próprios, shadcn/ui e Base UI |
-| Aplicativo de celular | React Native 0.86 via Expo SDK 57, Reanimated 4, `react-native-svg`, `expo-haptics`, `expo-speech` |
-| Canais do dispositivo | Vibration API, Web Speech API (`SpeechSynthesis` e `SpeechRecognition`, pt-BR), Web Audio (`AnalyserNode`) para detectar a pausa da fala, Notification API pelo service worker com espelhamento para Wear OS |
-| Aplicativo instalável | PWA com manifesto e service worker |
-| Backend | NestJS 11, TypeScript, Prisma, PostgreSQL, Zod nos contratos de entrada, Swagger, Server-Sent Events |
-| Camada de modelo | Anthropic API, chamada apenas pelo backend, com tempo limite de 2,5 s e endpoint configurável por `MODEL_BASE_URL` |
-| Relógio | prova de conceito em Kotlin para Wear OS, cliente direto da mesma API — **escrita, nunca compilada** |
-| Landing | Next 16, React 19, Tailwind CSS v4, Radix sobre os mesmos tokens do aplicativo |
-| Ingestão do grafo | Python — **visão computacional** (InsightFace) para detecção e embedding de rostos; **machine learning** para agrupamento não supervisionado (HDBSCAN quando instalado, senão aglomerativo por cosseno em numpy); Whisper para transcrição; Pillow/EXIF para lugar e data; separação silábica de pt-BR por regras |
-| Publicação | Vercel para aplicativo e landing, Railway para o backend |
+### Pré-requisitos
 
-Código, identificadores e nomes de arquivo em inglês. Texto de interface em português, no componente
-que o exibe.
+<div id="pré-requisitos"></div>
 
----
+- Node.js 20+
+- PostgreSQL (o backend sobe degradado, em memória, sem ele)
+- Python 3.11+ apenas para o pipeline de ingestão
+- Android Studio e o SDK do Wear OS apenas para compilar o relógio
 
-## Arquitetura geral
+### Instalação
 
-Quatro aplicações independentes, **sem monorepo**. Cada uma tem seu `package.json`, seu
-`node_modules` e seu deploy. A raiz não tem `package.json`.
-
-```
-web/       aplicativo Next — é o alvo principal            :3010
-mobile/    aplicativo React Native, celular de verdade     :8081
-landing/   página pública                                  :5174
-server/    API NestJS                                      :3333
-watch/     prova de conceito Wear OS em Kotlin, nunca compilada
-ingest/    pipeline Python de ingestão, roda offline
-docs/      estado, contexto, pendências, decisões, vídeo, deploy
-```
-
-Dentro do aplicativo:
-
-```
-web/src/domain              tipos, montagem e validação da escada, projeção, memórias
-web/src/channels            vibração, voz, relógio
-web/src/store               estado único, persistência do aprendizado
-web/src/screens             sete telas, cada uma isolada das outras
-web/src/components          aurora, barra inferior, grafo, controles
-web/src/hooks/useListening  microfone, calibração de ruído, detecção de pausa
-web/src/api/client.ts       cliente do backend, com tempo limite e degradação silenciosa
-web/src/sync/client.ts      ponte entre aparelhos: sessão, roster, transmissão e SSE
-web/src/data                grafo da persona, cache de escadas
-
-server/src/modules/cue        candidatos → modelo → validação → cache → determinístico
-server/src/modules/audit      registro de bloqueio, degrau e desfecho
-server/src/modules/clinician  agregação do degrau médio por semana e por alvo
-server/src/modules/consent    estado de consentimento por titular
-server/src/modules/sync       sessões entre aparelhos, roster e difusão por SSE
-server/test                   prova automatizada das barreiras do modelo
-```
-
-`web/src/domain/` e `mobile/src/domain/` são o **mesmo código**, copiado sem adaptação — só tem
-import relativo, nenhuma dependência de plataforma. O motor de dica é idêntico nos dois.
-
----
-
-## APIs, modelos de IA e bases de dados
-
-- **Anthropic API** — reordenação de candidatos, com saída estruturada em identificadores. O
-  endpoint é configurável (`MODEL_BASE_URL`), então outro provedor compatível entra sem mudar código.
-- **InsightFace** — detecção e embedding de faces.
-- **Agrupamento não supervisionado** dos embeddings em clusters de pessoa: HDBSCAN quando a
-  biblioteca está instalada; caso contrário, aglomerativo por similaridade de cosseno implementado em
-  numpy. **O pipeline imprime qual dos dois usou.**
-- **Whisper** — transcrição dos áudios da família, em pt-BR, com timestamp por trecho.
-- **EXIF** — data e coordenada, e agrupamento de viagem por proximidade de data. Geocodificação
-  reversa (coordenada → nome de cidade) **ainda não está implementada**.
-- **Extração de relações a partir do texto por modelo de linguagem** — projetada, **ainda não
-  implementada**.
-- **Base de dados:** PostgreSQL via Prisma, no backend, com três tabelas — `AuditEvent`,
-  `CuePlanCache` e `ConsentRecord`. Nenhuma guarda palavra: o alvo é sempre identificador opaco. O
-  grafo é um JSON versionado em `web/src/data/graph.json` e o estado de aprendizado fica em
-  `localStorage`, ambos no aparelho. O backend opera degradado, em memória, se o banco cair.
-
----
-
-## Instruções de instalação e execução
-
-Cada projeto roda do seu próprio diretório.
+<div id="instalação"></div>
 
 ```bash
-cd web && npm install && npm run dev          # aplicativo   http://localhost:3010
-cd landing && npm install && npm run dev      # landing      http://localhost:5174
-cd server && npm install && npm run dev       # API          http://localhost:3333
-cd mobile && npm install && npx expo start    # celular      Expo Go ou --web
-```
-
-O backend expõe os contratos navegáveis em `/v1/docs`. Antes do primeiro `npm run dev` nele:
-
-```bash
+# 1) API
 cd server
-cp .env.example .env
-npm run db:push
-```
+npm install                      # o postinstall roda `prisma generate`
+cp .env.example .env             # DATABASE_URL e, se quiser IA, a chave do modelo
+npm run db:migrate               # aplica as migrações num banco novo
+npm run dev                      # http://localhost:3333  ·  contratos em /v1/docs
 
-Para ligar o aplicativo ao backend, `cd web && cp .env.example .env.local` — ele já aponta para
-`http://localhost:3333`. Para a landing gerar o link de semente, crie `landing/.env.local` com
-`NEXT_PUBLIC_APP_URL=http://localhost:3010`.
+# 2) Aplicativo web (outro terminal)
+cd web
+npm install
+npm run dev                      # http://localhost:3010
 
-`ANTHROPIC_API_KEY` é **opcional**. Sem chave, o aplicativo funciona inteiro pela escada
-determinística — isso é intencional e é testado, porque o link precisa continuar funcionando durante
-toda a janela de avaliação.
+# 3) Landing
+cd landing && npm install && npm run dev        # http://localhost:5174
 
-Prova automatizada das barreiras, sem precisar de chave nenhuma:
+# 4) Celular
+cd mobile && npm install && npx expo start      # Expo Go, ou --web
 
-```bash
-cd server
-npm run build          # obrigatório: o teste roda dist/main.js
-npm run test:guardrails
-```
-
-Ele sobe um servidor falso no lugar do modelo e verifica seis coisas: plano válido é aceito; plano
-citando aresta inexistente, atributo inexistente ou aresta de outro nó é **rejeitado**; erro e
-timeout do modelo caem no determinístico; e nenhuma palavra aparece no prompt enviado.
-
-Pipeline de ingestão, offline:
-
-```bash
+# 5) Ingestão do grafo (opcional, roda offline)
 cd ingest
 pip install -r requirements.txt
-python ingest.py --input input/ --owner Helena
+python ingest.py --input input/ --owner Helena  # escreve web/src/data/graph.json
 ```
 
-Escreve em `web/src/data/graph.json`. A saída do terminal nunca afirma algo que não aconteceu:
-biblioteca ausente, entrada vazia ou chave faltando viram `pulado`, com o motivo.
+> Sem chave de modelo o produto inteiro continua funcionando pela escada determinística — e isso tem teste automatizado em `server/test`.
 
-**Onde abrir:** Chrome no Android. A vibração depende da Vibration API, que não existe no Safari do
-iOS; nesse caso o sistema degrada para pulso visual e som, sem quebrar o fluxo.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-**Ligar dois aparelhos.** Na tela Aparelhos, "Abrir uma sessão" gera um código de quatro dígitos. Em
-outro aparelho, abra `/watch` e digite o código: a dica passa a acender nos dois ao mesmo tempo. A
-ponte transmite identificador, nível e aresta — nunca a palavra.
+## Aplicações
 
-**Entrar sem onboarding.** A landing monta um link com a semente no **fragmento** da URL (`#seed=…`),
-que por especificação nunca é enviado ao servidor. O aplicativo monta o grafo no próprio aparelho.
+| Aplicação | Stack | Porta | Situação |
+|---|---|---|---|
+| [`web/`](web) | Next 16 · React 19 · Zustand · Tailwind v4 · PWA | 3010 | alvo principal |
+| [`server/`](server) | NestJS 11 · Prisma · PostgreSQL · Zod · SSE | 3333 | ativo |
+| [`mobile/`](mobile) | React Native 0.86 · Expo SDK 57 · `expo-haptics` · `expo-speech` | 8081 | ativo |
+| [`landing/`](landing) | Next 16 · React 19 · Tailwind v4 · Radix | 5174 | ativo |
+| [`ingest/`](ingest) | Python · InsightFace · Whisper · EXIF | — | roda offline |
+| [`watch/`](watch) | Kotlin · Wear OS | — | **prova de conceito, nunca compilada** |
 
-Antes de dizer que terminou, em cada projeto tocado: `npx tsc --noEmit` e `npm run build`.
+```text
+app/
+├─ web/       # aplicativo Next — o alvo principal
+├─ server/    # API NestJS — candidatos → modelo → validação → cache
+├─ mobile/    # React Native, celular de verdade
+├─ landing/   # página pública
+├─ watch/     # prova de conceito Wear OS em Kotlin
+├─ ingest/    # pipeline Python de ingestão, offline
+└─ docs/      # documentação técnica, imagens e os PDFs da entrega
+```
 
----
+`web/src/domain/` e `mobile/src/domain/` são o **mesmo código**, copiado sem adaptação — só tem import relativo, nenhuma dependência de plataforma. O motor de dica é idêntico nos dois.
 
-## Integrantes e contribuições
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-| Integrante | Contribuição |
-|---|---|
-| Kauã Miguel | Produto e engenharia — motor de recuperação, arquitetura do grafo, aplicativos e pipeline de ingestão |
-| Adriel | Validação — contato com clínicas de afasia, roteiro de entrevista, consolidação da evidência |
-| Alessandro | Comunicação e design — pitch deck, identidade visual e material de apresentação |
+## Roadmap
 
----
+- [x] Grafo da vida com proveniência por ligação e tela de revisão pela família
+- [x] Motor de dica em quatro etapas, com validação por aresta e caminho determinístico
+- [x] Projeção opaca — o backend recusa nome próprio com `400`
+- [x] Escada de vibração no pulso, voz no fone e palavra na tela
+- [x] Painel do fonoaudiólogo com degrau médio por semana e por alvo
+- [x] Consentimento pela própria pessoa, com pictogramas e áudio
+- [x] Pareamento entre celular e relógio por código de quatro dígitos, com SSE
+- [x] Pipeline de ingestão offline — rostos, áudios, EXIF, separação silábica
+- [x] MVP público em [eilo.kc1t.com](https://eilo.kc1t.com) e vídeo do pitch
+- [ ] **Piloto de quatro semanas com a ProSense**, medindo o degrau médio em terapia real
+- [ ] Geocodificação reversa na ingestão (coordenada → nome de cidade)
+- [ ] Extração de relações a partir do texto por modelo de linguagem
+- [ ] Compilar e instalar o aplicativo Wear OS num relógio de verdade
+- [ ] Grafo em escala no Oracle 23ai, com SQL/PGQ e busca vetorial no próprio banco
 
-## Limitações conhecidas
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-Declaradas porque são reais, e porque saber onde o produto não chega faz parte de saber o que ele é.
+## Privacidade e conformidade
 
-**Detectamos a pausa, não o bloqueio.** O aplicativo escuta pelo `AnalyserNode`, mede a energia do
-sinal e dispara quando a fala é seguida de silêncio sustentado. Isso é real e funciona. O que **não**
-existe — nem aqui, nem em nenhum produto do mundo — é detecção validada de que aquela pausa é anomia
-e não uma pausa comum de conversa, e muito menos de *qual* palavra travou. Onde o navegador tem
-`SpeechRecognition` usamos a transcrição no aparelho para escolher o alvo; onde não tem, o alvo vem
-do contexto da cena. O toque continua disponível e é o caminho garantido. O ensaio clínico de
-referência da área (NCT05338216) usa auto-relato e lista a detecção automática como trabalho futuro.
+- **A palavra nunca sai do aparelho.** O backend recebe uma *projeção*: identificador opaco, tipo do nó, quais chaves de atributo existem, arestas com peso. Rótulo, apelido, texto do degrau e separação silábica ficam no dispositivo.
+- **O contrato recusa, não confia.** O schema de entrada rejeita qualquer coisa que não seja identificador opaco — uma requisição com um nome próprio volta `400`.
+- **Nenhuma tabela guarda palavra.** `AuditEvent`, `CuePlanCache` e `ConsentRecord` referenciam só identificadores.
+- **Consentimento da própria pessoa**, em tela desenhada para quem tem afasia: pictogramas, áudio e frases curtas.
+- **Não é dispositivo médico.** Protótipo acadêmico, sem uso clínico, sem diagnóstico e sem substituir fonoaudiologia.
+- **Autoria humana.** IA usada como ferramenta; a equipe abaixo responde pela entrega.
 
-**Não existe diarização.** Qualquer pessoa na mesa que pausar 1,3 s dispara a pista.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-**O aplicativo React Native ainda não tem tudo.** A home está completa, com vibração e voz, e o
-domínio é o mesmo do web. Faltam a escuta (o `useListening` é Web Audio puro e precisa virar
-`expo-audio` com metering), as telas de Grafo, Aparelhos, Clínico e Consentimento, os dois canvases,
-a sessão entre aparelhos e a leitura da semente por URL.
+## Licença
 
-**Não existe corpus público de fala afásica em português brasileiro**, nem medição publicada de
-quanto o reconhecimento de fala piora nessa população. O Whisper large-v3 tem 38,4% de erro em fala
-afásica em inglês contra 25% em controles — e o erro por caractere sobe para 87,82% em pausas
-preenchidas, que é exatamente o evento de interesse.
+Trabalho acadêmico desenvolvido para o Tech4Change 2026 — FIAP PosTech. Ainda sem arquivo de licença no repositório; para uso fora da avaliação, fale com a equipe.
 
-**A vibração não carrega a palavra.** Um motor num relógio comum entrega cerca de 2 bits por mensagem,
-de 3 a 5 padrões distinguíveis. Fala exigiria de 30 a 50 bits por segundo. A vibração aqui organiza o
-tempo e sinaliza o degrau; o conteúdo vai por som e por tela.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-**A vibração não muda plasticidade.** É o canal menos intrusivo para entregar a pista no momento do
-bloqueio, e a pista funciona pelo conteúdo que carrega — não porque a vibração altere o cérebro.
+## Equipe
 
-**O grafo não se monta sozinho sem revisão.** Reconhecer a mesma pessoa aos 8, aos 30 e aos 70 anos,
-em álbum doméstico digitalizado, é o pior caso para reconhecimento facial. A IA propõe; a família
-confirma cada identidade e cada relação num onboarding único. Dizer o parentesco errado a uma pessoa
-com afasia não é erro estatístico, é quebra de confiança.
+**Grupo 24 — FIAP PosTech**
 
-**O painel do fonoaudiólogo mostra o que realmente existe.** Com a API no ar, ele agrega os eventos
-gravados; sem ela, mostra o aprendizado deste aparelho; sem nenhum dos dois, diz que não há dado
-ainda. A única peça ilustrativa é a curva de oito semanas, porque não dá para reconstruir histórico
-que ninguém viveu — e ela está rotulada como ilustrativa ao lado do próprio gráfico.
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Kc1t">
+        <img src="https://github.com/Kc1t.png" width="110" height="110" alt="Kauã Miguel da Cunha" style="border-radius:50%"><br />
+        <sub><b>Kauã Miguel da Cunha</b></sub>
+      </a><br />
+      <sub>Produto e engenharia · RM 372048 · <a href="https://github.com/Kc1t">@Kc1t</a></sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/identicons/adriel.png" width="110" height="110" alt="Adriel de Sousa Ribeiro" style="border-radius:50%"><br />
+      <sub><b>Adriel de Sousa Ribeiro</b></sub><br />
+      <sub>Validação clínica · RM 375774</sub>
+    </td>
+    <td align="center">
+      <img src="https://github.com/identicons/alessandro.png" width="110" height="110" alt="Alessandro Alves de Araujo" style="border-radius:50%"><br />
+      <sub><b>Alessandro Alves de Araujo</b></sub><br />
+      <sub>Comunicação e design · RM 370479</sub>
+    </td>
+  </tr>
+</table>
 
-**Nenhum paciente usou o sistema em situação real.** A validação até aqui é de dor, com fonte pública,
-e de mecanismo, com literatura revisada por pares.
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>
 
-**Risco de dependência de pista externa.** É o achado mais bem documentado contra produtos assim, e
-está respondido no ponto 4 do diferencial — mas continua sendo um risco, não um problema resolvido.
+## Contato
 
----
+Grupo 24 · MVP: [eilo.kc1t.com](https://eilo.kc1t.com) · Vídeo: [YouTube](https://www.youtube.com/watch?v=uXWnjCYHHWE) · Repositório: [github.com/Kc1t/tech4change-2026](https://github.com/Kc1t/tech4change-2026)
 
-## Próximos passos
+Os PDFs da entrega estão em [`docs/entrega/`](docs/entrega): o [documento central](docs/entrega/Tech4Change_Eilo_Grupo24.pdf) e o [pitch deck](docs/entrega/Tech4Change_Eilo_PitchDeck_Grupo24.pdf).
 
-1. **Bases públicas de linguagem** — o grafo pessoal resolve nome próprio, que é onde nenhum modelo
-   de linguagem tem a informação. Redes léxico-semânticas e dicionários fonológicos do português
-   cobrem o vocabulário comum, formando a rede multiplex semântico-fonológica descrita na literatura
-   de recuperação lexical em afasia.
-2. **Fechar o React Native** — é o maior buraco aberto. Escuta com `expo-audio`, as quatro telas que
-   faltam e a semente por URL.
-3. **Canais** — o aplicativo já é instalável como PWA e liga dois aparelhos por sessão. Falta o
-   serviço nativo em primeiro plano (para escutar com a tela apagada) e o aplicativo de relógio
-   compilado, que é o que permite padrão de vibração próprio por degrau — notificação espelhada não
-   permite.
-4. **Clínica** — painel e relatório para o fonoaudiólogo, integração com prontuário, piloto em centro
-   de reabilitação. O relatório que ajusta conduta sobe o enquadramento sanitário de classe I para
-   classe II; é decisão consciente.
-5. **Calibrar a pausa por falante** — a detecção já roda com calibração do piso de ruído do ambiente.
-   O passo seguinte é ajustar o limiar à distribuição do próprio falante. Isso sustenta a afirmação
-   "pausa atípica para esta pessoa" — que continua sendo diferente de "bloqueio lexical".
-6. **Corpus de fala afásica em português** — não existe, e é o que destrava tudo acima. Quem
-   construir o primeiro é dono da categoria.
-7. **Modelo local no aparelho** — o dado pessoal deixa de sair do dispositivo.
-
----
-
-## Enquadramento regulatório
-
-Pela RDC 657/2022, software com finalidade de **reabilitação** não é software de bem-estar. Pela regra
-de classificação da RDC 751/2022, a leitura preliminar é **dispositivo médico classe I, por
-notificação** — sem análise técnica prévia. É leitura nossa, a confirmar em consulta formal de
-enquadramento junto à ANVISA.
-
-Dados de saúde são dados pessoais sensíveis. Áudio de ambiente é processado no aparelho e a forma de
-onda é descartada; nada sai do dispositivo sem acionamento explícito. E a Lei Brasileira de Inclusão
-é clara: afasia não afeta a capacidade civil, e nem um curador consente por alguém sobre saúde e
-privacidade — por isso o fluxo de consentimento é feito em pictogramas, áudio e frases curtas, para
-que a própria pessoa autorize.
-
----
-
-## Documentação interna
-
-| arquivo | para quê |
-|---|---|
-| [`docs/ESTADO.md`](docs/ESTADO.md) | o que mudou, o que está perigoso agora |
-| [`docs/CONTEXTO.md`](docs/CONTEXTO.md) | o projeto do zero |
-| [`docs/PENDENCIAS.md`](docs/PENDENCIAS.md) | o que falta, em ordem de retorno |
-| [`docs/DECISOES.md`](docs/DECISOES.md) | o que já foi decidido e não se rediscute |
-| [`docs/VIDEO.md`](docs/VIDEO.md) | o plano de gravação |
-| [`docs/DEPLOY.md`](docs/DEPLOY.md) | Vercel e Railway |
+<p align="right">(<a href="#readme-top">Voltar ao topo</a>)</p>

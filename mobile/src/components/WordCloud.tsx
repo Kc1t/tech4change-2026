@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import Svg, { Defs, Ellipse, FeGaussianBlur, Filter, G, RadialGradient, Rect, Stop } from 'react-native-svg'
-import { color, font, kindColor, kindInk, radius } from '../theme/tokens'
+import { color, font, kindColor, kindInk } from '../theme/tokens'
 import type { Mastery, NodeId, NodeKind } from '../domain/types'
 
 const KIND_ORDER: NodeKind[] = ['person', 'place', 'object', 'animal', 'event']
@@ -137,7 +137,7 @@ export function WordCloud({
 
   return (
     <View
-      style={styles.field}
+      className="flex-1 overflow-hidden rounded-cloud bg-ink"
       onLayout={event => {
         const { width, height } = event.nativeEvent.layout
         setBox({ w: width, h: height })
@@ -192,8 +192,8 @@ export function WordCloud({
           key={word.id}
           onPress={() => onPick(word.id)}
           hitSlop={8}
+          className="absolute items-center"
           style={[
-            styles.word,
             {
               left: word.left - measure(word.label, word.size).w / 2,
               top: word.top - word.size * 0.7,
@@ -217,29 +217,9 @@ export function WordCloud({
         </Pressable>
       ))}
 
-      <Text style={styles.caption}>{caption}</Text>
+      <Text className="absolute inset-x-6 bottom-3.5 text-center font-book text-[11.5px] italic leading-4 text-dim">
+        {caption}
+      </Text>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  field: {
-    flex: 1,
-    borderRadius: radius.cloud,
-    overflow: 'hidden',
-    backgroundColor: color.ink
-  },
-  word: { position: 'absolute', alignItems: 'center', minHeight: 0 },
-  caption: {
-    position: 'absolute',
-    left: 24,
-    right: 24,
-    bottom: 14,
-    textAlign: 'center',
-    fontFamily: font.regular,
-    fontStyle: 'italic',
-    fontSize: 11.5,
-    lineHeight: 16,
-    color: color.dim
-  }
-})

@@ -9,8 +9,8 @@ const CARDS = [
     body: 'A palavra some no meio da conversa. É esse segundo que o eilo atende, não o exercício da semana que vem.'
   },
   {
-    src: '/story/scene-phone.webp',
-    alt: 'Um celular deitado na mesa de almoço, escutando.',
+    src: '/art/phone-desk.webp',
+    alt: 'Um celular na mesa de mármore, ao lado do café, com a tela do eilo esperando a palavra.',
     position: 'object-[50%_45%]',
     title: 'No dia a dia inteiro',
     body: 'O celular na mesa ou no bolso escuta e percebe a pausa sozinho. Ninguém precisa desbloquear nem apertar nada.'
@@ -49,7 +49,7 @@ export function Journey() {
                 loading="lazy"
                 className={`absolute inset-0 size-full object-cover ${card.position}`}
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,12,24,0)_46%,rgba(16,12,24,0.72)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,12,24,0)_38%,rgba(16,12,24,0.34)_62%,rgba(16,12,24,0.82)_100%)]" />
               <div className="relative">
                 <h3 className="text-[1.25rem] leading-snug font-medium tracking-[-0.025em]">
                   {card.title}
