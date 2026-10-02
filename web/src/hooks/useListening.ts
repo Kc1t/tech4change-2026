@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { startCloudTranscriber, type Transcriber } from '@/api/stt'
 
 const CALIBRATION_MS = 900
 const FLOOR_PERCENTILE = 0.6
@@ -58,6 +59,7 @@ export interface ListeningState {
   noisy: boolean
   speaking: boolean
   transcribing: boolean
+  engine: 'cloud' | 'browser' | null
   transcript: string
 }
 
@@ -68,24 +70,32 @@ const IDLE: ListeningState = {
   noisy: false,
   speaking: false,
   transcribing: false,
+  engine: null,
   transcript: ''
 }
 
-export function useListening(onBlock: (transcript: string) => void) {
+export function useListening(onBlock: (transcript: string) => void, keyterms: string[] = []) {
   const levelRef = useRef(0)
   const [state, setState] = useState<ListeningState>(IDLE)
 
   const blockHandler = useRef(onBlock)
   blockHandler.current = onBlock
+  const keytermsRef = useRef(keyterms)
+  useEffect(() => {
+    keytermsRef.current = keyterms
+  }, [keyterms])
 
   const streamRef = useRef<MediaStream | null>(null)
   const contextRef = useRef<AudioContext | null>(null)
   const frameRef = useRef(0)
   const recognitionRef = useRef<Recognition | null>(null)
+  const transcriberRef = useRef<Transcriber | null>(null)
   const transcriptRef = useRef('')
 
   const stop = useCallback(() => {
     cancelAnimationFrame(frameRef.current)
+    transcriberRef.current?.stop()
+    transcriberRef.current = null
     recognitionRef.current?.stop()
     recognitionRef.current = null
     streamRef.current?.getTracks().forEach(track => track.stop())
@@ -114,7 +124,8 @@ export function useListening(onBlock: (transcript: string) => void) {
     const analyser = context.createAnalyser()
     analyser.fftSize = 1024
     analyser.smoothingTimeConstant = 0.7
-    context.createMediaStreamSource(stream).connect(analyser)
+    const source = context.createMediaStreamSource(stream)
+    source.connect(analyser)
 
     const samples = new Float32Array(analyser.fftSize)
     const calibration: number[] = []
@@ -198,32 +209,62 @@ export function useListening(onBlock: (transcript: string) => void) {
 
     frameRef.current = requestAnimationFrame(tick)
 
-    const Factory = recognitionFactory()
-    if (!Factory) return
-
-    try {
-      const recognition = new Factory()
-      recognition.lang = 'pt-BR'
-      recognition.continuous = true
-      recognition.interimResults = true
-      recognition.onresult = event => {
-        let text = ''
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          text += event.results[i]![0].transcript
-        }
-        transcriptRef.current = text.trim().slice(-160)
-        setState(previous => ({ ...previous, transcript: transcriptRef.current }))
-      }
-      recognition.onerror = () => setState(previous => ({ ...previous, transcribing: false }))
-      recognition.onend = () => {
-        if (recognitionRef.current) recognition.start()
-      }
-      recognition.start()
-      recognitionRef.current = recognition
-      setState(previous => ({ ...previous, transcribing: true }))
-    } catch {
-      recognitionRef.current = null
+    function showTranscript(text: string) {
+      transcriptRef.current = text
+      setState(previous => ({ ...previous, transcript: text }))
     }
+
+    function startBrowserRecognition() {
+      const Factory = recognitionFactory()
+      if (!Factory) return
+
+      try {
+        const recognition = new Factory()
+        recognition.lang = 'pt-BR'
+        recognition.continuous = true
+        recognition.interimResults = true
+        recognition.onresult = event => {
+          let text = ''
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            text += event.results[i]![0].transcript
+          }
+          showTranscript(text.trim().slice(-160))
+        }
+        recognition.onerror = () => setState(previous => ({ ...previous, transcribing: false }))
+        recognition.onend = () => {
+          if (recognitionRef.current) recognition.start()
+        }
+        recognition.start()
+        recognitionRef.current = recognition
+        setState(previous => ({ ...previous, transcribing: true, engine: 'browser' }))
+      } catch {
+        recognitionRef.current = null
+      }
+    }
+
+    const cloud = await startCloudTranscriber({
+      context,
+      source,
+      keyterms: keytermsRef.current,
+      onText: showTranscript,
+      onLost: () => {
+        transcriberRef.current = null
+        if (streamRef.current === stream) startBrowserRecognition()
+      }
+    })
+
+    if (streamRef.current !== stream) {
+      cloud?.stop()
+      return
+    }
+
+    if (cloud) {
+      transcriberRef.current = cloud
+      setState(previous => ({ ...previous, transcribing: true, engine: 'cloud' }))
+      return
+    }
+
+    startBrowserRecognition()
   }, [])
 
   useEffect(() => stop, [stop])

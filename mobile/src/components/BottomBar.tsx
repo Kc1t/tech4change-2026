@@ -185,6 +185,13 @@ function Orb({ onPress }: { onPress: () => void }) {
             <Rect width={52} height={52} fill="url(#orb-shine)" />
           </Svg>
         </View>
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9 }}
+        >
+          <View style={{ width: 4, height: 10, borderRadius: 3, backgroundColor: '#ffffff' }} />
+          <View style={{ width: 4, height: 10, borderRadius: 3, backgroundColor: '#ffffff' }} />
+        </View>
       </View>
     </Pressable>
   )

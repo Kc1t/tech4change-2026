@@ -1,15 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { File } from 'expo-file-system'
-import {
-  RecordingPresets,
-  requestRecordingPermissionsAsync,
-  setAudioModeAsync,
-  useAudioRecorder
-} from 'expo-audio'
+import { useAudioRecorder } from '@siteed/audio-studio'
+import { requestRecordingPermissionsAsync } from 'expo-audio'
+import { startTranscriber, type Transcriber } from '../api/stt'
 
-const OPTIONS = { ...RecordingPresets.LOW_QUALITY, isMeteringEnabled: true }
-
-const SAMPLE_MS = 60
+const CHUNK_MS = 80
 const CALIBRATION_MS = 900
 const FLOOR_PERCENTILE = 0.6
 const ON_RATIO = 2.6
@@ -27,6 +21,8 @@ export interface ListeningState {
   calibrating: boolean
   noisy: boolean
   speaking: boolean
+  engine: 'cloud' | null
+  transcript: string
 }
 
 const IDLE: ListeningState = {
@@ -34,7 +30,9 @@ const IDLE: ListeningState = {
   denied: false,
   calibrating: false,
   noisy: false,
-  speaking: false
+  speaking: false,
+  engine: null,
+  transcript: ''
 }
 
 function percentile(values: number[], fraction: number): number {
@@ -44,10 +42,10 @@ function percentile(values: number[], fraction: number): number {
   return sorted[index]!
 }
 
-function amplitude(decibels: number | undefined): number | null {
-  if (decibels === undefined || Number.isNaN(decibels)) return null
-  if (decibels <= -160) return 0
-  return Math.min(1, Math.pow(10, decibels / 20))
+function rootMeanSquare(samples: Float32Array): number {
+  let sum = 0
+  for (let i = 0; i < samples.length; i++) sum += samples[i]! * samples[i]!
+  return samples.length === 0 ? 0 : Math.sqrt(sum / samples.length)
 }
 
 interface Meter {
@@ -76,57 +74,44 @@ function freshMeter(now: number): Meter {
   }
 }
 
-function discard(uri: string | null) {
-  if (!uri) return
-  try {
-    const file = new File(uri)
-    if (file.exists) file.delete()
-  } catch {
-    return
-  }
-}
-
-export function useListening(onBlock: () => void) {
-  const recorder = useAudioRecorder(OPTIONS)
+export function useListening(
+  onBlock: () => void,
+  keyterms: string[] = [],
+  silenceMs = BLOCK_SILENCE_MS
+) {
+  const { startRecording, stopRecording } = useAudioRecorder()
   const [state, setState] = useState<ListeningState>(IDLE)
 
   const levelRef = useRef(0)
   const deafRef = useRef(false)
+  const recordingRef = useRef(false)
   const meterRef = useRef<Meter>(freshMeter(0))
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const transcriberRef = useRef<Transcriber | null>(null)
 
   const blockHandler = useRef(onBlock)
-  blockHandler.current = onBlock
+  const keytermsRef = useRef(keyterms)
+  const silenceRef = useRef(silenceMs)
+  useEffect(() => {
+    blockHandler.current = onBlock
+    keytermsRef.current = keyterms
+    silenceRef.current = silenceMs
+  }, [onBlock, keyterms, silenceMs])
 
   const teardown = useCallback(() => {
-    if (timerRef.current !== null) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
+    transcriberRef.current?.stop()
+    transcriberRef.current = null
     levelRef.current = 0
     deafRef.current = false
   }, [])
 
   const stop = useCallback(() => {
     teardown()
-
-    try {
-      if (recorder.isRecording) {
-        const pending = recorder.uri
-        void recorder
-          .stop()
-          .then(() => discard(recorder.uri ?? pending))
-          .catch(() => discard(pending))
-      } else {
-        discard(recorder.uri)
-      }
-    } catch {
-      setState(IDLE)
-      return
+    if (recordingRef.current) {
+      recordingRef.current = false
+      void stopRecording().catch(() => undefined)
     }
-
     setState(IDLE)
-  }, [recorder, teardown])
+  }, [stopRecording, teardown])
 
   const setDeaf = useCallback((deaf: boolean) => {
     deafRef.current = deaf
@@ -138,8 +123,68 @@ export function useListening(onBlock: () => void) {
     setState(previous => (previous.speaking ? { ...previous, speaking: false } : previous))
   }, [])
 
+  const measure = useCallback((rms: number) => {
+    const meter = meterRef.current
+    const now = Date.now()
+
+    function applyFloor(next: number) {
+      meter.floor = next
+      meter.speechOn = Math.max(ON_MINIMUM, next * ON_RATIO)
+      meter.speechOff = Math.max(OFF_MINIMUM, next * OFF_RATIO)
+    }
+
+    if (!meter.calibrated) {
+      meter.calibration.push(rms)
+      if (now >= meter.calibrationEndsAt) {
+        applyFloor(percentile(meter.calibration, FLOOR_PERCENTILE))
+        meter.calibrated = true
+        setState(previous => ({
+          ...previous,
+          calibrating: false,
+          noisy: meter.floor > NOISY_FLOOR
+        }))
+      }
+      return
+    }
+
+    if (deafRef.current) return
+
+    const span = Math.max(0.001, meter.speechOn * 2.5 - meter.floor)
+    levelRef.current = Math.max(0, Math.min(1, (rms - meter.floor) / span))
+
+    if (!meter.speaking && rms > meter.speechOn) {
+      meter.speaking = true
+      meter.speechStartedAt = now
+      meter.silenceStartedAt = 0
+      setState(previous => ({ ...previous, speaking: true }))
+    } else if (meter.speaking && rms < meter.speechOff) {
+      if (meter.silenceStartedAt === 0) meter.silenceStartedAt = now
+
+      const spoke = meter.silenceStartedAt - meter.speechStartedAt >= MIN_SPEECH_MS
+      const paused = now - meter.silenceStartedAt >= silenceRef.current
+
+      if (paused) {
+        meter.speaking = false
+        meter.silenceStartedAt = 0
+        setState(previous => ({ ...previous, speaking: false }))
+        if (spoke) blockHandler.current()
+      }
+    } else if (meter.speaking && rms > meter.speechOn) {
+      meter.silenceStartedAt = 0
+    }
+
+    if (!meter.speaking && rms < meter.speechOn) {
+      const drifted = meter.floor * (1 - DRIFT) + rms * DRIFT
+      if (Math.abs(drifted - meter.floor) > 0.00005) {
+        applyFloor(drifted)
+        const noisy = meter.floor > NOISY_FLOOR
+        setState(previous => (previous.noisy === noisy ? previous : { ...previous, noisy }))
+      }
+    }
+  }, [])
+
   const start = useCallback(async () => {
-    if (timerRef.current !== null) return
+    if (recordingRef.current) return
 
     const permission = await requestRecordingPermissionsAsync()
     if (!permission.granted) {
@@ -147,89 +192,48 @@ export function useListening(onBlock: () => void) {
       return
     }
 
-    await setAudioModeAsync({
-      allowsRecording: true,
-      playsInSilentMode: true,
-      interruptionMode: 'mixWithOthers'
-    })
-
-    await recorder.prepareToRecordAsync(OPTIONS)
-    recorder.record()
-
+    recordingRef.current = true
     meterRef.current = freshMeter(Date.now())
     setState({ ...IDLE, active: true, calibrating: true })
 
-    function applyFloor(meter: Meter, next: number) {
-      meter.floor = next
-      meter.speechOn = Math.max(ON_MINIMUM, next * ON_RATIO)
-      meter.speechOff = Math.max(OFF_MINIMUM, next * OFF_RATIO)
+    try {
+      await startRecording({
+        sampleRate: 16000,
+        channels: 1,
+        encoding: 'pcm_32bit',
+        streamFormat: 'float32',
+        interval: CHUNK_MS,
+        keepFullAnalysis: false,
+        output: { primary: { enabled: false } },
+        onAudioStream: async event => {
+          const samples = event.data as Float32Array
+          if (!deafRef.current) transcriberRef.current?.send(samples)
+          measure(rootMeanSquare(samples))
+        }
+      })
+    } catch {
+      recordingRef.current = false
+      setState(IDLE)
+      return
     }
 
-    timerRef.current = setInterval(() => {
-      let metering: number | undefined
-      try {
-        metering = recorder.getStatus().metering
-      } catch {
-        teardown()
-        return
+    const transcriber = await startTranscriber({
+      keyterms: keytermsRef.current,
+      onText: transcript => setState(previous => ({ ...previous, transcript })),
+      onLost: () => {
+        transcriberRef.current = null
+        setState(previous => ({ ...previous, engine: null }))
       }
+    })
 
-      const rms = amplitude(metering)
-      if (rms === null) return
+    if (!recordingRef.current) {
+      transcriber?.stop()
+      return
+    }
 
-      const meter = meterRef.current
-      const now = Date.now()
-
-      if (!meter.calibrated) {
-        meter.calibration.push(rms)
-        if (now >= meter.calibrationEndsAt) {
-          applyFloor(meter, percentile(meter.calibration, FLOOR_PERCENTILE))
-          meter.calibrated = true
-          setState(previous => ({
-            ...previous,
-            calibrating: false,
-            noisy: meter.floor > NOISY_FLOOR
-          }))
-        }
-        return
-      }
-
-      if (deafRef.current) return
-
-      const span = Math.max(0.001, meter.speechOn * 2.5 - meter.floor)
-      levelRef.current = Math.max(0, Math.min(1, (rms - meter.floor) / span))
-
-      if (!meter.speaking && rms > meter.speechOn) {
-        meter.speaking = true
-        meter.speechStartedAt = now
-        meter.silenceStartedAt = 0
-        setState(previous => ({ ...previous, speaking: true }))
-      } else if (meter.speaking && rms < meter.speechOff) {
-        if (meter.silenceStartedAt === 0) meter.silenceStartedAt = now
-
-        const spoke = meter.silenceStartedAt - meter.speechStartedAt >= MIN_SPEECH_MS
-        const paused = now - meter.silenceStartedAt >= BLOCK_SILENCE_MS
-
-        if (paused) {
-          meter.speaking = false
-          meter.silenceStartedAt = 0
-          setState(previous => ({ ...previous, speaking: false }))
-          if (spoke) blockHandler.current()
-        }
-      } else if (meter.speaking && rms > meter.speechOn) {
-        meter.silenceStartedAt = 0
-      }
-
-      if (!meter.speaking && rms < meter.speechOn) {
-        const drifted = meter.floor * (1 - DRIFT) + rms * DRIFT
-        if (Math.abs(drifted - meter.floor) > 0.00005) {
-          applyFloor(meter, drifted)
-          const noisy = meter.floor > NOISY_FLOOR
-          setState(previous => (previous.noisy === noisy ? previous : { ...previous, noisy }))
-        }
-      }
-    }, SAMPLE_MS)
-  }, [recorder, teardown])
+    transcriberRef.current = transcriber
+    if (transcriber) setState(previous => ({ ...previous, engine: 'cloud' }))
+  }, [measure, startRecording])
 
   useEffect(() => teardown, [teardown])
 

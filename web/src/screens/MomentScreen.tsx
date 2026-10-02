@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { lifeGraph, useApp } from '@/store'
 import { notifyWatch, patternFor, pulse, speak, unlockAudio, vibrate } from '@/channels'
 import { recordEvent } from '@/api/client'
@@ -181,7 +181,11 @@ export function MomentScreen() {
   }, [helpLevel, resolvedAt, deliver, start, advance, emit, channels, intensity, target])
 
   const backdrop = useApp(s => s.backdrop)
-  const { levelRef, state: listening, start: listen, stop: unlisten } = useListening(trigger)
+  const keyterms = useMemo(
+    () => Object.values(lifeGraph.nodes).flatMap(node => [node.label, ...(node.aliases ?? [])]),
+    []
+  )
+  const { levelRef, state: listening, start: listen, stop: unlisten } = useListening(trigger, keyterms)
 
   useEffect(() => {
     hear(listening.transcript)

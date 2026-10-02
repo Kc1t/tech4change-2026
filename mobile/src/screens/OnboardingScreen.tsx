@@ -190,7 +190,7 @@ export function OnboardingScreen({
           </Animated.View>
 
           <Text className="mt-auto pb-7 pt-8 font-book text-note leading-[18px] text-dim">
-            Estas respostas ficam neste aparelho. Nenhuma delas é enviada para lugar nenhum.
+            Estas respostas ficam guardadas neste aparelho. É com elas que eu monto as pistas.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -254,16 +254,17 @@ function Welcome({ onStart, onExample }: { onStart: () => void; onExample: () =>
           style={{ flex: 1, justifyContent: 'center' }}
         >
           <Text className="font-mid text-[32px] leading-[38px] tracking-[-1.2px] text-fg">
-            Vamos montar o seu mapa.
+            Oi. Eu sou o Eilo.
           </Text>
 
           <Text className="mt-4 max-w-[320px] font-book text-[16px] leading-[24px] text-dim">
-            Seis perguntas curtas sobre as pessoas e as coisas do seu dia. É com elas que o Eilo
-            alcança a palavra quando ela trava.
+            Estou aqui para as horas em que uma palavra some no meio da conversa. Sem pressa, sem
+            teste, sem nota.
           </Text>
 
           <Text className="mt-3 font-book text-note leading-[18px] text-faint">
-            Pode pular as que não vierem. Leva menos de um minuto.
+            Primeiro, seis perguntas curtas sobre as pessoas e as coisas do seu dia. Pode pular as
+            que não vierem.
           </Text>
         </Animated.View>
 
@@ -274,7 +275,7 @@ function Welcome({ onStart, onExample }: { onStart: () => void; onExample: () =>
             className="min-h-tap items-center justify-center rounded-large bg-brand"
             style={SOFT}
           >
-            <Text className="font-strong text-body text-brand-ink">Começar</Text>
+            <Text className="font-strong text-body text-brand-ink">Vamos começar</Text>
           </Pressable>
 
           <Pressable

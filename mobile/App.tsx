@@ -16,6 +16,7 @@ import { CueBanner } from './src/components/CueBanner'
 import { Splash } from './src/components/Splash'
 import { BodyScreen } from './src/screens/BodyScreen'
 import { ClinicalScreen } from './src/screens/ClinicalScreen'
+import { ComfortScreen } from './src/screens/ComfortScreen'
 import { HapticsScreen } from './src/screens/HapticsScreen'
 import { PatientScreen } from './src/screens/PatientScreen'
 import { OnboardingScreen } from './src/screens/OnboardingScreen'
@@ -28,6 +29,7 @@ import { CLINIC_ROUTES, HOME, type Route } from './src/navigation'
 import { installSeed, useApp } from './src/store'
 import { DEMO_SEED, buildSeedGraph, type Seed } from './src/domain/seed'
 import { forgetSeed, readSeed, saveSeed } from './src/domain/seedStore'
+import { readComfort } from './src/domain/comfort'
 import { DEMO_MS, TOUR, TOUR_PATIENT, TOUR_STOPS } from './src/domain/tour'
 import type { NodeId } from './src/domain/types'
 
@@ -49,6 +51,8 @@ export default function App() {
   const [demoPending, setDemoPending] = useState(false)
   const [splash, setSplash] = useState(false)
   const [touring, setTouring] = useState(false)
+  const [comforting, setComforting] = useState(false)
+  const [owner, setOwner] = useState<string | undefined>(undefined)
   const walk = useRef<Array<ReturnType<typeof setTimeout>>>([])
   const sync = useSyncChannel()
 
@@ -62,12 +66,17 @@ export default function App() {
   useEffect(() => {
     let alive = true
 
+    void readComfort().then(comfort => {
+      if (alive) useApp.getState().applyComfort(comfort)
+    })
+
     void readSeed().then(async seed => {
       if (!alive) return
       if (seed) {
         const { graph, scenes } = await buildSeedGraph(seed)
         if (!alive) return
         installSeed(graph, scenes)
+        setSplash(true)
       } else {
         setNeedsSeed(true)
       }
@@ -113,6 +122,25 @@ export default function App() {
     await saveSeed(seed)
     const { graph, scenes } = await buildSeedGraph(seed)
     installSeed(graph, scenes)
+    if (touring) {
+      leaveOnboarding()
+      return
+    }
+    setOwner(seed.owner)
+    setComforting(true)
+  }, [leaveOnboarding, touring])
+
+  const exampleOnboarding = useCallback(() => {
+    if (touring) {
+      leaveOnboarding()
+      return
+    }
+    setOwner(DEMO_SEED.owner)
+    setComforting(true)
+  }, [leaveOnboarding, touring])
+
+  const finishComfort = useCallback(() => {
+    setComforting(false)
     leaveOnboarding()
   }, [leaveOnboarding])
 
@@ -160,6 +188,15 @@ export default function App() {
 
   if (!fontsLoaded || !booted) return <View className="flex-1 bg-ink" />
 
+  if (comforting) {
+    return (
+      <View className="flex-1 bg-ink">
+        <StatusBar hidden />
+        <ComfortScreen owner={owner} onDone={finishComfort} />
+      </View>
+    )
+  }
+
   if (needsSeed) {
     return (
       <View className="flex-1 bg-ink">
@@ -169,7 +206,7 @@ export default function App() {
             prefill={prefill}
             auto={touring}
             onDone={seed => void acceptSeed(seed)}
-            onExample={leaveOnboarding}
+            onExample={exampleOnboarding}
           />
         </View>
       </View>

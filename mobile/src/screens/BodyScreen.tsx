@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import { Pressable, Switch, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import * as Speech from 'expo-speech'
+import { speakVoice } from '../voice'
+import { PatiencePicker, VoicePicker } from './ComfortScreen'
 import { BuzzPicker, DeviceList } from '../components/DevicePanel'
 import { SyncPanel } from '../components/SyncPanel'
 import { NotificationBell } from '../components/NotificationBell'
@@ -127,6 +128,16 @@ function Help() {
   return (
     <>
       <Card>
+        <Text className={CARD_LABEL}>A VOZ QUE TE ACOMPANHA</Text>
+        <VoicePicker />
+      </Card>
+
+      <Card>
+        <Text className={CARD_LABEL}>QUANTO TEMPO EU ESPERO</Text>
+        <PatiencePicker />
+      </Card>
+
+      <Card>
         <Text className={CARD_LABEL}>QUANTA AJUDA</Text>
         <Segmented options={HELP} value={helpLevel} onChange={setHelpLevel} />
         <Text className={HINT}>{HELP.find(o => o.value === helpLevel)?.hint}</Text>
@@ -141,7 +152,7 @@ function Help() {
       <Pressable
         onPress={() => {
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-          Speech.speak('Letícia', { language: 'pt-BR' })
+          speakVoice('Letícia', () => undefined)
         }}
         className="min-h-tap items-center justify-center rounded-large bg-surface"
         style={{ ...shadow.card, shadowOpacity: 0.06 }}
@@ -150,7 +161,7 @@ function Help() {
       </Pressable>
 
       <Text className={NOTE}>
-        O que estiver desligado aqui não é usado, e nenhum áudio sai do aparelho.
+        O que estiver desligado aqui não é usado. Nada é gravado.
       </Text>
     </>
   )

@@ -34,7 +34,17 @@
         {
           "microphonePermission": "O Eilo escuta a conversa no aparelho para alcancar a palavra que travou. Nada e gravado em disco."
         }
-      ]
+      ],
+      [
+        "@siteed/audio-studio",
+        {
+          "enablePhoneStateHandling": false,
+          "enableNotifications": false,
+          "enableBackgroundAudio": false,
+          "enableDeviceDetection": false
+        }
+      ],
+      "expo-dev-client"
     ],
     "scheme": "eilo"
   }

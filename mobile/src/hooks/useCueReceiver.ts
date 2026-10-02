@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import * as Speech from 'expo-speech'
+import { speakVoice } from '../voice'
 import { buzzTargets } from '../domain/devices'
 import { patternFor, pulse } from '../haptics'
 import { lifeGraph, useApp } from '../store'
@@ -24,7 +24,7 @@ export function useCueReceiver() {
       const spoken = lastCue.isFinal
         ? (node?.phon?.firstSyllable ?? null)
         : (node?.attrs[lastCue.attr] ?? null)
-      if (spoken) Speech.speak(spoken.replace('…', ''), { language: 'pt-BR' })
+      if (spoken) speakVoice(spoken, () => undefined)
     }
 
     const timer = setTimeout(() => setLastCue(null), HOLD_MS)
