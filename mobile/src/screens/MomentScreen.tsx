@@ -38,9 +38,18 @@ const KIND_LABEL: Record<LadderStep['kind'], string> = {
 const EXPECTED =
   'mt-4 max-w-[300px] text-center font-mid text-[42px] leading-[46px] tracking-[-1.5px]'
 
+const FOCUS_SCALE = 0.46
+const SPEECH_TAIL = 72
+
 const FLASH_MS = 5200
 const RESUME_AFTER_WORD_MS = 4500
 const WORD_FLASH_MS = 7000
+
+function tailOf(text: string) {
+  if (text.length <= SPEECH_TAIL) return text
+  const cut = text.slice(-SPEECH_TAIL)
+  return `…${cut.slice(cut.indexOf(' ') + 1)}`
+}
 
 interface Flash {
   text: string
@@ -83,6 +92,8 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   }, [backdrop, swap])
 
   const waveBox = useAnimatedStyle(() => ({ opacity: (1 - swap.value) * 0.5 }))
+  const focus = useSharedValue(0)
+  const buddyHeight = orbSize * 0.78 * 1.25
   const [pulseCount, setPulseCount] = useState(0)
   const [pressed, setPressed] = useState(false)
   const [flash, setFlash] = useState<Flash | null>(null)
@@ -301,6 +312,29 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
         : scene.attempt
   const expectedKind = flash?.isWord || resolved ? 'word' : flash ? 'cue' : 'waiting'
 
+  const speech = demo.heard || (armed ? heard : '')
+  const focused = armed && (speech.length > 0 || open || resolved)
+  const showExpected = !focused || expectedKind !== 'waiting' || confident
+
+  useEffect(() => {
+    focus.value = withTiming(focused ? 1 : 0, { duration: 520, easing: Easing.bezier(0.22, 1, 0.36, 1) })
+  }, [focused, focus])
+
+  const buddyBox = useAnimatedStyle(() => ({
+    height: buddyHeight * (1 - (1 - FOCUS_SCALE) * focus.value),
+    justifyContent: 'center',
+    alignItems: 'center'
+  }))
+
+  const buddyScale = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 - (1 - FOCUS_SCALE) * focus.value }]
+  }))
+
+  const speechStyle = useAnimatedStyle(() => ({
+    opacity: focus.value,
+    transform: [{ translateY: (1 - focus.value) * 12 }]
+  }))
+
   const caption = resolved
     ? resolvedAt === 0
       ? 'Saiu sem nenhuma pista.'
@@ -332,7 +366,7 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
             {status.toUpperCase()}
           </Text>
           <Text className="mt-2 max-w-[300px] font-book text-[19px] leading-[26px] text-dim">
-            {demo.heard || (armed && heard ? heard : scene.prompt)}
+            {focused && speech !== scene.prompt ? scene.prompt : focused ? '' : speech || scene.prompt}
           </Text>
           {listening.active && !demo.running && (
             <Pressable
@@ -356,25 +390,50 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
         accessibilityLabel={armed ? 'Travou — pedir ajuda agora' : 'Ativar a escuta'}
         className="flex-1 items-center justify-center px-6"
       >
-        <Buddy size={orbSize * 0.78} mood={mood} level={listening.speaking ? 0.6 : 0} pulse={pulseCount} pressed={pressed} />
+        <Animated.View style={buddyBox}>
+          <Animated.View style={buddyScale}>
+            <Buddy size={orbSize * 0.78} mood={mood} level={listening.speaking ? 0.6 : 0} pulse={pulseCount} pressed={pressed} />
+          </Animated.View>
+        </Animated.View>
 
         <ActionTrail actions={demo.actions} />
 
-        <Text className="font-strong text-[11px] tracking-[1.4px] text-label">
-          {expectedKind === 'word'
-            ? 'A PALAVRA'
-            : expectedKind === 'cue'
-              ? 'UMA PISTA'
-              : 'NO SEU TEMPO'}
-        </Text>
+        {focused && speech.length > 0 && (
+          <Animated.View style={[speechStyle, { marginTop: 8, marginBottom: 22, alignItems: 'center' }]}>
+            <Text
+              accessibilityLiveRegion="polite"
+              className={`max-w-[320px] text-center ${
+                expectedKind === 'waiting'
+                  ? 'font-mid text-[28px] leading-[36px] tracking-[-0.6px] text-fg'
+                  : 'font-book text-[17px] leading-[24px] text-dim'
+              }`}
+            >
+              {tailOf(speech)}
+            </Text>
+          </Animated.View>
+        )}
 
-        {expectedKind === 'word' ? (
-          <Text className={`${EXPECTED} text-brand`}>{expected}</Text>
-        ) : (
-          <Typed
-            text={expected}
-            className={`${EXPECTED} ${expectedKind === 'waiting' ? 'text-faint' : 'text-fg'}`}
-          />
+        {showExpected && (
+          <>
+            <Text className="font-strong text-[11px] tracking-[1.4px] text-label">
+              {expectedKind === 'word'
+                ? 'A PALAVRA'
+                : expectedKind === 'cue'
+                  ? 'UMA PISTA'
+                  : confident && focused
+                    ? 'SERÁ QUE É'
+                    : 'NO SEU TEMPO'}
+            </Text>
+
+            {expectedKind === 'word' ? (
+              <Text className={`${EXPECTED} text-brand`}>{expected}</Text>
+            ) : (
+              <Typed
+                text={expected}
+                className={`${EXPECTED} ${expectedKind === 'waiting' ? 'text-faint' : 'text-fg'}`}
+              />
+            )}
+          </>
         )}
 
         <Text className="mt-4 max-w-[300px] text-center font-book text-body leading-5 text-dim">
