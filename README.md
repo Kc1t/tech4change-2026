@@ -4,10 +4,11 @@
 <br />
 <div align="center">
   <a href="https://github.com/Kc1t/tech4change-2026">
-    <img src="docs/media/icon.webp" alt="Eilo" width="96" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/media/logo-dark.webp">
+      <img src="docs/media/logo.webp" alt="eilo" width="260" />
+    </picture>
   </a>
-
-  <h1 align="center">Eilo</h1>
 
   <p align="center">
     O caminho até a palavra. Para quem teve AVC e ficou com anomia, o Eilo devolve <strong>a rota</strong> até o nome que travou — pistas que sobem em degraus, tiradas do <strong>mapa da vida da própria pessoa</strong>, no segundo da conversa em que a palavra falta.
@@ -350,10 +351,11 @@ app/
 - [x] Consentimento pela própria pessoa, com pictogramas e áudio
 - [x] Pareamento entre celular e relógio por código de quatro dígitos, com SSE
 - [x] Pipeline de ingestão offline — rostos, áudios, EXIF, separação silábica
+- [x] Primeiro acesso por conversa: a pessoa conta do jeito dela e um modelo separa nome, parentesco e cidade, sem guardar nada no servidor
+- [x] Identidade visual com o Buddy no ícone do celular, do relógio, da web e da landing
 - [x] MVP público em [eilo.kc1t.com](https://eilo.kc1t.com) e vídeo do pitch
 - [ ] **Piloto de quatro semanas com a ProSense**, medindo o degrau médio em terapia real
 - [ ] Geocodificação reversa na ingestão (coordenada → nome de cidade)
-- [ ] Extração de relações a partir do texto por modelo de linguagem
 - [ ] Compilar e instalar o aplicativo Wear OS num relógio de verdade
 - [ ] Grafo em escala no Oracle 23ai, com SQL/PGQ e busca vetorial no próprio banco
 
