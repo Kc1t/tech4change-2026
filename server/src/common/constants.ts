@@ -28,3 +28,8 @@ export const TTS_MAX_TEXT_LENGTH = 200
 export const ASK_TIMEOUT_MS = 12_000
 export const ASK_MAX_TOKENS = 420
 export const ASK_MAX_QUESTION = 400
+
+export const ONBOARDING_TIMEOUT_MS = 6000
+export const ONBOARDING_MAX_TOKENS = 600
+export const ONBOARDING_MAX_MESSAGE = 300
+export const ONBOARDING_MAX_ANSWER = 40

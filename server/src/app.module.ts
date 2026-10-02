@@ -9,6 +9,7 @@ import { ClinicianModule } from './modules/clinician/clinician.module'
 import { ConsentModule } from './modules/consent/consent.module'
 import { CueModule } from './modules/cue/cue.module'
 import { HelpModule } from './modules/help/help.module'
+import { OnboardingModule } from './modules/onboarding/onboarding.module'
 import { SttModule } from './modules/stt/stt.module'
 import { SyncModule } from './modules/sync/sync.module'
 import { TtsModule } from './modules/tts/tts.module'
@@ -25,6 +26,7 @@ import { TtsModule } from './modules/tts/tts.module'
     SyncModule,
     SttModule,
     HelpModule,
+    OnboardingModule,
     TtsModule,
     HealthModule
   ],
