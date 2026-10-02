@@ -186,15 +186,17 @@ export function ScreenMoment({
   orb = 200,
   footer = 132,
   bar = true,
-  heard = 'Quem que vem no domingo?'
+  heard = 'Quem que vem no domingo?',
+  override
 }: {
   state?: keyof typeof MOMENT
   heard?: string
   orb?: number
   footer?: number
   bar?: boolean
+  override?: Partial<{ status: string; kind: string; text: string; caption: string; dots: number }>
 }) {
-  const view = MOMENT[state]
+  const view = { ...MOMENT[state], ...override }
 
   return (
     <div className="flex h-full flex-col pt-[54px]">
