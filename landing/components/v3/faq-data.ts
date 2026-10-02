@@ -7,7 +7,7 @@ export const QUESTIONS = [
   {
     question: 'A IA fica sabendo o nome das pessoas?',
     answer:
-      'O modelo que escolhe a ordem das pistas recebe só códigos, como n_1fd17c, e as ligações entre eles. Os nomes ficam no aparelho. Se você escolher uma voz, o texto da pista vai para o serviço de voz só para virar áudio. Prefere não? Dá para usar sem voz.'
+      'O modelo que escolhe a ordem das pistas recebe só códigos, como n_1fd17c, e as ligações entre eles. Os nomes ficam no aparelho. No primeiro acesso, o que você conta passa uma vez por uma IA só para separar nome, parentesco e cidade, e não fica guardado no servidor. Se você escolher uma voz, o texto da pista vai para o serviço de voz só para virar áudio. Prefere não? Dá para usar sem voz.'
   },
   {
     question: 'Ele fala a palavra por mim?',
@@ -22,7 +22,7 @@ export const QUESTIONS = [
   {
     question: 'Como ele sabe quem é quem?',
     answer:
-      'Na primeira vez, alguém da família responde umas perguntas curtas: quem mora com você, os netos, a cidade, os bichos. Com isso ele monta o mapa, a família confirma, e daí em diante ele se mantém sozinho.'
+      'Na primeira vez, é uma conversa curta: você conta do seu jeito quem você mais vê, o que essa pessoa é sua e onde ela mora. Ele só pergunta o que faltar. Com isso ele monta o mapa, e daí em diante ele se mantém sozinho.'
   },
   {
     question: 'Precisa de internet?',

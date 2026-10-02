@@ -43,7 +43,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     question: 'A IA fica sabendo dos nomes?',
     keywords: ['ia', 'inteligencia artificial', 'nome', 'nomes', 'sabe quem', 'chatgpt', 'modelo', 'robo'],
     answer:
-      'A IA que escolhe a ordem das pistas recebe só códigos, como n_1fd17c, e as ligações entre eles. Os nomes ficam no aparelho. Toda pista precisa citar uma ligação real do mapa da família; se não cita, eu uso uma escada pronta.',
+      'A IA que escolhe a ordem das pistas recebe só códigos, como n_1fd17c, e as ligações entre eles. Os nomes ficam no aparelho. Só no primeiro acesso o que você conta passa uma vez por uma IA, para separar nome, parentesco e cidade, sem ficar guardado no servidor. Toda pista precisa citar uma ligação real do mapa da família; se não cita, eu uso uma escada pronta.',
     links: [{ label: 'Ver por dentro', href: '#como-funciona' }],
     next: ['grava', 'mapa']
   },
@@ -78,7 +78,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     question: 'Como ele sabe quem é quem?',
     keywords: ['quem e quem', 'familia', 'parentes', 'neta', 'neto', 'filho', 'filha', 'mapa', 'cadastro', 'cadastrar', 'configurar', 'primeira vez', 'conhece'],
     answer:
-      'Na primeira vez, alguém da família responde umas perguntas curtas: quem mora junto, os netos, a cidade, os bichos. Com isso eu monto o mapa da vida, a família confirma uma vez e daí em diante ele se mantém sozinho.',
+      'Na primeira vez, é uma conversa curta: você conta do seu jeito quem você mais vê, o que essa pessoa é sua e onde ela mora, e eu só pergunto o que faltar. Com isso eu monto o mapa da vida, e daí em diante ele se mantém sozinho.',
     next: ['idoso', 'pistas']
   },
   {
