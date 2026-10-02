@@ -1,8 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { apiBase } from '../sync/client'
+import type { Seed } from '../domain/seed'
 import type { CuePlan, GraphProjection, NodeId, NodeKind } from '../domain/types'
 
 const REQUEST_TIMEOUT_MS = 3000
+const ONBOARDING_TIMEOUT_MS = 7000
 const SUBJECT_KEY = 'subject-id'
 
 let subject: Promise<string> | null = null
@@ -20,9 +22,9 @@ export function subjectId(): Promise<string> {
   return subject
 }
 
-async function send<T>(path: string, body: object): Promise<T | null> {
+async function send<T>(path: string, body: object, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T | null> {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
     const response = await fetch(`${apiBase()}/v1${path}`, {
@@ -64,4 +66,8 @@ export interface AuditEvent {
 
 export function recordEvent(event: AuditEvent): void {
   void send('/audit/events', { ...event, occurredAt: new Date().toISOString() })
+}
+
+export function onboardingTurn(request: { message: string; asked: string; known: Partial<Seed> }) {
+  return send<{ answers: Partial<Seed>; reply: string }>('/onboarding/turn', request, ONBOARDING_TIMEOUT_MS)
 }
