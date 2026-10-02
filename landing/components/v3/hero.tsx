@@ -21,7 +21,7 @@ export function Hero() {
           className="v3-nav-surface relative z-30 mt-5 flex w-full max-w-[660px] items-center gap-4 rounded-full p-2 pl-5 text-white"
         >
           <a href="/" className="flex flex-1 shrink-0 items-center">
-            <Logo className="h-7" />
+            <Logo className="h-7" tone="dark" />
           </a>
 
           <ul className="hidden shrink-0 items-center gap-6 md:flex">
@@ -47,7 +47,7 @@ export function Hero() {
           </div>
         </nav>
 
-        <div className="flex w-full max-w-6xl flex-1 flex-col items-center justify-center pt-10 sm:group-data-[align=left]/hero:items-start sm:group-data-[align=left]/hero:px-6 sm:group-data-[align=left]/hero:text-left">
+        <div className="flex w-full max-w-6xl flex-1 flex-col items-center justify-center pt-10">
         <p className="v3-badge-surface relative z-20 inline-flex items-center gap-2.5 rounded-full py-1 pr-1 pl-1 text-[0.78rem] text-[#6f6c7c] sm:pr-4">
           <b className="inline-flex items-center gap-1.5 rounded-full whitespace-nowrap border border-[var(--v3-line)] bg-white px-3 py-1.5 font-medium text-[var(--v3-ink)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             <Sparkles className="size-3.5 text-[var(--v3-accent)]" />
@@ -56,18 +56,18 @@ export function Hero() {
           <span className="hidden sm:inline">Uma pista por vez, no seu tempo</span>
         </p>
 
-        <h1 className="relative z-20 mt-5 max-w-4xl sm:group-data-[align=left]/hero:max-w-[34rem] text-[clamp(2.4rem,5.6vw,4.2rem)] sm:group-data-[align=left]/hero:text-[clamp(2.2rem,4.4vw,3.5rem)] leading-[1.08] font-medium tracking-[-0.038em] text-balance">
+        <h1 className="relative z-20 mt-5 max-w-4xl text-[clamp(2.4rem,5.6vw,4.2rem)] leading-[1.08] font-medium tracking-[-0.038em] text-balance">
           Você sabe qual é a palavra.
           <br />
           O eilo te ajuda a chegar nela.
         </h1>
 
-        <p className="relative z-20 mt-6 max-w-[40rem] text-[1.08rem] leading-[1.75] text-[#57536a] sm:group-data-[align=left]/hero:max-w-[30rem]">
+        <p className="relative z-20 mt-6 max-w-[40rem] text-[1.08rem] leading-[1.75] text-[#57536a]">
           Depois de um AVC, a palavra some no meio da frase. O eilo escuta junto, percebe a pausa e
           dá uma pista de cada vez, da mais distante à mais próxima, até ela sair.
         </p>
 
-        <div className="relative z-20 mt-9 flex flex-wrap justify-center gap-3 sm:group-data-[align=left]/hero:justify-start">
+        <div className="relative z-20 mt-9 flex flex-wrap justify-center gap-3">
           <Button
             asChild
             size="lg"

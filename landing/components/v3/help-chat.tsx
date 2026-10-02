@@ -309,9 +309,8 @@ export function HelpChat() {
           className="group relative grid place-items-center px-1 pt-1 pb-3"
         >
           <span className="v3-buddy-float block transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
-            <BuddyMark size={64} className="shadow-[0_18px_30px_-12px_rgba(110,90,200,0.55)]" />
+            <BuddyMark size={64} />
           </span>
-          <span aria-hidden="true" className="v3-buddy-shadow absolute bottom-0.5 h-2 w-10 rounded-full bg-[#6b5fa8]/25 blur-[3px]" />
         </button>
       </div>
     </div>
