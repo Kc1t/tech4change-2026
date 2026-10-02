@@ -8,7 +8,10 @@ import { AuditModule } from './modules/audit/audit.module'
 import { ClinicianModule } from './modules/clinician/clinician.module'
 import { ConsentModule } from './modules/consent/consent.module'
 import { CueModule } from './modules/cue/cue.module'
+import { HelpModule } from './modules/help/help.module'
+import { SttModule } from './modules/stt/stt.module'
 import { SyncModule } from './modules/sync/sync.module'
+import { TtsModule } from './modules/tts/tts.module'
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { SyncModule } from './modules/sync/sync.module'
     ClinicianModule,
     ConsentModule,
     SyncModule,
+    SttModule,
+    HelpModule,
+    TtsModule,
     HealthModule
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }]

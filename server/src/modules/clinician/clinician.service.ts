@@ -20,6 +20,10 @@ interface TargetSummary {
 export class ClinicianService {
   constructor(private readonly audit: AuditService) {}
 
+  subjects() {
+    return this.audit.subjects()
+  }
+
   async summary(subject: string) {
     const events = (await this.audit.listBySubject(subject, 2000)).filter(
       event => event.event === 'resolved'

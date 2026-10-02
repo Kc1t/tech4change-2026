@@ -23,7 +23,7 @@ export class CueService {
 
     const fromModel = await this.rerank.rank(input, pool)
     if (fromModel && validatePlan(input.projection, fromModel)) {
-      await this.remember(hash, fromModel)
+      void this.remember(hash, fromModel)
       return fromModel
     }
 
@@ -34,6 +34,7 @@ export class CueService {
   }
 
   private async remember(hash: string, plan: CuePlan): Promise<void> {
+    if (!this.prisma.connected) return
     await this.prisma.cuePlanCache
       .upsert({
         where: { projectionHash_targetId: { projectionHash: hash, targetId: plan.targetId } },
@@ -44,6 +45,7 @@ export class CueService {
   }
 
   private async recall(hash: string, targetId: string): Promise<CuePlan | null> {
+    if (!this.prisma.connected) return null
     const row = await this.prisma.cuePlanCache
       .findUnique({ where: { projectionHash_targetId: { projectionHash: hash, targetId } } })
       .catch(() => null)

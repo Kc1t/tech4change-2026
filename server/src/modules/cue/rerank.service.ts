@@ -6,6 +6,7 @@ import {
   DEFAULT_MODEL_BASE_URL,
   MODEL_TIMEOUT_MS
 } from '../../common/constants'
+import { chatEndpoint } from '../../common/chat'
 import { edgesOf, indexNodes, stepKindFor } from '../../domain/projection'
 import type { CuePlan, GraphProjection, ScoredCandidate } from '../../domain/types'
 import type { RankCueInput } from './dto/rank-cue.dto'
@@ -67,10 +68,9 @@ export class RerankService {
     const timer = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS)
 
     try {
-      const base = process.env.MODEL_BASE_URL ?? DEFAULT_FREE_BASE_URL
-      const endpoint = base.includes('/chat/completions') ? base : `${base}/v1/chat/completions`
       const effort = process.env.MODEL_REASONING_EFFORT
-      const response = await fetch(endpoint, {
+      const providers = process.env.MODEL_PROVIDER_ORDER?.split(',').map(p => p.trim()).filter(Boolean)
+      const response = await fetch(chatEndpoint(process.env.MODEL_BASE_URL ?? DEFAULT_FREE_BASE_URL), {
         method: 'POST',
         signal: controller.signal,
         headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
@@ -80,6 +80,7 @@ export class RerankService {
           max_tokens: 640,
           response_format: { type: 'json_object' },
           ...(effort ? { reasoning_effort: effort } : {}),
+          ...(providers?.length ? { provider: { order: providers } } : {}),
           messages: [
             { role: 'system', content: SYSTEM },
             { role: 'user', content: prompt }
