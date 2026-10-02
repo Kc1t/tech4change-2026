@@ -1,23 +1,20 @@
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from './logo'
-import { Device, ScreenMap, ScreenMoment, ScreenProgress } from './app-screens'
-import { PhoneShell } from './phone'
+import { HeroBackdrop } from './hero-backdrop'
 
 const NAV = [
-  { label: 'O que é', href: '#jornada' },
-  { label: 'Como funciona', href: '#como-funciona' },
-  { label: 'As telas', href: '#telas' }
+  { label: 'Na prática', href: '#na-pratica' },
+  { label: 'Por dentro', href: '#como-funciona' },
+  { label: 'Para o fono', href: '/fono' },
+  { label: 'Dúvidas', href: '#duvidas' }
 ]
 
 export function Hero() {
   return (
     <div className="p-3 sm:p-4">
-      <section className="v3-hero-surface relative isolate flex min-h-[max(88vh,720px)] flex-col items-center overflow-hidden rounded-[1.75rem] px-6 pb-[clamp(300px,34vw,430px)] text-center sm:rounded-[2rem]">
-        <div aria-hidden="true" className="absolute inset-0 -z-10">
-          <img src="/sky.webp" alt="" className="size-full object-cover object-center" />
-          <div className="v3-hero-veil absolute inset-0" />
-        </div>
+      <section className="group/hero v3-hero-surface relative isolate flex min-h-[max(calc(100svh-2rem),860px)] flex-col items-center overflow-hidden rounded-[1.75rem] px-6 pb-[clamp(260px,30vh,320px)] text-center sm:rounded-[2rem]">
+        <HeroBackdrop />
 
         <nav
           aria-label="Principal"
@@ -27,7 +24,7 @@ export function Hero() {
             <Logo className="h-7" />
           </a>
 
-          <ul className="hidden shrink-0 items-center gap-7 md:flex">
+          <ul className="hidden shrink-0 items-center gap-6 md:flex">
             {NAV.map(item => (
               <li key={item.href}>
                 <a
@@ -50,27 +47,27 @@ export function Hero() {
           </div>
         </nav>
 
-        <p className="v3-badge-surface relative z-20 mt-12 inline-flex items-center gap-2.5 rounded-full py-1 pr-4 pl-1 text-[0.78rem] text-[#6f6c7c] sm:mt-14">
-          <b className="inline-flex items-center gap-1.5 rounded-full border border-[var(--v3-line)] bg-white px-3 py-1.5 font-medium text-[var(--v3-ink)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="flex w-full max-w-6xl flex-1 flex-col items-center justify-center pt-10 sm:group-data-[align=left]/hero:items-start sm:group-data-[align=left]/hero:px-6 sm:group-data-[align=left]/hero:text-left">
+        <p className="v3-badge-surface relative z-20 inline-flex items-center gap-2.5 rounded-full py-1 pr-1 pl-1 text-[0.78rem] text-[#6f6c7c] sm:pr-4">
+          <b className="inline-flex items-center gap-1.5 rounded-full whitespace-nowrap border border-[var(--v3-line)] bg-white px-3 py-1.5 font-medium text-[var(--v3-ink)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             <Sparkles className="size-3.5 text-[var(--v3-accent)]" />
-            IA com guarda-corpo
+            Para quem vive com afasia
           </b>
-          <span className="hidden sm:inline">O modelo ordena a escada sem nunca ver a palavra</span>
-          <span className="sm:hidden">Sem nunca ver a palavra</span>
+          <span className="hidden sm:inline">Uma pista por vez, no seu tempo</span>
         </p>
 
-        <h1 className="relative z-20 mt-5 max-w-4xl text-[clamp(2.4rem,5.6vw,4.2rem)] leading-[1.08] font-medium tracking-[-0.038em] text-balance">
-          Ele sabe qual é a palavra.
+        <h1 className="relative z-20 mt-5 max-w-4xl sm:group-data-[align=left]/hero:max-w-[34rem] text-[clamp(2.4rem,5.6vw,4.2rem)] sm:group-data-[align=left]/hero:text-[clamp(2.2rem,4.4vw,3.5rem)] leading-[1.08] font-medium tracking-[-0.038em] text-balance">
+          Você sabe qual é a palavra.
           <br />
-          E o eilo alcança ela junto.
+          O eilo te ajuda a chegar nela.
         </h1>
 
-        <p className="relative z-20 mt-6 max-w-[34rem] text-[1.02rem] leading-[1.65] text-[var(--v3-muted)] text-balance">
-          Depois de um AVC, a palavra some no meio da frase. O eilo escuta a conversa e a IA monta o
-          caminho até ela em segundos, sem nunca ver a palavra.
+        <p className="relative z-20 mt-6 max-w-[40rem] text-[1.08rem] leading-[1.75] text-[#57536a] sm:group-data-[align=left]/hero:max-w-[30rem]">
+          Depois de um AVC, a palavra some no meio da frase. O eilo escuta junto, percebe a pausa e
+          dá uma pista de cada vez, da mais distante à mais próxima, até ela sair.
         </p>
 
-        <div className="relative z-20 mt-9">
+        <div className="relative z-20 mt-9 flex flex-wrap justify-center gap-3 sm:group-data-[align=left]/hero:justify-start">
           <Button
             asChild
             size="lg"
@@ -81,33 +78,15 @@ export function Hero() {
               <ArrowRight className="size-4" />
             </a>
           </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="h-12 rounded-xl border-white/80 bg-white/60 px-6 text-[0.95rem] font-medium text-[var(--v3-ink)] backdrop-blur-md hover:bg-white/85"
+          >
+            <a href="#na-pratica">Ver como funciona</a>
+          </Button>
         </div>
-
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex h-[clamp(260px,34vw,400px)] items-end justify-center gap-4"
-        >
-          <PhoneShell
-            cropped
-            className="hidden h-[78%] w-[250px] opacity-95 lg:block"
-          >
-            <Device width={238}>
-              <ScreenMap bar={false} />
-            </Device>
-          </PhoneShell>
-          <PhoneShell cropped className="z-10 h-full w-[286px]">
-            <Device width={274}>
-              <ScreenMoment orb={132} footer={0} bar={false} />
-            </Device>
-          </PhoneShell>
-          <PhoneShell
-            cropped
-            className="hidden h-[78%] w-[250px] opacity-95 lg:block"
-          >
-            <Device width={238}>
-              <ScreenProgress bar={false} />
-            </Device>
-          </PhoneShell>
         </div>
       </section>
     </div>

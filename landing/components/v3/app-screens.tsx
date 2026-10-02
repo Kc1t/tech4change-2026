@@ -152,24 +152,31 @@ function BottomBar({ tab }: { tab?: Tab }) {
 
 const MOMENT = {
   waiting: {
-    status: 'ESCUTA DESLIGADA',
-    kind: 'ESPERANDO A PALAVRA',
-    text: 'É a… a…',
-    caption: 'Toque quando a palavra não vier.',
+    status: 'ESCUTA EM PAUSA',
+    kind: 'NO SEU TEMPO',
+    text: '',
+    caption: 'Toque em mim para eu ouvir com você.',
+    dots: 0
+  },
+  listening: {
+    status: 'OUVINDO COM VOCÊ',
+    kind: 'NO SEU TEMPO',
+    text: '',
+    caption: 'Pode falar. Se a palavra sumir, eu percebo a pausa.',
     dots: 0
   },
   cue: {
-    status: 'DEGRAU 3 DE 4',
-    kind: 'O DEGRAU',
+    status: 'PISTA 3 DE 4',
+    kind: 'UMA PISTA',
     text: 'Mora em Sorocaba',
-    caption: 'degrau 3 · lugar',
+    caption: 'pista 3 · lugar',
     dots: 3
   },
   word: {
-    status: 'DESTRAVOU',
+    status: 'VOCÊ DISSE',
     kind: 'A PALAVRA',
     text: 'Letícia',
-    caption: 'Em 3 degraus. Da próxima vez a dica começa mais longe.',
+    caption: 'Foi você que achou. Eu volto a ouvir sozinho.',
     dots: 4
   }
 } as const
@@ -178,9 +185,11 @@ export function ScreenMoment({
   state = 'waiting',
   orb = 200,
   footer = 132,
-  bar = true
+  bar = true,
+  heard = 'Quem que vem no domingo?'
 }: {
   state?: keyof typeof MOMENT
+  heard?: string
   orb?: number
   footer?: number
   bar?: boolean
@@ -194,22 +203,24 @@ export function ScreenMoment({
         <div>
           <Caps>{view.status}</Caps>
           <p className="mt-2 max-w-[300px] text-[19px] leading-[26px]" style={{ color: DIM }}>
-            Quem que vem no domingo?
+            {heard}
           </p>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center px-6">
-        <Orb rings={false} style={{ width: orb }} />
+        <Orb rings={false} eyes={state === 'word' ? 'happy' : true} style={{ width: orb }} />
 
         <Caps className="mt-9">{view.kind}</Caps>
 
-        <p
-          className="mt-4 max-w-[300px] text-center text-[42px] leading-[46px] font-medium tracking-[-1.5px]"
-          style={{ color: state === 'word' ? BRAND : state === 'cue' ? FG : FAINT }}
-        >
-          {view.text}
-        </p>
+        {view.text ? (
+          <p
+            className="mt-4 max-w-[300px] text-center text-[42px] leading-[46px] font-medium tracking-[-1.5px]"
+            style={{ color: state === 'word' ? BRAND : FG }}
+          >
+            {view.text}
+          </p>
+        ) : null}
 
         <p
           className="mt-4 max-w-[300px] text-center text-[14px] leading-[20px]"
@@ -220,11 +231,6 @@ export function ScreenMoment({
       </div>
 
       <div className="flex flex-col items-center gap-3" style={{ paddingBottom: footer }}>
-        {state !== 'waiting' ? (
-          <p className="text-[14px] font-semibold" style={{ color: DIM }}>
-            {state === 'word' ? 'Ver outra palavra' : 'Consegui'}
-          </p>
-        ) : null}
         <div className="flex gap-1.5">
           {[1, 2, 3, 4].map(level => (
             <i

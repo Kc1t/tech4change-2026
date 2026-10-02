@@ -103,7 +103,7 @@ export function How() {
             <Card
               icon={<Ear className="size-[1.15rem]" />}
               title="Ele percebe a pausa sozinho."
-              body="A escuta roda no aparelho e reconhece a palavra que não veio."
+              body="Um toque liga a escuta. Daí em diante ele nota a pausa e reconhece quando a palavra volta."
               className={hasPortrait ? 'pr-[46%]' : ''}
             >
               {hasPortrait ? (

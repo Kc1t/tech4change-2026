@@ -9,7 +9,7 @@ const SCREENS = [
     tag: 'A que importa',
     tile: 'v3-tile-1',
     title: 'O Momento',
-    body: 'A única tela que se usa com a palavra travada. Quatro degraus, um toque, e a conversa continua.',
+    body: 'A única tela que se usa com a palavra travada. Uma pista por vez e, quando a palavra sai, a conversa continua.',
     screen: <ScreenMoment state="word" orb={150} footer={12} bar={false} />
   },
   {

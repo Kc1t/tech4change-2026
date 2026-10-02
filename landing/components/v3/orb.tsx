@@ -29,11 +29,13 @@ export function Orb({
   className = '',
   rings = true,
   interactive = false,
+  eyes = true,
   style
 }: {
   className?: string
   rings?: boolean
   interactive?: boolean
+  eyes?: boolean | 'happy'
   style?: React.CSSProperties
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -113,6 +115,20 @@ export function Orb({
           />
         ))}
         <span className="grain pointer-events-none absolute inset-0 opacity-[0.16]" />
+        {eyes === 'happy' ? (
+          <span className="absolute inset-x-0 top-[36%] flex h-[12%] items-center justify-center gap-[9%]">
+            {[0, 1].map(eye => (
+              <svg key={eye} viewBox="0 0 22 13" className="h-full w-auto">
+                <path d="M2.5 11.5 Q11 -3 19.5 11.5" stroke="#fff" strokeWidth={4.5} strokeLinecap="round" fill="none" />
+              </svg>
+            ))}
+          </span>
+        ) : eyes ? (
+          <span className="absolute inset-x-0 top-[34.6%] flex h-[18.7%] items-center justify-center gap-[17.3%]">
+            <i className="v3-orb-eye block h-full w-[8%] rounded-full bg-white" />
+            <i className="v3-orb-eye block h-full w-[8%] rounded-full bg-white" />
+          </span>
+        ) : null}
       </div>
     </div>
   )

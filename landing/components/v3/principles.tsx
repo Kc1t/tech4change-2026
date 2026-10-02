@@ -4,8 +4,8 @@ import { Reveal } from './reveal'
 const CARDS = [
   {
     tone: 'bg-[linear-gradient(160deg,#e4e0fb,#f7f6fb)]',
-    title: 'Não manda nada para fora',
-    body: 'O servidor só vê um grafo sem rótulo. Nome próprio volta com erro 400.'
+    title: 'Não grava nada',
+    body: 'O som vira texto na hora e é descartado. A IA que ordena as pistas só vê um grafo sem nomes.'
   },
   {
     tone: 'bg-[linear-gradient(160deg,#f5e3f6,#f7f6fb)]',
@@ -29,7 +29,7 @@ export function Principles() {
         </h2>
         <p className="max-w-[22rem] text-[0.95rem] leading-[1.7] text-[var(--v3-muted)] lg:pt-3">
           Protótipo acadêmico, ainda sem uso fora do grupo. As três linhas abaixo são garantias de
-            código.
+          código.
           </p>
         </div>
       </Reveal>

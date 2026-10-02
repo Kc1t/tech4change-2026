@@ -13,14 +13,15 @@ const CARDS = [
     alt: 'Um celular na mesa de mármore, ao lado do café, com a tela do eilo esperando a palavra.',
     position: 'object-[50%_45%]',
     title: 'No dia a dia inteiro',
-    body: 'O celular na mesa ou no bolso escuta e percebe a pausa sozinho. Ninguém precisa desbloquear nem apertar nada.'
+    body: 'O celular fica na mesa ou no bolso. Um toque liga a escuta e, daí em diante, ele percebe a pausa sozinho.'
   },
   {
     src: '/story/scene-therapist.webp',
     alt: 'Uma fonoaudióloga no consultório, olhando o painel da semana.',
     position: 'object-[30%_40%]',
     title: 'Na sessão de quarta',
-    body: 'A sessão mostra a quarta-feira. O painel mostra os outros seis dias, com número e não com lembrança.'
+    body: 'A sessão mostra a quarta-feira. O painel mostra os outros seis dias, com número e não com lembrança.',
+    link: { href: '/fono', label: 'Ver o painel do fono' }
   }
 ]
 
@@ -55,6 +56,15 @@ export function Journey() {
                   {card.title}
                 </h3>
                 <p className="mt-2.5 text-[0.9rem] leading-relaxed text-white/80">{card.body}</p>
+                {'link' in card && card.link && (
+                  <a
+                    href={card.link.href}
+                    className="mt-4 inline-flex items-center gap-1.5 text-[0.84rem] font-medium text-white underline decoration-white/40 underline-offset-4 transition-colors hover:decoration-white"
+                  >
+                    {card.link.label}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                )}
               </div>
             </article>
           </Reveal>
