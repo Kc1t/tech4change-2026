@@ -15,7 +15,7 @@
     <br />
     <a href="docs/ARQUITETURA.md"><strong>📄 Documentação técnica</strong></a>
     ·
-    <a href="https://www.youtube.com/watch?v=uXWnjCYHHWE" target="_blank"><strong>🎥 Vídeo do pitch</strong></a>
+    <a href="docs/media/eilo-video.mp4"><strong>🎥 Vídeo de 30 s</strong></a>
   </p>
 
   <p align="center">
@@ -36,11 +36,11 @@
 > Entrega do **Tech4Change 2026 — FIAP PosTech**, tema *Potencializando o ser humano com Inteligência Artificial*. Protótipo acadêmico: **não é dispositivo médico**, não substitui fonoaudiologia e nunca foi usado em terapia real. A persona da demonstração é fictícia.
 
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=uXWnjCYHHWE" target="_blank">
-    <img src="docs/media/video-capa.jpg" alt="Assistir ao pitch do Eilo — 4 min" width="820">
+  <a href="docs/media/eilo-video.mp4">
+    <img src="docs/media/video-capa.jpg" alt="Assistir ao vídeo do eilo — 30 s" width="820">
   </a>
   <br />
-  <sub><a href="https://www.youtube.com/watch?v=uXWnjCYHHWE"><strong>▶ Assistir ao pitch — 4 min</strong></a></sub>
+  <sub><a href="docs/media/eilo-video.mp4"><strong>▶ Assistir ao vídeo — 30 s</strong></a></sub>
 </div>
 
 <p align="center">
@@ -48,7 +48,7 @@
 </p>
 
 > [!TIP]
-> **Teste em menos de um minuto, sem instalar nada.** Abra **[eilo.kc1t.com](https://eilo.kc1t.com)** no celular, toque em *Ver com um exemplo pronto* e experimente travar numa palavra — a escada de dicas aparece no mesmo quadro do toque, sem rede e sem chave de API. &nbsp;·&nbsp; 🎥 **[Assista ao pitch de 4 min](https://www.youtube.com/watch?v=uXWnjCYHHWE)**
+> **Teste em menos de um minuto, sem instalar nada.** Abra **[eilo.kc1t.com](https://eilo.kc1t.com)** no celular, toque em *Ver com um exemplo pronto* e experimente travar numa palavra — a escada de dicas aparece no mesmo quadro do toque, sem rede e sem chave de API. &nbsp;·&nbsp; 🎥 **[Assista ao vídeo de 30 s](docs/media/eilo-video.mp4)**
 
 ## Resumo para avaliação
 
