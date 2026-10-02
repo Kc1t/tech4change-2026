@@ -159,7 +159,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
       <View className="flex-1 items-center justify-center">
         <Animated.View style={logo}>
           <Image
-            source={require('../../assets/wordmark.png')}
+            source={require('../../assets/wordmark-mono.png')}
             style={{ width: 150, height: 47, tintColor: '#ffffff' }}
             resizeMode="contain"
             accessibilityIgnoresInvertColors
