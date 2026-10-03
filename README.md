@@ -303,7 +303,7 @@ npm run dev                      # http://localhost:3010
 cd landing && npm install && npm run dev        # http://localhost:5174
 
 # 4) Celular
-cd mobile && npm install && npx expo start      # Expo Go, ou --web
+cd mobile && npm install && npx expo start      # dev build, ou --web
 
 # 5) Ingestão do grafo (opcional, roda offline)
 cd ingest

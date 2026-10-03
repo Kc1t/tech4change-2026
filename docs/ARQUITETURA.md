@@ -225,7 +225,7 @@ cd web && npm install && npm run dev            # http://localhost:3010
 cd landing && npm install && npm run dev        # http://localhost:5174
 
 # Celular
-cd mobile && npm install && npx expo start      # Expo Go, ou --web
+cd mobile && npm install && npx expo start      # dev build, ou --web
 ```
 
 Sem `DATABASE_URL` o backend sobe em memória. Sem chave de modelo, a escada determinística assume.
