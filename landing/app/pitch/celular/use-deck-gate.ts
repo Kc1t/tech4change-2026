@@ -7,7 +7,7 @@ const STALE_MS = 60_000
 const CHECK_MS = 5000
 
 export function useDeckGate() {
-  const { state, receivedAt } = useDeckChannel('phone')
+  const { state, receivedAt } = useDeckChannel({ role: 'phone' })
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -15,6 +15,6 @@ export function useDeckGate() {
     return () => window.clearInterval(timer)
   }, [])
 
-  const fresh = state !== null && Math.max(now, receivedAt) - receivedAt < STALE_MS
+  const fresh = state !== null && now - receivedAt < STALE_MS
   return { open: state === null || !fresh || state.listen }
 }

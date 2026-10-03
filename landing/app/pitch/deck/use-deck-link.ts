@@ -38,11 +38,16 @@ export function useDeckLink(index: number, actions: DeckActions) {
     act.current = actions
   }, [actions])
 
-  const { presence } = useDeckChannel('deck', (command: DeckCommand) => {
-    if (command.action === 'next') act.current.next()
-    else if (command.action === 'previous') act.current.previous()
-    else act.current.go(command.index)
-  }, session, code)
+  const { presence, online } = useDeckChannel({
+    role: 'deck',
+    session,
+    code,
+    onCommand: (command: DeckCommand) => {
+      if (command.action === 'next') act.current.next()
+      else if (command.action === 'previous') act.current.previous()
+      else act.current.go(command.index)
+    }
+  })
 
   useEffect(() => {
     let cancelled = false
@@ -64,12 +69,12 @@ export function useDeckLink(index: number, actions: DeckActions) {
   }, [])
 
   useEffect(() => {
-    if (!code) return
+    if (!code || !online) return
     const send = () => void postDeck({ code, session, state: stateAt(index) })
     send()
     const beat = window.setInterval(send, HEARTBEAT_MS)
     return () => window.clearInterval(beat)
-  }, [code, index, session])
+  }, [code, index, online, session])
 
   return { links, remotes: presence?.remote ?? 0 }
 }

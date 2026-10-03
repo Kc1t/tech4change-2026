@@ -33,7 +33,7 @@ export function DeckRemote() {
   const code = useCode()
   const [delivery, setDelivery] = useState<Delivery>('idle')
   const lastPress = useRef(0)
-  const { state, presence, online } = useDeckChannel('remote')
+  const { state, presence, online } = useDeckChannel({ role: 'remote' })
   const deckOnline = online && (presence?.deck ?? 0) > 0
   const ready = Boolean(code) && delivery !== 'denied'
 
