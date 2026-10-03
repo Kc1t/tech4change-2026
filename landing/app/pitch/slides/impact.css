@@ -1,0 +1,22 @@
+.pitch .impact h2 { left: 0; right: 0; top: 111px; text-align: center; font-size: 70px; font-weight: 500; line-height: 1.37; letter-spacing: -1.05px; }
+.pitch .impact h2 em { font-style: normal; color: var(--violet); background: linear-gradient(var(--highlight), var(--highlight)) 0 64% / 100% 78% no-repeat; border-radius: 12px; padding: 0 8px; margin-left: -4px; }
+.pitch .impact .stats { left: 0; right: 0; top: 235px; display: flex; justify-content: center; align-items: center; }
+.pitch .impact .stat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 46px; white-space: nowrap; }
+.pitch .impact .stat + .stat { border-left: 1.5px solid #e6e3f0; }
+.pitch .impact .stat b { font-size: 42px; font-weight: 700; }
+.pitch .impact .stat--goal b { color: var(--violet); }
+.pitch .impact .stat span { color: var(--gray); font-size: 17px; line-height: 1.3; text-align: center; }
+.pitch .impact .sources { left: 0; right: 0; top: 371px; text-align: center; color: #a5a2b4; font-size: 15px; }
+.pitch .impact .tile { top: 419px; height: 520px; border-radius: 32px; overflow: hidden; }
+.pitch .impact .tile b { position: absolute; font-size: 32px; font-weight: 700; white-space: nowrap; }
+.pitch .impact .tile p { position: absolute; font-size: 21px; line-height: 1.4; }
+.pitch .impact .tile--talk { left: 55px; width: 540px; background: var(--violet); }
+.pitch .impact .tile--talk .gradient { position: absolute; left: 0; top: 192px; width: 100%; height: 328px; background: linear-gradient(to bottom, rgba(107, 95, 168, 0) 25%, rgba(107, 95, 168, .97) 72%); }
+.pitch .impact .tile--talk b { left: 40px; top: 356px; color: #fff; }
+.pitch .impact .tile--talk p { left: 40px; top: 406px; width: 460px; color: #e6e2f6; font-weight: 500; }
+.pitch .impact .tile--lunch { left: 620px; width: 543px; }
+.pitch .impact .tile--lunch img { position: absolute; top: 0; left: -59.82%; width: 171.56%; height: 100%; }
+.pitch .impact .tile--therapist { left: 1183px; width: 596px; background: #fff; border: 2px solid var(--highlight); }
+.pitch .impact .tile--therapist img { position: absolute; left: -35.4px; top: -48px; width: 656.7px; height: 493px; }
+.pitch .impact .tile--therapist b { left: 38px; top: 368px; }
+.pitch .impact .tile--therapist p { left: 38px; top: 416px; width: 510px; color: var(--gray); }

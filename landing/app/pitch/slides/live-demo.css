@@ -1,0 +1,21 @@
+.pitch .live-demo .story { left: 55px; top: 123px; width: 620px; height: 812px; border-radius: 36px; overflow: hidden; background: var(--violet); }
+.pitch .live-demo .story .portrait { position: absolute; left: -132px; top: -56px; width: 883px; height: 741px; object-fit: cover; }
+.pitch .live-demo .story .fade { position: absolute; left: 0; top: 387px; width: 620px; height: 425px; background: linear-gradient(to bottom, rgba(189, 161, 240, 0) 30%, #bda1f0 70%); }
+.pitch .live-demo .story .speech { position: absolute; left: 40px; top: 446px; max-width: 540px; padding: 14px 22px 14px 20px; border-radius: 24px 24px 24px 6px; background: #fff; box-shadow: 0 8px 24px rgba(64, 51, 115, .12); font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }
+.pitch .live-demo .story .speech span { direction: ltr; unicode-bidi: plaintext; }
+.pitch .live-demo .story .question { position: absolute; right: 40px; top: 372px; max-width: 520px; padding: 12px 20px; border-radius: 22px 22px 6px 22px; background: rgba(255, 255, 255, .86); color: #4a4758; box-shadow: 0 8px 22px rgba(64, 51, 115, .1); font-size: 20px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: deck-pop 450ms cubic-bezier(.3, 1.4, .5, 1) both; }
+.pitch .live-demo .story .step { position: absolute; left: 48px; top: 540px; width: 524px; animation: live-demo-swap 650ms var(--ease) both; }
+.pitch .live-demo .story h3 { color: #fff; font-size: 72px; line-height: 1.05; font-weight: 700; letter-spacing: -1.44px; }
+.pitch .live-demo .story p { margin-top: 18px; color: #f3f0fd; font-size: 23px; line-height: 1.5; }
+@keyframes live-demo-swap { from { opacity: 0; translate: 0 16px; filter: blur(4px); } to { opacity: 1; translate: 0 0; filter: none; } }
+.pitch .live-demo .story .origin { position: absolute; left: 48px; top: 40px; display: flex; align-items: center; gap: 8px; padding: 9px 18px 9px 14px; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--violet); font-size: 17px; font-weight: 700; box-shadow: 0 6px 18px rgba(64, 51, 115, .16); animation: deck-pop 500ms cubic-bezier(.3, 1.4, .5, 1) both; }
+.pitch .live-demo .story .origin::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pitch .live-demo .story .origin--ai { background: var(--violet); color: #fff; }
+.pitch .live-demo .story .origin--ai::before { background: #c9bdfc; box-shadow: 0 0 0 4px rgba(201, 189, 252, .3); }
+.pitch .live-demo .screen { left: 699px; top: 123px; width: 1080px; height: 812px; border-radius: 36px; overflow: hidden; background: linear-gradient(to bottom, #f4f2fd, #e3def7); }
+.pitch .live-demo .phone { position: absolute; left: 110px; top: 42px; width: 436px; height: 888px; border-radius: 58px; overflow: hidden; box-shadow: 0 36px 70px rgba(64, 51, 115, .28); border: 8px solid #1b1a22; background: #f6f5fb; }
+.pitch .live-demo .phone .ah-frame { transform: scale(1.0769); }
+.pitch .live-demo .wm { left: 640px; top: 170px; transform: scale(.8); transform-origin: 0 0; }
+.pitch .live-demo .demo-note { position: absolute; left: 600px; right: 0; top: 772px; display: flex; justify-content: center; align-items: center; gap: 10px; white-space: nowrap; }
+.pitch .live-demo .demo-note > span { display: flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, .6); color: var(--gray); font-size: 13px; font-weight: 600; }
+.pitch .live-demo .demo-note .demo-note-chip { background: #fff4e5; color: #9a5b00; }

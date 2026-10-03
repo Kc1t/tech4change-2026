@@ -1,0 +1,368 @@
+{
+  "owner": "n_b1d93d",
+  "nodes": {
+    "n_b1d93d": {
+      "id": "n_b1d93d",
+      "label": "Helena",
+      "kind": "person",
+      "attrs": {},
+      "layout": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "n_fd8f8a": {
+      "id": "n_fd8f8a",
+      "label": "Letícia",
+      "kind": "person",
+      "aliases": [
+        "Lelê"
+      ],
+      "attrs": {
+        "family": "é da família",
+        "generation": "da geração dos netos",
+        "city": "mora em Sorocaba"
+      },
+      "phon": {
+        "syllables": [
+          "Le",
+          "tí",
+          "cia"
+        ],
+        "firstSyllable": "Le"
+      },
+      "layout": {
+        "x": 0.78,
+        "y": 0.26
+      }
+    },
+    "n_1fd17c": {
+      "id": "n_1fd17c",
+      "label": "Marina",
+      "kind": "person",
+      "attrs": {
+        "family": "é da família",
+        "generation": "da geração dos filhos",
+        "city": "mora em Sorocaba"
+      },
+      "phon": {
+        "syllables": [
+          "Ma",
+          "ri",
+          "na"
+        ],
+        "firstSyllable": "Ma"
+      },
+      "layout": {
+        "x": 0.62,
+        "y": 0.7
+      }
+    },
+    "n_f299bf": {
+      "id": "n_f299bf",
+      "label": "Rodrigo",
+      "kind": "person",
+      "attrs": {
+        "family": "é da família",
+        "generation": "da geração dos filhos",
+        "city": "mora em Campinas"
+      },
+      "phon": {
+        "syllables": [
+          "Ro",
+          "dri",
+          "go"
+        ],
+        "firstSyllable": "Ro"
+      },
+      "layout": {
+        "x": 0.27,
+        "y": 0.7
+      }
+    },
+    "n_07b20f": {
+      "id": "n_07b20f",
+      "label": "Sorocaba",
+      "kind": "place",
+      "attrs": {},
+      "layout": {
+        "x": 0.84,
+        "y": 0.56
+      }
+    },
+    "n_98b372": {
+      "id": "n_98b372",
+      "label": "Ubatuba",
+      "kind": "place",
+      "attrs": {
+        "category": "é um lugar",
+        "event": "onde vocês passavam o ano novo",
+        "region": "fica no litoral norte"
+      },
+      "phon": {
+        "syllables": [
+          "U",
+          "ba",
+          "tu",
+          "ba"
+        ],
+        "firstSyllable": "Uba"
+      },
+      "layout": {
+        "x": 0.16,
+        "y": 0.3
+      }
+    },
+    "n_52a9aa": {
+      "id": "n_52a9aa",
+      "label": "Escumadeira",
+      "kind": "object",
+      "attrs": {
+        "category": "é uma coisa da cozinha",
+        "use": "serve para tirar comida da panela",
+        "shape": "tem furos"
+      },
+      "phon": {
+        "syllables": [
+          "Es",
+          "cu",
+          "ma",
+          "dei",
+          "ra"
+        ],
+        "firstSyllable": "Es"
+      },
+      "layout": {
+        "x": 0.4,
+        "y": 0.2
+      }
+    },
+    "n_18a1dd": {
+      "id": "n_18a1dd",
+      "label": "Tupi",
+      "kind": "animal",
+      "attrs": {
+        "category": "é o cachorro",
+        "color": "o preto",
+        "place": "que dorme na varanda"
+      },
+      "phon": {
+        "syllables": [
+          "Tu",
+          "pi"
+        ],
+        "firstSyllable": "Tu"
+      },
+      "layout": {
+        "x": 0.3,
+        "y": 0.45
+      }
+    }
+  },
+  "edges": [
+    {
+      "id": "e_8821",
+      "from": "n_fd8f8a",
+      "to": "n_b1d93d",
+      "rel": "grandchild_of",
+      "weight": 0.94,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "cluster face_03",
+          "detail": "84 fotos entre 2009 e 2026"
+        },
+        {
+          "source": "family",
+          "ref": "onboarding",
+          "detail": "confirmado por Marina"
+        }
+      ]
+    },
+    {
+      "id": "e_8822",
+      "from": "n_fd8f8a",
+      "to": "n_1fd17c",
+      "rel": "daughter_of",
+      "weight": 0.91,
+      "provenance": [
+        {
+          "source": "message",
+          "ref": "conversa.txt",
+          "detail": "citada 12 vezes como “Lelê”"
+        },
+        {
+          "source": "audio",
+          "ref": "audio_02",
+          "detail": "mencionada em 0:47"
+        }
+      ]
+    },
+    {
+      "id": "e_9104",
+      "from": "n_fd8f8a",
+      "to": "n_07b20f",
+      "rel": "lives_in",
+      "weight": 0.78,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "EXIF",
+          "detail": "19 fotos com GPS em Sorocaba"
+        }
+      ]
+    },
+    {
+      "id": "e_7710",
+      "from": "n_1fd17c",
+      "to": "n_b1d93d",
+      "rel": "daughter_of",
+      "weight": 0.97,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "cluster face_01",
+          "detail": "312 fotos"
+        }
+      ]
+    },
+    {
+      "id": "e_7711",
+      "from": "n_f299bf",
+      "to": "n_b1d93d",
+      "rel": "son_of",
+      "weight": 0.96,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "cluster face_02",
+          "detail": "204 fotos"
+        },
+        {
+          "source": "message",
+          "ref": "conversa.txt",
+          "detail": "contato mais frequente"
+        }
+      ]
+    },
+    {
+      "id": "e_6602",
+      "from": "n_98b372",
+      "to": "n_b1d93d",
+      "rel": "place_of_life",
+      "weight": 0.72,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "EXIF",
+          "detail": "47 fotos, sempre entre 28/12 e 03/01"
+        },
+        {
+          "source": "audio",
+          "ref": "audio_01",
+          "detail": "“a casa da praia” em 1:12"
+        }
+      ]
+    },
+    {
+      "id": "e_6603",
+      "from": "n_18a1dd",
+      "to": "n_b1d93d",
+      "rel": "pet_of",
+      "weight": 0.83,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "detecção de objeto",
+          "detail": "cachorro preto em 63 fotos"
+        }
+      ]
+    },
+    {
+      "id": "e_6604",
+      "from": "n_52a9aa",
+      "to": "n_b1d93d",
+      "rel": "object_of",
+      "weight": 0.61,
+      "provenance": [
+        {
+          "source": "audio",
+          "ref": "audio_03",
+          "detail": "“aquela de tirar o bolinho” em 2:05"
+        }
+      ]
+    },
+    {
+      "id": "e_6605",
+      "from": "n_07b20f",
+      "to": "n_b1d93d",
+      "rel": "place_of_life",
+      "weight": 0.88,
+      "provenance": [
+        {
+          "source": "photo",
+          "ref": "EXIF",
+          "detail": "predominante desde 2011"
+        }
+      ]
+    }
+  ],
+  "ladderPlans": {
+    "n_fd8f8a": [
+      {
+        "attr": "family",
+        "edge": "e_8821"
+      },
+      {
+        "attr": "generation",
+        "edge": "e_8822"
+      },
+      {
+        "attr": "city",
+        "edge": "e_9104"
+      }
+    ],
+    "n_98b372": [
+      {
+        "attr": "category",
+        "edge": "e_6602"
+      },
+      {
+        "attr": "event",
+        "edge": "e_6602"
+      },
+      {
+        "attr": "region",
+        "edge": "e_6602"
+      }
+    ],
+    "n_52a9aa": [
+      {
+        "attr": "category",
+        "edge": "e_6604"
+      },
+      {
+        "attr": "use",
+        "edge": "e_6604"
+      },
+      {
+        "attr": "shape",
+        "edge": "e_6604"
+      }
+    ],
+    "n_18a1dd": [
+      {
+        "attr": "category",
+        "edge": "e_6603"
+      },
+      {
+        "attr": "color",
+        "edge": "e_6603"
+      },
+      {
+        "attr": "place",
+        "edge": "e_6603"
+      }
+    ]
+  }
+}

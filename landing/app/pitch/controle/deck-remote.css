@@ -1,0 +1,47 @@
+.deck-remote {
+  --ink: #1b1a22;
+  --gray: #7a7788;
+  --violet: #6b5fa8;
+  --lavender: #f4f2fd;
+  --highlight: #e3def7;
+  --line: #eeebf7;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  background: #f6f5fb;
+  color: var(--ink);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  letter-spacing: -0.012em;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.deck-remote__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.deck-remote__top img { height: 28px; width: auto; }
+.deck-remote__status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
+.deck-remote__status i { width: 8px; height: 8px; border-radius: 50%; background: var(--gray); }
+.deck-remote__status--ok i { background: #3fb27f; box-shadow: 0 0 0 4px rgba(63, 178, 127, .18); }
+.deck-remote__status--wait i { background: #e0a43a; }
+.deck-remote__status--bad { color: #b3413a; }
+.deck-remote__status--bad i { background: #d9534a; }
+.deck-remote__now { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 28px 24px; border-radius: 28px; background: #fff; border: 1px solid var(--line); box-shadow: 0 12px 34px rgba(64, 51, 115, .08); }
+.deck-remote__now small { color: var(--violet); font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.deck-remote__now h1 { margin: 0; font-size: clamp(30px, 9vw, 52px); font-weight: 500; line-height: 1.08; letter-spacing: -0.03em; }
+.deck-remote__now p { margin: 0; color: var(--gray); font-size: 17px; line-height: 1.4; }
+.deck-remote__buttons { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
+.deck-remote__buttons button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 120px; border-radius: 28px; font: inherit; font-size: 20px; font-weight: 600; cursor: pointer; touch-action: manipulation; transition: transform 120ms, background 200ms; }
+.deck-remote__buttons button:active { transform: scale(.97); }
+.deck-remote__buttons button:focus { outline: none; }
+.deck-remote__buttons button:focus-visible { outline: 3px solid var(--highlight); outline-offset: 3px; }
+.deck-remote__buttons button:disabled { opacity: .45; cursor: not-allowed; }
+.deck-remote__buttons svg { width: 26px; height: 26px; }
+.deck-remote__previous { border: 1px solid var(--highlight); background: #fff; color: var(--violet); }
+.deck-remote__next { border: 0; background: var(--violet); color: #fff; box-shadow: 0 14px 30px rgba(107, 95, 168, .32); }
+.deck-remote__hint { margin: 0; color: var(--gray); font-size: 13px; text-align: center; }
+@media (min-width: 720px) {
+  .deck-remote { max-width: 640px; margin: 0 auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-remote__buttons button { transition: none; }
+}

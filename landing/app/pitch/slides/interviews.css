@@ -1,0 +1,14 @@
+.pitch .interviews h2 { left: 55px; top: 150px; font-size: 62px; font-weight: 500; line-height: 1.08; letter-spacing: -1.86px; white-space: nowrap; }
+.pitch .interviews h2 em { font-style: normal; color: var(--violet); }
+.pitch .interviews .finding { left: 55px; width: 762px; height: 140px; display: flex; align-items: center; gap: 28px; }
+.pitch .interviews .finding strong { flex: none; width: 200px; color: var(--violet); font-size: 96px; font-weight: 800; line-height: 104px; letter-spacing: -3.84px; }
+.pitch .interviews .finding div { width: 540px; display: flex; flex-direction: column; gap: 10px; }
+.pitch .interviews .finding small { color: #a5a2b4; font-size: 14px; font-weight: 700; line-height: 1.2; letter-spacing: 3.64px; text-transform: uppercase; }
+.pitch .interviews .finding p { font-size: 24px; line-height: 1.35; letter-spacing: -.144px; }
+.pitch .interviews .divider { left: 55px; width: 770px; height: 1px; background: var(--line); }
+.pitch .interviews .session { left: 880px; top: 340px; width: 901px; height: 470px; border-radius: 22px; overflow: hidden; }
+.pitch .interviews .quote { left: 904px; top: 578px; width: 853px; margin: 0; display: flex; flex-direction: column; gap: 12px; padding: 26px 34px 28px; border-radius: 20px; background: #fff; box-shadow: 0 10px 30px rgba(89, 71, 153, .16); }
+.pitch .interviews .quote blockquote { margin: 0; font-size: 26px; font-weight: 500; line-height: 37px; letter-spacing: -.676px; }
+.pitch .interviews .quote figcaption { color: var(--gray); font-size: 23px; line-height: 1.4; letter-spacing: -.207px; white-space: pre; }
+.pitch .interviews .quote span { color: var(--gray); opacity: .78; font-size: 18px; line-height: 1.35; letter-spacing: -.162px; }
+.pitch .interviews .takeaway { left: 55px; top: 842px; width: 1726px; height: 84px; display: flex; align-items: center; padding: 0 32px; border-radius: 22px; background: var(--lavender); color: var(--violet); font-size: 28px; font-weight: 600; line-height: 1.28; letter-spacing: -.168px; white-space: nowrap; }

@@ -1,0 +1,95 @@
+@font-face {
+  font-family: 'Eilo Watch Light';
+  src: url('/pitch/watch/manrope_light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: block;
+}
+
+.wm { --ink: #f6f5fb; --fg: #1b1a22; --muted: #57546a; --accent: #6b5fa8; --dp: calc(240px / 216); position: absolute; left: 590px; top: 154px; width: 328px; height: 580px; }
+
+.wm-device { position: absolute; inset: 0; transform-origin: 50% 46%; }
+
+.wm-shadow { position: absolute; left: 34px; top: 160px; width: 260px; height: 290px; border-radius: 50%; background: rgba(48, 36, 104, .3); filter: blur(34px); }
+
+.wm-ripple { position: absolute; left: 18px; top: 108px; width: 292px; height: 292px; pointer-events: none; }
+.wm-ripple i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(155, 137, 230, .55); background: radial-gradient(circle, transparent 62%, rgba(185, 163, 247, .22)); opacity: 0; }
+.wm--buzz .wm-ripple i { animation: wm-ripple 1.5s cubic-bezier(.2, .6, .3, 1) infinite; }
+.wm--buzz .wm-ripple i:nth-child(2) { animation-delay: .5s; }
+.wm--buzz .wm-ripple i:nth-child(3) { animation-delay: 1s; }
+@keyframes wm-ripple { from { scale: .96; opacity: .9; } to { scale: 1.32; opacity: 0; } }
+
+.wm-band { position: absolute; left: 74px; width: 180px; overflow: visible; }
+.wm-band--top { top: -224px; height: 366px; filter: drop-shadow(0 6px 10px rgba(48, 36, 104, .18)); }
+.wm-band--bottom { top: 370px; height: 160px; filter: drop-shadow(0 14px 16px rgba(48, 36, 104, .22)); }
+.wm-hole { fill: #6f63a8; stroke: rgba(255, 255, 255, .45); stroke-width: .8; }
+
+.wm-case { position: absolute; left: 18px; top: 108px; width: 292px; height: 292px; padding: 9px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 66%, rgba(0, 0, 0, .18) 70%, transparent 74%),
+    conic-gradient(from 200deg, #f4f3f8, #a9a7b4 12%, #e9e8ef 24%, #ffffff 31%, #b4b2bf 42%, #7d7b88 52%, #c9c7d2 63%, #f7f6fb 72%, #9b99a6 84%, #e2e1e8 93%, #f4f3f8);
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, .95),
+    inset 0 -3px 6px rgba(40, 32, 72, .35),
+    0 0 0 1px rgba(60, 52, 96, .28),
+    0 4px 8px rgba(40, 30, 80, .22),
+    0 26px 44px -6px rgba(40, 30, 80, .38);
+}
+
+.wm-crown, .wm-button { position: absolute; left: 164px; top: 254px; transform-origin: 0 50%; }
+.wm-crown { width: 22px; height: 46px; margin-top: -23px; transform: translateX(138px); border-radius: 4px 9px 9px 4px;
+  background:
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, .22) 0 1px, transparent 1px 3.5px),
+    linear-gradient(to right, #8e8c98, #f2f1f6 40%, #c3c1cc 70%, #6f6d7a);
+  box-shadow: 0 3px 6px rgba(40, 30, 80, .35), inset -1px 0 1px rgba(0, 0, 0, .35);
+}
+.wm-button { width: 14px; height: 30px; margin-top: -15px; transform: rotate(-40deg) translateX(140px); border-radius: 3px 7px 7px 3px;
+  background: linear-gradient(to right, #8e8c98, #eceaf1 45%, #b3b1bc 75%, #6f6d7a);
+  box-shadow: 0 3px 5px rgba(40, 30, 80, .3);
+}
+
+.wm-bezel { position: relative; width: 100%; height: 100%; border-radius: 50%; padding: 17px;
+  background: radial-gradient(circle at 50% 50%, #08080c 78%, #22212b 92%, #3a3946 100%);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55), 0 0 0 3px rgba(60, 56, 80, .35), inset 0 0 0 1px rgba(0, 0, 0, .8), inset 0 1px 2px rgba(255, 255, 255, .25);
+}
+
+.wm-screen { position: relative; width: 240px; height: 240px; border-radius: 50%; overflow: hidden; background: var(--ink); isolation: isolate; }
+
+.wm-glass { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 38% at 32% 16%, rgba(255, 255, 255, .34), rgba(255, 255, 255, .08) 55%, transparent 72%),
+    radial-gradient(ellipse 40% 22% at 72% 90%, rgba(255, 255, 255, .1), transparent 70%),
+    radial-gradient(circle at 50% 50%, transparent 70%, rgba(255, 255, 255, .05) 86%, rgba(255, 255, 255, .22) 99%);
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, .28), inset 0 -6px 14px rgba(0, 0, 0, .35);
+}
+.wm-glass::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(128deg, rgba(255, 255, 255, .2) 0%, rgba(255, 255, 255, .07) 30%, transparent 46%); }
+.wm-glass::after { content: ''; position: absolute; left: 13%; top: 7%; width: 54%; height: 30%; border-radius: 50%; border-top: 2px solid rgba(255, 255, 255, .5); transform: rotate(-24deg); filter: blur(.6px); opacity: .7; }
+
+.wm-aurora { position: absolute; left: 0; bottom: 0; width: 100%; height: 36%; z-index: 0; }
+
+.wm-time { position: absolute; left: 0; right: 0; top: calc(6 * var(--dp)); z-index: 2; color: var(--fg); font: 600 calc(11 * var(--dp)) var(--font-manrope), sans-serif; text-align: center; font-variant-numeric: tabular-nums; }
+
+.wm-stage { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: calc(18 * var(--dp)); animation: wm-in 420ms cubic-bezier(.2, .7, .2, 1) both; }
+.wm-stage::before { content: ''; flex: 3 1 0; }
+.wm-stage::after { content: ''; flex: 7 1 0; }
+@keyframes wm-in { from { opacity: 0; } to { opacity: 1; } }
+
+.wm-mark { width: calc(78 * var(--dp)); height: calc(78 * var(--dp)); object-fit: contain; filter: drop-shadow(0 calc(4 * var(--dp)) calc(10 * var(--dp)) rgba(107, 85, 245, .35)); }
+
+.wm-marks { display: flex; gap: calc(7 * var(--dp)); height: calc(6 * var(--dp)); }
+.wm-marks i { width: calc(6 * var(--dp)); height: calc(6 * var(--dp)); border-radius: 999px; background: var(--accent); }
+.wm-marks i.wm-dash { width: calc(26 * var(--dp)); }
+
+.wm-cue { width: 82%; margin-top: calc(14 * var(--dp)); color: var(--fg); font: 300 calc(26 * var(--dp)) / 1.16 'Eilo Watch Light', var(--font-manrope), sans-serif; text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.wm-cue--idle { font: 600 calc(15 * var(--dp)) / 1.3 var(--font-manrope), sans-serif; }
+.wm-cue--word { color: var(--accent); }
+
+.wm-trail { flex: none; display: flex; justify-content: center; width: calc(96 * var(--dp)); height: calc(20 * var(--dp)); margin-top: calc(16 * var(--dp)); }
+.wm-trail-mark { flex: none; width: calc(40 * var(--dp)); height: calc(20 * var(--dp)); margin: 0 calc(-5.8 * var(--dp)); overflow: visible; }
+.wm-trail-mark .wm-stroke { fill: none; stroke: var(--accent); }
+.wm-trail-mark .wm-fill { fill: var(--accent); }
+.wm-trail-mark .wm-arcs { fill: none; stroke: var(--accent); stroke-linecap: round; opacity: .62; }
+.wm--buzz .wm-live .wm-arcs { animation: wm-energy 160ms ease-in-out 3 alternate; }
+@keyframes wm-energy { to { opacity: 1; } }
+
+.wm-caption { position: absolute; left: 0; top: 468px; width: 328px; color: var(--gray); font-size: 20px; text-align: center; }
+.wm-band { display: none; }

@@ -1,0 +1,19 @@
+.pitch .team h2 { left: 55px; top: 150px; font-size: 67px; font-weight: 500; line-height: 1.02; letter-spacing: -2.211px; }
+.pitch .team h2 em { font-style: normal; color: var(--violet); }
+.pitch .team .note { right: 55px; top: 150px; display: flex; align-items: center; gap: 18px; padding: 24px 28px; border: 1px solid var(--line); border-radius: 22px; background: #ece7fb; }
+.pitch .team .wave { position: relative; width: 40px; height: 40px; flex-shrink: 0; }
+.pitch .team .wave i { position: absolute; top: 50%; width: 3.5px; border-radius: 2px; background: var(--violet); translate: 0 -50%; }
+.pitch .team .note p { width: 326px; color: var(--gray); font-size: 23px; line-height: 1.4; letter-spacing: -.207px; }
+.pitch .team .members { left: 55px; right: 55px; top: 335px; height: 560px; display: flex; gap: 24px; }
+.pitch .team .member { position: relative; flex: 1; border: 1px solid var(--line); border-radius: 21px; overflow: hidden; isolation: isolate; clip-path: inset(0 round 21px); }
+.pitch .team .photo { position: absolute; left: -1px; top: -1px; width: 587px; height: 574px; overflow: hidden; scale: -1 1; }
+.pitch .team .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pitch .team .photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0, 0, 0, .4) 17.25%, rgba(0, 0, 0, 0) 34.84%); }
+.pitch .team .member--kaua .photo img { position: absolute; left: -0.34%; top: 0; width: 105.79%; height: 108.19%; }
+.pitch .team .member--kaua .photo::after { background: linear-gradient(to bottom, rgba(0, 0, 0, .4) 28.03%, rgba(0, 0, 0, 0) 55.94%); }
+.pitch .team .member--alessandro .photo { width: 559px; left: -1.33px; }
+.pitch .team .name { position: absolute; left: 27px; top: 25px; color: #fff; white-space: nowrap; }
+.pitch .team .name b { display: block; font-size: 37px; font-weight: 500; line-height: 1.19; letter-spacing: -1.258px; }
+.pitch .team .name span { display: block; margin-top: 2px; color: rgba(255, 255, 255, .8); font-size: 23px; font-weight: 500; line-height: 1.4; letter-spacing: -.207px; }
+.pitch .team .tags { position: absolute; left: 0; right: 0; top: 490px; display: flex; justify-content: center; gap: 8px; }
+.pitch .team .tags span { padding: 9px 18px; border: 1px solid #e6e3ef; border-radius: 999px; background: #fff; color: var(--gray); font-size: 17px; line-height: 1.2; white-space: nowrap; }

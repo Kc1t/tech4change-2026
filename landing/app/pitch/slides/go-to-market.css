@@ -1,0 +1,22 @@
+.pitch .go-to-market h2 { left: 54px; top: 150px; font-size: 62px; font-weight: 500; line-height: 1.08; }
+.pitch .go-to-market h2 em { font-style: normal; color: var(--violet); }
+.pitch .go-to-market .cost { right: 56px; top: 226px; font-size: 22px; line-height: 1.45; color: var(--gray); text-align: right; }
+.pitch .go-to-market .cost b { color: var(--violet); font-weight: 700; }
+.pitch .go-to-market .milestone { position: absolute; width: 560px; border-radius: 26px; overflow: hidden; background: #f8f7fc; }
+.pitch .go-to-market .milestone .photo { position: absolute; left: 0; top: 0; width: 100%; }
+.pitch .go-to-market .milestone .phase { position: absolute; left: 22px; top: 22px; padding: 8px 16px; border-radius: 999px; background: rgba(255, 255, 255, .94); color: var(--violet); font-size: 17px; font-weight: 700; }
+.pitch .go-to-market .milestone .copy { position: absolute; left: 30px; right: 30px; bottom: 28px; }
+.pitch .go-to-market .milestone .who { font-size: 26px; font-weight: 500; }
+.pitch .go-to-market .milestone .price { margin-top: 4px; font-size: 42px; font-weight: 800; color: var(--violet); }
+.pitch .go-to-market .milestone .note { margin-top: 6px; font-size: 19px; line-height: 1.4; color: var(--gray); }
+.pitch .go-to-market .milestone--1 { left: 54px; top: 489px; height: 400px; }
+.pitch .go-to-market .milestone--1 .photo { height: 200px; }
+.pitch .go-to-market .milestone--2 { left: 637px; top: 409px; height: 480px; background: var(--violet); }
+.pitch .go-to-market .milestone--2 .photo { height: 280px; }
+.pitch .go-to-market .milestone--2 .who { color: #e8e4fa; }
+.pitch .go-to-market .milestone--2 .price { color: #fff; }
+.pitch .go-to-market .milestone--2 .note { color: #ded9f6; }
+.pitch .go-to-market .milestone--3 { left: 1220px; top: 329px; height: 560px; }
+.pitch .go-to-market .milestone--3 .photo { height: 330px; }
+.pitch .go-to-market .milestone--3 .sus { position: absolute; right: 20px; top: 250px; width: 190px; height: 64px; padding: 8px 14px; border-radius: 14px; background: #ecf2fa; box-shadow: 0 8px 20px rgba(0, 0, 0, .12); }
+.pitch .go-to-market .milestone--3 .sus img { width: 100%; height: 100%; object-fit: contain; }

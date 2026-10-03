@@ -1,0 +1,124 @@
+.ah {
+  --ah-ink: #f6f5fb;
+  --ah-surface: #ffffff;
+  --ah-line: #e6e3ef;
+  --ah-fg: #1b1a22;
+  --ah-dim: #57546a;
+  --ah-faint: #6a6779;
+  --ah-label: #6a6779;
+  --ah-brand: #6b5fa8;
+  --ah-aurora-1: #b9a3f7;
+  --ah-aurora-2: #efb6ec;
+  --ah-aurora-3: #a9dcff;
+  --ah-aurora-4: #ffe0f2;
+  --ah-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ah-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ah-ink);
+  color: var(--ah-fg);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.ah-wave { position: absolute; left: 0; right: 0; bottom: 0; height: 34%; opacity: 0.5; pointer-events: none; }
+.ah-aurora { display: block; width: 100%; height: 100%; }
+
+.ah-top { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 30px 24px 0; }
+.ah-topbar { height: 44px; display: flex; align-items: center; justify-content: space-between; }
+.ah-topbar__side { display: flex; align-items: center; gap: 4px; }
+.ah-brand { display: block; width: 72px; height: 23px; object-fit: contain; }
+
+.ah-toggle { display: flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 10px; border-radius: 999px; background: var(--ah-surface); box-shadow: 0 6px 18px rgba(90, 70, 160, 0.05); }
+.ah-toggle__icon { width: 21px; height: 21px; display: flex; align-items: center; justify-content: center; }
+.ah-toggle__label { font-weight: 600; font-size: 11px; line-height: 15px; color: var(--ah-dim); }
+.ah-bell { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+
+.ah-caps { font-weight: 600; font-size: 11px; line-height: 15px; letter-spacing: 1.4px; color: var(--ah-label); }
+.ah-lead { margin-top: 8px; max-width: 300px; font-size: 19px; line-height: 26px; color: var(--ah-dim); }
+
+.ah-pause { margin-top: 12px; min-height: 48px; display: flex; align-items: center; gap: 8px; align-self: flex-start; }
+.ah-pause i { width: 8px; height: 8px; border-radius: 50%; background: var(--ah-brand); }
+.ah-pause span { font-weight: 600; font-size: 13px; line-height: 19px; color: var(--ah-dim); }
+
+.ah-stage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px; }
+
+.ah-focus { display: flex; align-items: center; justify-content: center; transition: height 520ms var(--ah-ease); }
+.ah-focus__scale { transition: transform 520ms var(--ah-ease); }
+.ah-focus.is-focused .ah-focus__scale { transform: scale(0.46); }
+
+.ah-speech { margin: 8px 0 22px; display: flex; flex-direction: column; align-items: center; animation: ah-rise 520ms var(--ah-ease) both; }
+.ah-speech p { max-width: 320px; text-align: center; }
+.ah-speech__big { font-weight: 500; font-size: 28px; line-height: 36px; letter-spacing: -0.6px; color: var(--ah-fg); }
+.ah-speech__small { font-size: 17px; line-height: 24px; color: var(--ah-dim); }
+@keyframes ah-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+.ah-expected { margin-top: 16px; max-width: 300px; text-align: center; font-weight: 500; font-size: 42px; line-height: 46px; letter-spacing: -1.5px; }
+.ah-expected--word { color: var(--ah-brand); }
+.ah-expected--cue { color: var(--ah-fg); }
+.ah-expected--waiting { color: var(--ah-faint); }
+
+.ah-caption { margin-top: 16px; max-width: 300px; text-align: center; font-size: 14px; line-height: 20px; color: var(--ah-dim); }
+
+.ah-ladder { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-bottom: 132px; }
+.ah-ladder__dots { display: flex; gap: 6px; }
+.ah-ladder__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--ah-line); transition: background-color 300ms ease; }
+.ah-ladder__dots i.on { background: var(--ah-brand); }
+
+.ah-buddy { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+.ah-buddy__ring { position: absolute; left: 50%; translate: -50% 0; border: 1.5px solid var(--ah-aurora-1); border-radius: 50%; opacity: 0; pointer-events: none; animation: ah-ring 1100ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+@keyframes ah-ring { from { opacity: 0.5; transform: scale(1); } to { opacity: 0; transform: scale(1.8); } }
+.ah-buddy__floor { position: absolute; left: 50%; translate: -50% 0; display: block; transition: opacity 400ms ease; }
+.ah-buddy__jolt, .ah-buddy__sway, .ah-buddy__pose { width: 100%; height: 100%; }
+.ah-buddy__breath { position: relative; width: 100%; height: 100%; animation: ah-breath 2100ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; }
+.ah-buddy__breath.is-asleep { animation-duration: 3200ms; }
+@keyframes ah-breath { from { transform: scale(1, 1); } to { transform: scale(1.024, 0.983); } }
+.ah-buddy__sphere { display: block; }
+.ah-buddy__face { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: center; transition: transform 520ms var(--ah-spring); }
+.ah-buddy__eye { display: block; background: #ffffff; transition: height 90ms ease, transform 400ms ease; }
+
+.ah-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; padding: 0 24px 30px; }
+.ah-bar__pill { display: flex; align-items: center; padding: 8px; border-radius: 999px; background: var(--ah-surface); box-shadow: 0 10px 24px rgba(90, 70, 160, 0.14); }
+.ah-bar__slot { flex: 1; display: flex; align-items: center; justify-content: center; }
+.ah-bar__tab { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+
+.ah-orb { width: 52px; height: 52px; border-radius: 50%; box-shadow: 0 5px 14px rgba(142, 127, 240, 0.45); }
+.ah-orb__clip { position: relative; display: block; width: 52px; height: 52px; border-radius: 50%; overflow: hidden; }
+.ah-orb__base, .ah-orb__glow, .ah-orb__shine, .ah-orb__eyes { position: absolute; inset: 0; }
+.ah-orb__base { background: radial-gradient(circle 28.6px at 50% 50%, var(--ah-aurora-4) 0%, var(--ah-aurora-1) 34%, var(--ah-aurora-2) 68%, var(--ah-aurora-3) 100%); }
+.ah-orb__glow { background: radial-gradient(circle 26px at 50% 50%, rgba(255, 224, 242, 0.95) 0%, rgba(185, 163, 247, 0.45) 55%, rgba(185, 163, 247, 0) 100%); animation: ah-orb-glow 14s ease-in-out infinite alternate; }
+.ah-orb__shine { background: radial-gradient(circle 17.7px at 34% 26%, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0)); }
+.ah-orb__eyes { display: flex; align-items: center; justify-content: center; gap: 9px; }
+.ah-orb__eyes i { width: 4px; height: 10px; border-radius: 3px; background: #ffffff; }
+@keyframes ah-orb-glow { from { transform: translate(-6px, -5px) scale(1); } to { transform: translate(6px, 5px) scale(1.12); } }
+
+.ah-frame { position: absolute; left: 0; top: 0; width: 390px; height: 805px; transform: scale(0.8795); transform-origin: 0 0; }
+
+.phone-page .phone-page__tools { z-index: 40; bottom: 116px; }
+.phone-page .phone-page__start { z-index: 40; }
+
+
+
+.ah-speech .ah-caps { margin-bottom: 6px; }
+.ah-activity { display: flex; align-items: center; gap: 8px; }
+.ah-activity__icon { display: inline-flex; align-items: center; justify-content: center; gap: 2px; width: 14px; height: 12px; }
+.ah-activity__icon i { width: 3px; height: 3px; border-radius: 2px; background: var(--ah-label); opacity: .45; }
+.ah-activity--listening .ah-activity__icon i { animation: ah-breathe 2.4s ease-in-out infinite; }
+.ah-activity--hearing .ah-activity__icon i { background: var(--ah-brand); opacity: 1; animation: ah-voice .9s ease-in-out infinite; }
+.ah-activity--thinking .ah-activity__icon i { background: var(--ah-brand); animation: ah-think 1.1s ease-in-out infinite; }
+.ah-activity--helping .ah-activity__icon i { background: var(--ah-brand); opacity: 1; }
+.ah-activity--recalled .ah-activity__icon i { background: #3fae7a; opacity: 1; }
+.ah-activity--off .ah-activity__icon i { opacity: .25; }
+.ah-activity__icon i:nth-child(2) { animation-delay: .15s; }
+.ah-activity__icon i:nth-child(3) { animation-delay: .3s; }
+@keyframes ah-breathe { 0%, 100% { opacity: .3; scale: 1; } 50% { opacity: .8; scale: 1.3; } }
+@keyframes ah-voice { 0%, 100% { height: 3px; } 50% { height: 11px; } }
+@keyframes ah-think { 0%, 80%, 100% { opacity: .25; translate: 0 0; } 40% { opacity: 1; translate: 0 -2px; } }
+@media (prefers-reduced-motion: reduce) { .ah-activity__icon i { animation: none; } }

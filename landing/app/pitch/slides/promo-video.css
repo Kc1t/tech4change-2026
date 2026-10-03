@@ -1,0 +1,2 @@
+.pitch .promo-video { position: absolute; inset: 0; background: #0d0a12; display: grid; place-items: center; }
+.pitch .promo-video video { height: 100%; width: auto; display: block; }

@@ -1,0 +1,40 @@
+.pitch .opening .hook { left: 57px; top: 188px; width: 820px; font-weight: 300; font-size: 78px; line-height: 82px; letter-spacing: -.78px; }
+.pitch .opening .rupture { left: 57px; top: 586px; width: 820px; font-size: 52px; line-height: 66px; letter-spacing: -.52px; }
+.pitch .opening .rupture b { font-weight: 600; color: var(--violet); }
+.pitch .opening .word { display: inline-block; white-space: pre; opacity: .13; filter: blur(.5px); transition: opacity 700ms ease, filter 700ms ease; }
+.pitch .opening .word.on { opacity: 1; filter: none; }
+.pitch .opening .cover-logo { left: 57px; top: 896px; height: 42px; }
+.pitch .opening .speech-wave { left: 57px; top: 482px; width: 420px; height: 85px; }
+.pitch .opening .speech-wave .bar { position: absolute; top: 50%; width: 6px; border-radius: 3px; background: var(--violet); translate: 0 -50%; transition: height 500ms var(--ease), opacity 500ms ease; }
+.pitch .opening .speech-wave .dot { position: absolute; top: 50%; translate: 0 -50%; border-radius: 50%; background: var(--violet); transition: opacity 400ms ease, transform 400ms var(--ease); }
+.pitch .opening .speech-wave.talking .bar { animation: cover-talk 520ms ease-in-out infinite alternate; }
+.pitch .opening .speech-wave.talking .bar:nth-child(2n) { animation-duration: 430ms; }
+.pitch .opening .speech-wave.talking .bar:nth-child(3n) { animation-duration: 610ms; }
+.pitch .opening .speech-wave.broken .bar { height: 6px !important; opacity: .45; }
+.pitch .opening .speech-wave.broken .dot { opacity: 0; transform: translateX(14px) scale(.4); }
+@keyframes cover-talk { from { scale: 1 .45; } to { scale: 1 1.15; } }
+.pitch .opening .people { left: 916px; top: 30px; width: 889px; height: 921px; display: flex; flex-direction: column; gap: 16px; }
+.pitch .opening .person { position: relative; flex: 170 1 0; min-height: 0; border-radius: 22px; overflow: hidden; background: #ddd; transition: flex-grow 1000ms var(--ease); }
+.pitch .opening .person.big { flex-grow: 549; }
+.pitch .opening .people.all .person { flex-grow: 296; }
+.pitch .opening .person .photo { position: absolute; inset: 0; transform: scale(1.38); transition: transform 1000ms var(--ease); }
+.pitch .opening .person.big .photo, .pitch .opening .people.all .person .photo { transform: scale(1); }
+.pitch .opening .person .ken-burns { position: absolute; inset: 0; transition: transform 9s linear; }
+.pitch .opening .person.big .ken-burns { transform: scale(1.06); }
+.pitch .opening .person img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(.9) brightness(1.02); opacity: .88; transition: filter 1000ms ease, opacity 1000ms ease; }
+.pitch .opening .person.big img, .pitch .opening .people.all .person img { filter: none; opacity: 1; }
+.pitch .opening .person .shade-bottom, .pitch .opening .person .shade-left { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 700ms ease; }
+.pitch .opening .person .shade-bottom { background: linear-gradient(to bottom, rgba(13, 10, 18, 0) 40%, rgba(13, 10, 18, .38) 68%, rgba(13, 10, 18, .85)); }
+.pitch .opening .person .shade-left { background: linear-gradient(to right, rgba(13, 10, 18, .72), rgba(13, 10, 18, 0) 60%); }
+.pitch .opening .person.big .shade-bottom, .pitch .opening .person:not(.big) .shade-left { opacity: 1; }
+.pitch .opening .people.all .person .shade-bottom { opacity: 0; }
+.pitch .opening .person .caption { position: absolute; color: #fff; pointer-events: none; opacity: 0; transition: opacity 450ms ease, translate 600ms var(--ease); }
+.pitch .opening .person .caption-big { left: 36px; bottom: 30px; translate: 0 18px; }
+.pitch .opening .person .caption-big b { display: block; font-family: var(--font-newsreader), serif; font-weight: 400; font-size: 56px; line-height: 1.1; }
+.pitch .opening .person .caption-big span { display: block; margin-top: 6px; font-size: 22px; font-weight: 500; opacity: .88; }
+.pitch .opening .person .caption-small { left: 28px; top: 50%; translate: 0 calc(-50% + 6px); }
+.pitch .opening .person .caption-small b { display: block; font-size: 26px; font-weight: 600; }
+.pitch .opening .person .caption-small span { display: block; margin-top: 2px; font-size: 18px; font-weight: 500; opacity: .8; }
+.pitch .opening .person.big .caption-big { opacity: 1; translate: 0 0; transition-delay: 650ms; }
+.pitch .opening .person:not(.big) .caption-small { opacity: 1; translate: 0 -50%; transition-delay: 450ms; }
+.pitch .opening .people.all .person .caption-big { opacity: 0; }

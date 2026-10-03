@@ -1,0 +1,15 @@
+.pitch .closing { position: absolute; inset: 0; background: #faf9fe; }
+.pitch .closing .scene { top: -21px; width: 700px; height: 1082px; overflow: hidden; mask-repeat: no-repeat; mask-size: 609.662px 1068.102px; }
+.pitch .closing .scene img { position: absolute; top: 0; width: 124.5%; height: 100%; }
+.pitch .closing .scene--watch { left: -40px; mask-image: url(/pitch/slides/closing-mask-flipped.svg); mask-position: 14.063px 13.898px; }
+.pitch .closing .scene--watch img { left: -13.7%; }
+.pitch .closing .scene--phone { left: 1196px; mask-image: url(/pitch/slides/closing-mask.svg); mask-position: 56.275px 13.898px; }
+.pitch .closing .scene--phone img { left: -24.53%; }
+.pitch .closing .qr { left: 668px; top: 64px; width: 500px; height: 600px; border-radius: 32px; background: #fff; box-shadow: 0 18px 44px rgba(38, 28, 77, .16); text-align: center; }
+.pitch .closing .qr img { position: absolute; left: 40px; top: 40px; width: 420px; height: 420px; }
+.pitch .closing .qr small { position: absolute; left: 0; right: 0; top: 488px; color: var(--violet); font-size: 16px; font-weight: 700; line-height: 1.2; letter-spacing: 4.48px; }
+.pitch .closing .qr b { position: absolute; left: 0; right: 0; top: 518px; font-size: 46px; font-weight: 500; line-height: 1.19; letter-spacing: -1.564px; }
+.pitch .closing .buddy { left: 1106px; top: 558px; width: 150px; height: 150px; }
+.pitch .closing .motto { left: 598px; top: 710px; width: 636px; font-size: 60px; font-weight: 500; line-height: 1.12; letter-spacing: -1.8px; text-align: center; }
+.pitch .closing .motto em { font-style: normal; color: var(--violet); }
+.pitch .closing .wordmark { left: 841px; top: 894px; width: 150px; height: 46px; object-fit: contain; }

@@ -1,0 +1,55 @@
+import { normalise } from '../eilo/predict'
+import { tokensOf } from '../eilo/text-safety'
+import type { GraphNode } from '../eilo/types'
+
+const NEGATIONS = new Set(['nao', 'nem'])
+
+export function wordsOf(text: string): string[] {
+  return text.split(/\s+/).filter(Boolean)
+}
+
+export function lastWords(text: string, count: number): string {
+  return wordsOf(text).slice(-count).join(' ')
+}
+
+export function wordsFrom(text: string, mark: number): string {
+  return wordsOf(text).slice(mark).join(' ')
+}
+
+export function labelsOf(node: GraphNode): string[] {
+  return [node.label, ...(node.aliases ?? [])]
+}
+
+export function namesOf(node: GraphNode): string[] {
+  return labelsOf(node).map(normalise)
+}
+
+function nearlySame(heard: string, name: string): boolean {
+  if (heard === name) return true
+  if (name.length < 5 || Math.abs(heard.length - name.length) > 1) return false
+  let i = 0
+  while (i < heard.length && heard[i] === name[i]) i += 1
+  const a = heard.slice(i)
+  const b = name.slice(i)
+  return a.slice(1) === b.slice(1) || a.slice(1) === b || a === b.slice(1)
+}
+
+function occurrences(spoken: string[], word: string, accept: (at: number) => boolean = () => true): number {
+  const parts = tokensOf(word)
+  if (parts.length === 0) return 0
+  let found = 0
+  for (let at = 0; at + parts.length <= spoken.length; at += 1) {
+    if (parts.every((part, j) => nearlySame(spoken[at + j], part)) && accept(at)) found += 1
+  }
+  return found
+}
+
+export function countMentions(text: string, names: string[]): number {
+  const spoken = tokensOf(text)
+  return names.reduce((total, name) => total + occurrences(spoken, name), 0)
+}
+
+export function countPlainMentions(text: string, word: string): number {
+  const spoken = tokensOf(text)
+  return occurrences(spoken, word, at => !spoken.slice(Math.max(0, at - 2), at).some(token => NEGATIONS.has(token)))
+}

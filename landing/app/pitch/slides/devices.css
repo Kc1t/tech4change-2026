@@ -1,0 +1,17 @@
+.pitch .devices h2 { left: 55px; top: 150px; color: #1b1a22; font-size: 62px; font-weight: 500; line-height: 1.06; letter-spacing: -1.6px; }
+.pitch .devices h2 em { font-style: normal; color: var(--violet); }
+.pitch .devices .cards { left: 55px; right: 55px; top: 330px; display: flex; gap: 28px; }
+.pitch .devices .device { flex: 1; height: 470px; overflow: hidden; isolation: isolate; clip-path: inset(0 round 28px); border: 1.5px solid #eeebf7; border-radius: 28px; background: #fff; box-shadow: 0 10px 28px rgba(107, 95, 168, .08); }
+.pitch .devices .photo { position: relative; height: 290px; overflow: hidden; }
+.pitch .devices .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pitch .devices .badge { position: absolute; left: 18px; top: 18px; padding: 8px 16px; border-radius: 99px; background: rgba(255, 255, 255, .94); color: var(--violet); font-size: 16px; font-weight: 700; }
+.pitch .devices .device b { display: block; margin: 26px 30px 0; color: #1b1a22; font-size: 30px; font-weight: 600; }
+.pitch .devices .device p { margin: 10px 30px 0; color: var(--gray); font-size: 20px; line-height: 1.4; }
+.pitch .devices .device--featured { border-color: var(--violet); background: var(--violet); }
+.pitch .devices .device--featured b { color: #fff; }
+.pitch .devices .device--featured p { color: #e3def7; }
+.pitch .devices .device--featured .badge { background: var(--violet); color: #fff; }
+.pitch .devices .convenience { left: 55px; right: 55px; top: 826px; display: flex; align-items: center; gap: 16px; color: var(--violet); font-size: 15px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; white-space: nowrap; }
+.pitch .devices .convenience i { position: relative; flex: 1; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #e3def7, var(--violet)); }
+.pitch .devices .convenience i::after { content: ''; position: absolute; right: -2px; top: 50%; width: 12px; height: 12px; border-top: 3px solid var(--violet); border-right: 3px solid var(--violet); translate: 0 -50%; rotate: 45deg; }
+.pitch .devices .note { left: 55px; top: 872px; color: var(--gray); font-size: 22px; }

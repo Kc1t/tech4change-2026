@@ -1,0 +1,23 @@
+export const LIMITS = {
+  transcriptChars: 600,
+  transcriptWords: 40,
+  wordChars: 24,
+  wordTokens: 2,
+  cueChars: 90,
+  cueWords: 14,
+  cues: 2,
+  alternatives: 3,
+  firstSoundChars: 4,
+  audioMinBytes: 1200,
+  audioMaxBytes: 1_500_000,
+  audioMaxMs: 20_000,
+  jsonBodyBytes: 8_192,
+  cueBodyBytes: 65_536,
+  syncBodyBytes: 16_384,
+  activeNodes: 32,
+  ladderSteps: 8,
+  maxLevel: 12,
+  syncText: 120,
+  syncWords: 24,
+  syncWordChars: 32
+} as const

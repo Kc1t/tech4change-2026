@@ -1,0 +1,26 @@
+.pitch .next-steps .branches { left: -1px; top: -1px; overflow: visible; }
+.pitch .next-steps .branch { stroke-dasharray: 1; stroke-dashoffset: 1; animation: next-steps-branch 900ms var(--ease) both; animation-delay: var(--d); }
+@keyframes next-steps-branch { to { stroke-dashoffset: 0; } }
+.pitch .next-steps .node { transform-box: fill-box; transform-origin: center; animation: next-steps-node 420ms cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: var(--d); }
+@keyframes next-steps-node { from { opacity: 0; scale: 0; } to { opacity: 1; scale: 1; } }
+.pitch .next-steps .hub { left: 95px; top: 176px; width: 640px; height: 640px; border-radius: 36px; background: var(--highlight); overflow: hidden; }
+.pitch .next-steps .buddy { position: absolute; left: 48px; top: 32px; width: 96px; height: 96px; filter: drop-shadow(0 16px 40px rgba(107, 85, 245, .25)); }
+.pitch .next-steps .hub h2 { position: absolute; left: 48px; top: 140px; width: 560px; font-size: 52px; font-weight: 500; line-height: normal; letter-spacing: -.78px; }
+.pitch .next-steps .hub h2 b { font-weight: 700; color: var(--violet); }
+.pitch .next-steps .hub p.today { position: absolute; left: 32px; right: 32px; top: 290px; padding: 16px 20px; border-radius: 18px; background: #fff; color: #1b1a22; font-size: 19px; line-height: 1.4; border-left: 6px solid var(--violet); }
+.pitch .next-steps .hub p.today b { display: block; margin-bottom: 2px; color: var(--violet); font-size: 13px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; }
+.pitch .next-steps .step { left: 977px; width: 780px; height: 176px; border: 1.5px solid var(--line); border-radius: 28px; background: #fff; box-shadow: 0 10px 30px rgba(107, 95, 168, .08); overflow: hidden; }
+.pitch .next-steps .photo { position: absolute; left: -1.5px; top: -1.5px; width: 250px; height: 176px; overflow: hidden; }
+.pitch .next-steps .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pitch .next-steps .step small { position: absolute; left: 280.5px; top: 28.5px; color: var(--violet); font-size: 16px; font-weight: 700; letter-spacing: 1.6px; line-height: normal; }
+.pitch .next-steps .step h3 { position: absolute; left: 280.5px; top: 52.5px; font-size: 30px; font-weight: 600; line-height: normal; white-space: nowrap; }
+.pitch .next-steps .step h3 em { font-style: normal; color: var(--violet); }
+.pitch .next-steps .step p { position: absolute; left: 280.5px; top: 98.5px; width: 466px; color: var(--gray); font-size: 19px; line-height: normal; }
+.pitch .next-steps .when { position: absolute; right: 22px; top: 24.5px; padding: 7px 14px; border-radius: 99px; background: var(--lavender); color: var(--violet); font-size: 15px; font-weight: 600; line-height: normal; white-space: nowrap; }
+.pitch .next-steps .when--now { background: var(--violet); color: #fff; }
+.pitch .next-steps .photo img.zoom { position: absolute; left: -35.9%; top: -30.65%; width: 170.94%; height: 161.29%; }
+.pitch .next-steps .endorsement { position: absolute; left: 32px; right: 32px; bottom: 32px; margin: 0; display: flex; flex-direction: column; gap: 10px; padding: 24px 28px; border-radius: 24px; background: #fff; box-shadow: 0 10px 30px rgba(89, 71, 153, .12); }
+.pitch .next-steps .endorsement blockquote { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.4; letter-spacing: -.4px; }
+.pitch .next-steps .endorsement figcaption { color: var(--violet); font-size: 18px; line-height: 1.3; }
+.pitch .next-steps .endorsement figcaption b { font-weight: 700; }
+.pitch .next-steps .endorsement span { margin-top: -6px; color: var(--gray); font-size: 15px; line-height: 1.3; }

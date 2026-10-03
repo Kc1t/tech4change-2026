@@ -1,0 +1,53 @@
+.pitch .ai-role h2 { left: 54px; top: 150px; font-size: 67px; font-weight: 500; line-height: 1.02; letter-spacing: -2.211px; white-space: nowrap; color: var(--ink); animation-duration: 600ms; }
+.pitch .ai-role h2 em { font-style: normal; color: var(--violet); }
+
+.pitch .ai-role .links { left: -1px; top: -1px; overflow: visible; }
+.pitch .ai-role .curve { transition: d 520ms var(--ease); }
+.pitch .ai-role .stroke { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ai-role-draw 500ms var(--ease) both; animation-delay: var(--d); }
+@keyframes ai-role-draw { to { stroke-dashoffset: 0; } }
+.pitch .ai-role .signal-line { transition: stroke 300ms ease; }
+.pitch .ai-role .signal-line--on { stroke: var(--violet); }
+.pitch .ai-role .orbit { transform-box: fill-box; transform-origin: center; animation: ai-role-ring 600ms var(--ease) both; animation-delay: var(--d); }
+.pitch .ai-role .orbit--inner { animation: ai-role-ring 600ms var(--ease) both, ai-role-spin 40s linear infinite; animation-delay: var(--d), 900ms; }
+@keyframes ai-role-ring { from { opacity: 0; scale: .7; } to { opacity: 1; scale: 1; } }
+@keyframes ai-role-spin { to { rotate: 360deg; } }
+
+.pitch .ai-role .halo { left: 767px; top: 434px; width: 300px; height: 300px; animation: ai-role-halo 650ms var(--ease) both, ai-role-glow 3.2s ease-in-out 1000ms infinite; animation-delay: var(--d), 1000ms; }
+@keyframes ai-role-halo { from { opacity: 0; scale: .4; } to { opacity: 1; scale: 1; } }
+@keyframes ai-role-glow { 50% { scale: 1.08; opacity: .75; } }
+.pitch .ai-role .buddy { left: 807px; top: 474px; width: 220px; height: 220px; filter: drop-shadow(0 18px 44px rgba(107, 85, 245, .3)); animation: ai-role-buddy 600ms cubic-bezier(.3, 1.35, .5, 1) both; animation-delay: var(--d); }
+@keyframes ai-role-buddy { from { opacity: 0; scale: .5; } to { opacity: 1; scale: 1; } }
+.pitch .ai-role .buddy img { width: 100%; height: 100%; display: block; animation: deck-breathe 2.8s ease-in-out 1000ms infinite; transform-origin: 50% 90%; }
+.pitch .ai-role .ai-tag { left: 893px; top: 712px; padding: 8px 16px; border-radius: 99px; background: var(--violet); color: #fff; font-size: 16px; font-weight: 700; line-height: normal; animation: deck-pop 350ms cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: var(--d); }
+
+.pitch .ai-role .num { position: absolute; display: grid; place-items: center; }
+.pitch .ai-role .num img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pitch .ai-role .num b { position: relative; font-weight: 700; line-height: 1; }
+
+.pitch .ai-role .signal { left: 239px; width: 300px; height: 84px; border: 1.5px solid var(--line); border-radius: 24px; background: #fff; box-shadow: 0 8px 24px rgba(107, 95, 168, .07); overflow: hidden; cursor: pointer; user-select: none; transition: border-color 300ms ease, box-shadow 300ms ease, background-color 300ms ease; animation: ai-role-signal 500ms var(--ease) both; animation-delay: var(--d); }
+@keyframes ai-role-signal { from { opacity: 0; translate: -40px 0; } to { opacity: 1; translate: 0 0; } }
+.pitch .ai-role .signal--on { border-color: var(--violet); background: #F7F5FE; box-shadow: 0 0 0 5px rgba(107, 95, 168, .14), 0 12px 30px rgba(107, 85, 245, .18); }
+.pitch .ai-role .signal .num { left: 23px; top: 17px; width: 44px; height: 44px; }
+.pitch .ai-role .signal .num b { color: var(--violet); font-size: 18px; }
+.pitch .ai-role .signal .node-name { position: absolute; left: 87px; top: 23px; font-size: 24px; font-weight: 600; white-space: nowrap; }
+
+.pitch .ai-role .hint { left: 1299px; width: 440px; height: 86px; border-radius: 20px; background: var(--lavender); overflow: hidden; cursor: pointer; user-select: none; transition: top 520ms var(--ease), height 520ms var(--ease), background-color 360ms ease, box-shadow 360ms ease; animation: ai-role-hint 500ms var(--ease) both; animation-delay: var(--d); }
+@keyframes ai-role-hint { from { opacity: 0; translate: 40px 0; } to { opacity: 1; translate: 0 0; } }
+.pitch .ai-role .hint:not(.hint--active):hover { background: #E6E0FA; }
+.pitch .ai-role .hint .num { left: 22px; top: 25px; width: 36px; height: 36px; }
+.pitch .ai-role .hint .num b { color: var(--ink); font-size: 16px; transition: color 360ms ease; }
+.pitch .ai-role .hint .node-name { position: absolute; left: 74px; top: 26px; font-size: 22px; font-weight: 600; white-space: nowrap; transition: color 360ms ease; }
+.pitch .ai-role .hint--active { height: 276px; background: var(--violet); box-shadow: 0 18px 44px rgba(107, 85, 245, .28); cursor: default; }
+.pitch .ai-role .hint--active .num b { color: var(--violet); }
+.pitch .ai-role .hint--active .node-name { color: #fff; }
+.pitch .ai-role .hint-example { position: absolute; right: 24px; top: 30.5px; font-size: 18px; white-space: nowrap; color: #fff; opacity: 0; translate: 8px 0; transition: opacity 260ms ease, translate 360ms var(--ease); }
+.pitch .ai-role .example { position: absolute; left: 14px; top: 86px; width: 412px; height: 176px; border-radius: 16px; object-fit: cover; opacity: 0; scale: 1.05; filter: blur(6px); transition: opacity 260ms ease, scale 420ms var(--ease), filter 260ms ease; }
+.pitch .ai-role .hint--active .hint-example, .pitch .ai-role .hint--active .example { opacity: 1; translate: 0 0; scale: 1; filter: none; transition-delay: 180ms; }
+.pitch .ai-role .example--word { display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, .14); border: 1.5px solid rgba(255, 255, 255, .28); color: rgba(255, 255, 255, .72); font-size: 96px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
+.pitch .ai-role .example--word b { color: #fff; font-weight: 700; }
+.pitch .ai-role .example--word i { font-style: normal; color: rgba(255, 255, 255, .55); }
+
+.pitch .ai-role .pulse { left: -1px; top: -1px; width: 12px; height: 12px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 0 5px rgba(107, 95, 168, .16), 0 0 14px rgba(107, 95, 168, .5); offset-rotate: 0deg; offset-distance: 0%; opacity: 0; animation: ai-role-pulse 2200ms cubic-bezier(.45, 0, .55, 1) infinite; animation-delay: var(--d); }
+.pitch .ai-role .pulse--in { animation-duration: 2600ms; }
+.pitch .ai-role .pulse--out { background: #fff; border: 3px solid var(--violet); }
+@keyframes ai-role-pulse { 0% { offset-distance: 0%; opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }

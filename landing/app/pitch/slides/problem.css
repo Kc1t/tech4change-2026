@@ -1,0 +1,15 @@
+.pitch .problem h2 { left: 0; right: 0; top: 132px; text-align: center; color: #1b1a22; font-size: 60px; font-weight: 500; line-height: 1.08; letter-spacing: -.4px; }
+.pitch .problem h2 em { font-style: normal; color: var(--violet); }
+.pitch .problem .condition { left: 0; right: 0; margin: 0 auto; width: fit-content; top: 306px; display: flex; align-items: center; gap: 18px; padding: 14px 32px; border-radius: 999px; background: #e9e5fb; white-space: nowrap; }
+.pitch .problem .condition img { width: 120px; height: 42.5px; }
+.pitch .problem .condition b { color: var(--violet); font-family: var(--font-newsreader), serif; font-size: 40px; font-weight: 400; line-height: 1; }
+.pitch .problem .condition span { color: #1b1a22; font-size: 24px; font-weight: 600; }
+.pitch .problem .arrows { left: 0; top: 40px; width: 1836px; height: 992px; pointer-events: none; animation: deck-fade 900ms ease 550ms both; }
+.pitch .problem .stat { top: 522px; width: 400px; text-align: center; }
+.pitch .problem .stat small { display: block; color: var(--violet); font-size: 15px; font-weight: 700; letter-spacing: 2.7px; text-transform: uppercase; }
+.pitch .problem .stat b { display: block; margin-top: 8px; color: #1b1a22; font-size: 76px; font-weight: 700; line-height: 1.15; letter-spacing: -2.28px; white-space: nowrap; }
+.pitch .problem .stat p { width: 340px; margin: 8px auto 0; color: var(--gray); font-size: 20px; line-height: 1.35; }
+.pitch .problem .consequence { left: 0; right: 0; margin: 0 auto; width: fit-content; top: 762px; display: flex; align-items: center; gap: 12px; padding: 18px 32px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 24px; font-weight: 600; white-space: nowrap; }
+.pitch .problem .consequence i { width: 1.5px; height: 28px; background: rgba(255, 255, 255, .3); }
+.pitch .problem .consequence b { font-weight: 800; }
+.pitch .problem .sources { left: 55px; right: 55px; top: 852px; text-align: center; color: #a6a3b5; font-size: 13px; }
