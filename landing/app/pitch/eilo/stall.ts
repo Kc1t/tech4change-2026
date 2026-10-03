@@ -36,6 +36,7 @@ export type StallCall = 'wait' | 'start' | 'judge'
 
 export function endsOpen(text: string): boolean {
   const trimmed = text.trim()
+  if (trimmed.endsWith('?')) return false
   if (/(…|\.\.\.|-|,)$/.test(trimmed)) return true
   const tokens = tokensOf(trimmed)
   const last = tokens[tokens.length - 1]
@@ -46,9 +47,9 @@ export function endsOpen(text: string): boolean {
 const NAME = '( (o|do|a|da) nome| a palavra)?( (dela|dele|disso|daquilo))?'
 
 const ASK_WORD = new RegExp(`\\b(me ajud[ae]|socorro|desisto|esquece( isso)?|deixa (pra la|quieto)|me (fala|diz)${NAME}|fala (pra|para) mim|fala (voce|vc)|diz (pra|para) mim|me (da|de) a palavra|qual (e|era) a palavra)$`)
-const GIVE_UP = new RegExp(`\\b(nao (me )?(lembro|recordo)( mais| de nada| nada)?|nao (to|tou|estou) (me )?(lembrando|conseguindo)( lembrar| falar)?|nao consigo( (me )?(lembrar|falar|dizer|achar|pensar))?|esqueci( tudo)?|deu (um )?(branco|apagao)|travei|nao me (vem|sai)|me (fugiu|sumiu)|(nao (vem|sai|sei|acho|encontro)|sumiu|fugiu) ((o|do|a|da) nome|a palavra)|(sumiu|fugiu|apagou)( tudo)? (da|na) (minha )?(cabeca|memoria)|(ta|esta|fica) na ponta da lingua)${NAME}$`)
+const GIVE_UP = new RegExp(`\\b(nao (me )?(lembro|recordo)( mais| de nada| nada)?|nao (to|tou|estou) (me )?(lembrando|conseguindo)( lembrar| falar)?|nao consigo( (me )?(lembrar|falar|dizer|achar|pensar))?|nao vou (conseguir )?(me )?(lembrar|recordar|falar|dizer)|esqueci( tudo)?|deu (um )?(branco|apagao)|travei|nao me (vem|sai)|me (fugiu|sumiu)|(nao (vem|sai|sei|acho|encontro)|sumiu|fugiu) ((o|do|a|da) nome|a palavra)|(sumiu|fugiu|apagou)( tudo)? (da|na) (minha )?(cabeca|memoria)|(ta|esta|fica) na ponta da lingua)${NAME}$`)
 const ASK_NAME = new RegExp(`\\b(como (e )?(que )?(e|era|chama|chamava|se chama|se chamava|fala|se fala|diz|se diz)( mesmo)?${NAME}( mesmo)?( (isso|aquilo|ela|ele))?|qual (e |era )?(mesmo )?(o nome|mesmo)${NAME}|(me )?(da|de) uma (dica|ajuda|ajudinha)|(comeca|comecava) com (que|qual)( letra)?)$`)
-const EXCLAIM = /\b(meu deus|nossa senhora|que raiva|droga|poxa vida|ai ai|ai meu deus|caramba|putz|que coisa|que dificil|ta dificil|nao acredito|nao (vem|sai))$/
+const EXCLAIM = /\b(meu deus|nossa senhora|que raiva|droga|poxa vida|ai ai|ai meu deus|caramba|putz|que coisa|que dificil|ta dificil|nao acredito|nao (vem|sai)|nao vai (vir|sair))$/
 const UNSURE = /\bnao sei$/
 
 const GIVING_UP: Array<[RegExp, number]> = [[ASK_WORD, 0.9], [GIVE_UP, 0.85], [ASK_NAME, 0.8], [EXCLAIM, 0.7], [UNSURE, 0.5]]
@@ -58,7 +59,7 @@ const TAIL_WORDS = new Set(['ai', 'aii', 'ah', 'ahn', 'an', 'hum', 'humm', 'hmm'
 const MAX_TAIL_CUTS = 4
 const SIGHS = new Set(['ai', 'aff', 'ui', 'ah', 'aah', 'ahh', 'aii', 'puxa'])
 
-const ASKS_FOR_WORD = /\b(nao (me )?lembro|nao (to|tou|estou) (me )?(lembrando|conseguindo)|nao consigo|esqueci|me ajud[ae]|socorro|fala (pra|para) mim|fala (voce|vc)|me (fala|diz) (o nome|a palavra|qual e)|diz (pra|para) mim|me (da|de) a palavra|qual (e|era) a palavra|desisto|esquece|deixa (pra la|quieto)|deu (um )?(branco|apagao)|me (fugiu|sumiu)|nao me (vem|sai)|nao (vem|sai) (o nome|a palavra)|(sumiu|fugiu)( tudo)? (a palavra|o nome|da cabeca|da memoria|da minha cabeca|da minha memoria))\b/
+const ASKS_FOR_WORD = /\b(nao (me )?lembro|nao (to|tou|estou) (me )?(lembrando|conseguindo)|nao consigo|nao vou (conseguir )?(me )?lembrar|esqueci(?! (a|o|as|os|um|uma|meu|minha|meus|minhas)\b(?! nome| palavra))|me ajud[ae]|socorro|fala (pra|para) mim|fala (voce|vc)|me (fala|diz) (o nome|a palavra|qual e)|diz (pra|para) mim|me (da|de) a palavra|qual (e|era) a palavra|desisto|esquece|deixa (pra la|quieto)|deu (um )?(branco|apagao)|me (fugiu|sumiu)|nao me (vem|sai)|nao (vem|sai) (o nome|a palavra)|(sumiu|fugiu)( tudo)? (a palavra|o nome|da cabeca|da memoria|da minha cabeca|da minha memoria))\b/
 
 function tailCuts(tokens: string[]): string[] {
   const cuts: string[] = []
@@ -85,6 +86,7 @@ export function struggleOf(text: string): Struggle {
   let frustration = 0
   for (const core of tailCuts(tokens)) for (const [pattern, weight] of GIVING_UP) if (pattern.test(core)) frustration = Math.max(frustration, weight)
   const givingUp = frustration >= 0.7
+  if (givingUp && ASKS_FOR_WORD.test(fold(text))) frustration = Math.max(frustration, 0.85)
   const tail = tokens.slice(-6)
   const sighs = tail.filter(token => SIGHS.has(token)).length
   if (sighs > 0) frustration = Math.max(frustration, Math.min(0.3 + 0.15 * sighs, 0.6))

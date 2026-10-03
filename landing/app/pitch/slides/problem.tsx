@@ -29,7 +29,7 @@ export function Problem() {
       <div className="abs consequence rise" style={motionDelay(1400)}>
         <span>Aos poucos, ela conversa menos e se isola.</span>
         <i />
-        <span>Só <b>28%</b> voltam a trabalhar.</span>
+        <span>Em um estudo pós AVC, <b>28%</b> voltaram ao trabalho.</span>
       </div>
       <p className="abs sources rise" style={motionDelay(1550)}>Fontes: NIDCD/NIH · Rede Brasil AVC × Engelter, Stroke 2006 (estimativa) · o que ouvimos de 11 fonos e familiares · Thomazi, Unifesp 2025 · Graham, Pereira &amp; Teasell, Aphasiology 2011</p>
     </div>

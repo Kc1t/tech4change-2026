@@ -12,7 +12,7 @@ import { GuessAhead } from './guess-ahead'
 import { HelpSession, type TargetSource } from './help-session'
 import { ModelClient, networkOf, warmRoutes, type Reply, type Timed } from './model-client'
 import { SIMULATION } from './simulation'
-import { countMentions, labelsOf, lastWords, namesOf, wordsFrom } from './text'
+import { countMentions, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
 import { TranscriptBuffer } from './transcript'
 import { IDLE_CUE, INITIAL_STATE, type Activity, type CueOrigin, type CuePhase, type DemoCue, type DemoGuess, type LiveDemoState, type Network } from './types'
 
@@ -690,13 +690,19 @@ export class DemoEngine {
     const sinceCue = now - session.lastCueAt
     const fresh = wordsFrom(this.transcript.text, session.cueWordMark)
     const verdict = session.verdict
-    if ((asksForWord(fresh) || wantsWord(verdict?.help, verdict?.frustration)) && sinceCue >= TIMING.minCueGapMs) {
+    if (asksForWord(fresh) && sinceCue >= TIMING.minCueGapMs) {
       this.showLevel(session.wordLevel)
       return
     }
     if (silence < TIMING.struggleSilenceMs) return
     const settled = !this.cloudEar || this.simulating || this.cloudEar.idle() || silence >= BLOCK_TIMING.settleWaitMs
     if (!settled) return
+    if (reachesFor(fresh, namesOf(session.target)) && silence < TIMING.talkQuietMs) return
+    const upToDate = !session.assessing && session.assessedText === fresh
+    if (upToDate && wantsWord(verdict?.help, verdict?.frustration) && sinceCue >= TIMING.minCueGapMs) {
+      this.showLevel(session.wordLevel)
+      return
+    }
     const local = struggleOf(fresh)
     const opening = session.level === session.startLevel ? session.openingStruggle : 0
     const frustration = Math.max(local.frustration, verdict?.frustration ?? 0, opening)

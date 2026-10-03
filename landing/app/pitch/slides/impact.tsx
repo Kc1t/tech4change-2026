@@ -5,14 +5,14 @@ import './impact.css'
 const STATS = [
   { value: '4+ dias', lines: ['de terapia por semana:', 'o que a diretriz recomenda'] },
   { value: '1–2', lines: ['sessões de fono por', 'semana: o que existe hoje'] },
-  { value: '7 dias', lines: ['de treino com o Eilo,', 'no meio da conversa'] },
+  { value: '7 dias', lines: ['com possibilidade de praticar', 'entre as sessões'] },
   { value: '4 → 1', lines: ['projeção: o degrau médio cair', 'com o uso · medir no piloto'], goal: true }
 ]
 
 export function Impact() {
   return (
     <div className="impact">
-      <h2 className="abs rise" style={motionDelay(150)}>Mais treino, <em>menos fila.</em></h2>
+      <h2 className="abs rise" style={motionDelay(150)}>Mais prática, <em>entre sessões.</em></h2>
       <div className="abs stats">
         {STATS.map((stat, index) => (
           <div key={stat.value} className={`stat rise${stat.goal ? ' stat--goal' : ''}`} style={motionDelay(350 + index * 120)}>
@@ -25,16 +25,16 @@ export function Impact() {
       <div className="abs tile tile--talk rise" style={motionDelay(700)}>
         <img className="cover" src={`${SLIDE_ASSETS}/impacto-telefone.webp`} alt="" />
         <div className="gradient" />
-        <b>Ela volta a conversar</b>
-        <p>Menos isolamento, mais autonomia, de volta à família e ao trabalho. O Eilo tira a ajuda conforme ela melhora.</p>
+        <b>A conversa é a meta</b>
+        <p>Queremos reduzir a ajuda necessária para encontrar a palavra. Essa evolução será medida no piloto.</p>
       </div>
       <div className="abs tile tile--lunch rise" style={motionDelay(850)}>
         <img src={`${SLIDE_ASSETS}/impacto-almoco.webp`} alt="" />
       </div>
       <div className="abs tile tile--therapist rise" style={motionDelay(1000)}>
         <img src={`${SLIDE_ASSETS}/impacto-telas.webp`} alt="" />
-        <b>Desafoga o tratamento</b>
-        <p>O treino de todo dia sai da sessão. No SUS ou na clínica, o tempo do fono rende mais e ele acompanha mais pacientes.</p>
+        <b>Complementa o tratamento</b>
+        <p>A prática pode continuar no dia a dia, enquanto o fono acompanha a evolução pelo painel.</p>
       </div>
     </div>
   )

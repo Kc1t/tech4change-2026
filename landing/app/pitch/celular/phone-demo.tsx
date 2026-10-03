@@ -156,7 +156,7 @@ export function PhoneDemo() {
       <AppHome cue={state.cue} heard={state.words.join(' ')} mic={mic} activity={listening ? state.activity : undefined} />
       {armed && (
         <LiveStatus
-          link={state.network === 'offline' ? 'offline' : gate.open ? link : 'paused'}
+          link={state.network === 'offline' ? 'offline' : gate.paused ? 'paused' : link}
           listening={listening && state.mic === 'listening' && state.ear === 'openrouter'}
           level={micLevel}
         />

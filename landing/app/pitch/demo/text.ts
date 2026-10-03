@@ -49,6 +49,11 @@ export function countMentions(text: string, names: string[]): number {
   return names.reduce((total, name) => total + occurrences(spoken, name), 0)
 }
 
+export function reachesFor(text: string, names: string[]): boolean {
+  const last = tokensOf(text).at(-1) ?? ''
+  return last.length >= 2 && names.some(name => tokensOf(name)[0]?.startsWith(last))
+}
+
 export function countPlainMentions(text: string, word: string): number {
   const spoken = tokensOf(text)
   return occurrences(spoken, word, at => !spoken.slice(Math.max(0, at - 2), at).some(token => NEGATIONS.has(token)))

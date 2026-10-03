@@ -16,6 +16,7 @@ export type Voice = {
   subscribe: (listener: () => void) => () => void
 }
 
+const CLIP_VERSION = 'gia-2'
 const FETCH_TIMEOUT_MS = 7000
 const MAX_PLAY_MS = 7000
 const HINT_VOLUME = 0.6
@@ -71,7 +72,7 @@ export function createVoice(): Voice {
   const clip = (text: string): Promise<string | null> => {
     const cached = clips.get(text)
     if (cached) return cached
-    const pending = fetch(`${SPEAK_URL}?text=${encodeURIComponent(text)}`, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+    const pending = fetch(`${SPEAK_URL}?text=${encodeURIComponent(text)}&version=${CLIP_VERSION}`, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
       .then(async response => {
         const type = response.headers.get('content-type') ?? ''
         if (!response.ok || !type.startsWith('audio/')) return null

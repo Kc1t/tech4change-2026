@@ -1,8 +1,12 @@
-import { isOffensive } from '../../eilo/text-safety'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { fold, isOffensive } from '../../eilo/text-safety'
 import { deadline, fail, rateLimited, warmed } from '../../eilo/http'
 import { openRouterReady, speech, warmUpstream } from '../../eilo/openrouter'
 
 export const dynamic = 'force-dynamic'
+
+const RECORDED_DIR = path.join(process.cwd(), 'public', 'pitch', 'voz', 'gia')
 
 const VOICES: Record<string, string> = {
   luana: 'pt-BR-Luana:MAI-Voice-2.1-Flash',
@@ -37,6 +41,21 @@ function spokenText(raw: string | null): string | null {
   return isOffensive(text) ? null : text
 }
 
+async function recorded(text: string): Promise<Uint8Array | null> {
+  const name = fold(text).replace(/ /g, '-')
+  if (!/^[a-z0-9-]{1,60}$/.test(name)) return null
+  return readFile(path.join(RECORDED_DIR, `${name}.mp3`)).then(
+    buffer => new Uint8Array(buffer),
+    () => null
+  )
+}
+
+function audioResponse(audio: Uint8Array, cacheControl: string): Response {
+  return new Response(audio.slice().buffer, {
+    headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': String(audio.byteLength), 'Cache-Control': cacheControl }
+  })
+}
+
 async function synthesize(text: string, voice: string, signal: AbortSignal): Promise<Uint8Array | null> {
   const audio = await speech(text, voice, SPEED, signal)
   if (!audio) console.warn('[pitch/speak] OpenRouter voice skipped')
@@ -66,15 +85,15 @@ export async function GET(request: Request) {
   if (params.has('warm')) return warmed(request, warmUpstream)
   const text = spokenText(params.get('text'))
   if (!text) return fail(400, 'invalid text')
-  if (!openRouterReady()) return fail(503, 'voice unavailable')
   const limited = rateLimited(request, 'speak', { limit: 40, windowMs: 60_000 })
   if (limited) return limited
+  const clip = await recorded(text)
+  if (clip) return audioResponse(clip, 'no-cache')
+  if (!openRouterReady()) return fail(503, 'voice unavailable')
   const audio = await Promise.race([
     speak(text),
     new Promise<null>(resolve => deadline(request, TIMEOUT_MS + 500).addEventListener('abort', () => resolve(null)))
   ])
   if (!audio) return fail(502, 'voice failed')
-  return new Response(audio.slice().buffer, {
-    headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': String(audio.byteLength), 'Cache-Control': 'private, max-age=86400' }
-  })
+  return audioResponse(audio, 'private, max-age=86400')
 }

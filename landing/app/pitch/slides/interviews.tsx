@@ -13,7 +13,7 @@ const DIVIDERS = [{ top: 492, delay: 500 }, { top: 642, delay: 680 }]
 export function Interviews() {
   return (
     <div className="interviews">
-      <h2 className="abs rise" style={motionDelay(150)}>Antes de construir,<br /><em>fomos ouvir quem vive isso.</em></h2>
+      <h2 className="abs rise" style={motionDelay(150)}>Para entender o problema,<br /><em>ouvimos quem vive isso.</em></h2>
       {FINDINGS.map((finding, index) => (
         <div key={finding.value} className="abs finding rise" style={{ ...motionDelay(350 + index * 180), top: 350 + index * 150 }}>
           <strong>{finding.value}</strong>

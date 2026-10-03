@@ -11,7 +11,6 @@ import { LiveDemoSlide } from '../slides/live-demo'
 import { MarketScale } from '../slides/market'
 import { NextSteps } from '../slides/next-steps'
 import { Problem } from '../slides/problem'
-import { PromoVideo } from '../slides/promo-video'
 import { Solution } from '../slides/solution'
 import { Team } from '../slides/team'
 import { Vibration } from '../slides/vibration'
@@ -25,14 +24,13 @@ export const SLIDES: SlideEntry[] = [
   { part: 'Solução', name: 'Demo ao vivo', label: 'Como funciona', listens: true, render: () => <LiveDemoSlide /> },
   { part: 'Solução', name: 'O papel da IA', label: 'O papel da IA', render: () => <AiRole /> },
   { part: 'Solução', name: 'A vibração', label: 'A vibração', render: () => <Vibration /> },
-  { part: 'Solução', name: 'Qualquer aparelho', label: 'Funciona com o que ela tem', render: () => <Devices /> },
   { part: 'Negócio', name: 'Concorrentes', label: 'Concorrentes', render: () => <Competitors /> },
   { part: 'Negócio', name: 'Mercado e escala', label: 'Mercado e escala', render: () => <MarketScale /> },
   { part: 'Negócio', name: 'Painel da fono', label: 'O que a fono vê', render: () => <ClinicianDashboard /> },
   { part: 'Negócio', name: 'Go-to-market e preço', label: 'Go-to-market e preço', render: () => <GoToMarket /> },
   { part: 'Negócio', name: 'Impacto', label: 'Impacto', render: () => <Impact /> },
   { part: 'Fecho', name: 'Time', label: 'Quem somos', render: () => <Team /> },
-  { part: 'Fecho', name: 'Vídeo', bare: true, render: () => <PromoVideo /> },
   { part: 'Fecho', name: 'Fecho', bare: true, render: () => <Closing /> },
+  { part: 'Apêndice', name: 'Qualquer aparelho', label: 'Funciona com o que ela tem', render: () => <Devices /> },
   { part: 'Apêndice', name: 'Próximos passos', label: 'Próximos passos', render: () => <NextSteps /> }
 ]

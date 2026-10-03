@@ -5,6 +5,7 @@ import { useDeckChannel } from '../deck/channel'
 
 const STALE_MS = 60_000
 const CHECK_MS = 5000
+const CLOSE_DELAY_MS = 2000
 
 export function useDeckGate() {
   const { state, receivedAt } = useDeckChannel({ role: 'phone' })
@@ -16,5 +17,13 @@ export function useDeckGate() {
   }, [])
 
   const fresh = state !== null && now - receivedAt < STALE_MS
-  return { open: state === null || !fresh || state.listen }
+  const wanted = state === null || !fresh || state.listen
+  const [held, setHeld] = useState(wanted)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setHeld(wanted), wanted ? 0 : CLOSE_DELAY_MS)
+    return () => window.clearTimeout(timer)
+  }, [wanted])
+
+  return { open: wanted || held, paused: !wanted }
 }
