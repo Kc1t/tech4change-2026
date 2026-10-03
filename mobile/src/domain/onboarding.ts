@@ -1,13 +1,14 @@
+import { FEMININE, MASCULINE, genderOf } from './kinship'
 import { clean, type Seed, type SeedKey } from './seed'
 
 export type Ask = 'intro' | 'person' | 'relation' | 'place' | 'extras'
 
-const FEMININE = new Set(['filha', 'neta', 'esposa', 'mulher', 'irmã', 'sobrinha', 'nora', 'amiga', 'vizinha', 'mãe', 'cuidadora', 'tia', 'prima', 'avó', 'madrinha'])
-const MASCULINE = new Set(['filho', 'neto', 'esposo', 'marido', 'irmão', 'sobrinho', 'genro', 'amigo', 'vizinho', 'pai', 'cuidador', 'tio', 'primo', 'avô', 'padrinho'])
 const RELATIONS = [...FEMININE, ...MASCULINE].join('|')
+const RELATION_WORD = new RegExp(`(?:^|[^\\p{L}])(${RELATIONS})(?!\\p{L})`, 'iu')
+const DONT_KNOW = /^(?:(?:n[ãa]o\s+(?:sei|lembro|tenho|conhe[çc]o)|sei\s+l[áa]|esqueci|nada|ningu[ée]m|nenhuma?)(?!\p{L})|n[ãa]o[\s,]*$)/iu
 
 const NAME = "[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'-]+"
-const STOP = new Set(['a', 'o', 'e', 'de', 'do', 'da', 'em', 'no', 'na', 'que', 'eu', 'sou', 'meu', 'minha', 'lá', 'ela', 'ele'])
+const STOP = new Set(['a', 'o', 'e', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'que', 'eu', 'sou', 'meu', 'minha', 'lá', 'ela', 'ele'])
 
 export const SUGGESTIONS: Record<Ask, string[]> = {
   intro: [],
@@ -24,14 +25,6 @@ export function titleCase(value: string): string {
     .join(' ')
 }
 
-export function pronounFor(relation?: string): 'ela' | 'ele' | null {
-  const key = relation?.toLowerCase()
-  if (!key) return null
-  if (FEMININE.has(key)) return 'ela'
-  if (MASCULINE.has(key)) return 'ele'
-  return null
-}
-
 export function nextAsk(answers: Partial<Seed>, skipped: Set<Ask>): Ask | null {
   if (!answers.owner) return 'intro'
   if (!answers.person) return 'person'
@@ -44,7 +37,7 @@ export function nextAsk(answers: Partial<Seed>, skipped: Set<Ask>): Ask | null {
 export function questionFor(ask: Ask, answers: Partial<Seed>): string {
   const owner = answers.owner
   const person = answers.person
-  const pronoun = pronounFor(answers.relation)
+  const pronoun = genderOf(answers.relation)
   switch (ask) {
     case 'intro':
       return answers.person ? 'E como a gente te chama?' : 'Me conta: como te chamam, e quem você mais vê na semana?'
@@ -69,6 +62,7 @@ function first(pattern: RegExp, text: string): string | undefined {
 
 export function parseLocally(message: string, ask: Ask, known: Partial<Seed>): Partial<Seed> {
   const text = message.replace(/[.!?;]+/g, ',').trim()
+  if (DONT_KNOW.test(text)) return {}
   const found: Partial<Seed> = {}
 
   const owner = first(new RegExp(`(?:me chamo|meu nome é|aqui é|sou)\\s+(?:a\\s+|o\\s+)?(${NAME})`, 'i'), text)
@@ -91,7 +85,7 @@ export function parseLocally(message: string, ask: Ask, known: Partial<Seed>): P
 
   if (ask === 'intro' && !found.owner && short) found.owner = bare
   if (ask === 'person' && !found.person && short) found.person = bare.replace(/^(?:minha|meu)\s+/i, '')
-  if (ask === 'relation' && !found.relation) found.relation = first(new RegExp(`\\b(${RELATIONS})\\b`, 'i'), text)?.toLowerCase() ?? (short ? bare.toLowerCase() : undefined)
+  if (ask === 'relation' && !found.relation) found.relation = first(RELATION_WORD, text)?.toLowerCase() ?? (short ? bare.toLowerCase() : undefined)
   if (ask === 'place' && !found.place && short) found.place = bare
   if (ask === 'extras' && !found.activity) {
     const activity = text.split(',')[0]!.replace(/^(?:a gente|nós|eu e (?:ela|ele))\s+(?:faz|fazemos|vai|vamos)?\s*(?:o |a )?/i, '').trim()
@@ -112,7 +106,7 @@ export function tidy(found: Partial<Seed>, known: Partial<Seed>): Partial<Seed> 
 }
 
 export function warmReply(found: Partial<Seed>): string {
-  if (found.activity) return `Que bom, ${found.activity} junto é ótimo.`
+  if (found.activity) return `${found.activity.charAt(0).toUpperCase()}${found.activity.slice(1)}, que bom.`
   if (found.place) return `${found.place}, anotado.`
   if (found.person) return `Que bom ter ${found.person} por perto.`
   if (found.owner) return `Prazer, ${found.owner}.`

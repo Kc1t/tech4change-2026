@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react'
 import { Pressable, Switch, Text, View } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { speakVoice } from '../voice'
+import { previewVoice } from '../voice'
 import { PatiencePicker, VoicePicker } from '../components/ComfortPickers'
 import { BuzzPicker, DeviceList } from '../components/DevicePanel'
 import { SyncPanel } from '../components/SyncPanel'
 import { NotificationBell } from '../components/NotificationBell'
 import { BrandMark, Card, RowLink, Screen, ScreenHeader, Segmented, Tabs, TopBar } from '../components/ui'
-import { useApp } from '../store'
+import { lifeGraph, useApp } from '../store'
 import { broadcastCue } from '../sync/client'
 import { patternFor, pulse } from '../haptics'
 import { color, shadow } from '../theme/tokens'
@@ -28,7 +28,7 @@ const HELP: Array<{ value: HelpLevel; label: string; hint: string }> = [
 ]
 
 const OUTPUT: Array<{ value: OutputMode; label: string; hint: string }> = [
-  { value: 'voice', label: 'Voz', hint: 'só o fone fala' },
+  { value: 'voice', label: 'Voz', hint: 'só fala, sem texto' },
   { value: 'text', label: 'Texto', hint: 'só aparece na tela' },
   { value: 'both', label: 'Ambos', hint: 'fala e mostra' }
 ]
@@ -36,6 +36,13 @@ const OUTPUT: Array<{ value: OutputMode; label: string; hint: string }> = [
 const CARD_LABEL = 'mb-3 font-strong text-caps text-label'
 const HINT = 'mt-3 font-book text-hint text-faint'
 const NOTE = 'font-book text-note leading-[18px] text-faint'
+
+const WATCH_TEST_TARGET = 'n_fd8f8a'
+
+function sayCurrentWord() {
+  const { voice, target } = useApp.getState()
+  void previewVoice(voice, lifeGraph.nodes[target()]?.label ?? 'Oi', () => undefined)
+}
 
 export function BodyScreen({
   onBell,
@@ -70,7 +77,7 @@ function Devices() {
   return (
     <>
       <Text className={NOTE}>
-        {live} de {paired.length} ligados. A dica chega em todos no mesmo instante.
+        {live} de {paired.length} ligados.
       </Text>
 
       <DeviceList />
@@ -152,7 +159,7 @@ function Help() {
       <Pressable
         onPress={() => {
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-          speakVoice('Letícia', () => undefined)
+          sayCurrentWord()
         }}
         className="min-h-tap items-center justify-center rounded-large bg-surface"
         style={{ ...shadow.card, shadowOpacity: 0.06 }}
@@ -191,7 +198,7 @@ function Session({
     if (!sessionCode || !deviceId) return
     broadcastCue(sessionCode, {
       deviceId,
-      targetId: 'n_fd8f8a',
+      targetId: WATCH_TEST_TARGET,
       level: 3,
       attr: 'city',
       edge: null,

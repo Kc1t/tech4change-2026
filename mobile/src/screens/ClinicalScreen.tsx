@@ -52,6 +52,9 @@ export function ClinicalScreen({
           <Text className="mt-0.5 font-heavy text-[28px] leading-[34px] tracking-[-0.6px] text-fg">
             Pacientes
           </Text>
+          <View className="mt-1 self-start rounded-full bg-surface-2 px-2.5 py-0.5">
+            <Text className="font-strong text-[11px] text-dim">Pacientes de exemplo</Text>
+          </View>
         </View>
         <View className="size-11 items-center justify-center rounded-full bg-surface" style={SOFT}>
           <Svg viewBox="0 0 24 24" width={20} height={20}>
@@ -74,8 +77,6 @@ export function ClinicalScreen({
       {steady.map(patient => (
         <PlainRow key={patient.id} patient={patient} onPress={() => onOpen(patient.id)} />
       ))}
-
-      <View className="h-[104px]" />
     </Screen>
   )
 }

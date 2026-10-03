@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Text, View } from 'react-native'
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg'
 import { Card } from './ui'
-import { color, font } from '../theme/tokens'
+import { color } from '../theme/tokens'
 
 const H = 150
 const PAD = { top: 26, bottom: 30 }

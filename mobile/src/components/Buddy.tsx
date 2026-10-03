@@ -140,7 +140,7 @@ export function Buddy({
     tilt.value = withSequence(withTiming(sway.current * 2.2, { duration: 90 }), withSpring(mood === 'guess' ? -7 : 0, SOFT_SPRING))
     ring.value = 0
     ring.value = withTiming(1, { duration: 1100, easing: Easing.out(Easing.quad) })
-  }, [pulse, mood, tilt, ring])
+  }, [pulse, tilt, ring])
 
   useEffect(() => {
     if (!pressed) return

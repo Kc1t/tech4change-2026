@@ -38,6 +38,7 @@ import { TOP_INSET } from '../theme/insets'
 const SOFT = { ...shadow.card, shadowOpacity: 0.06 }
 const FACT_ORDER: SeedKey[] = ['owner', 'person', 'place', 'activity', 'object']
 const MISSED = 'Não peguei direito. Pode escrever de outro jeito?'
+const SLOW_FAILURE_MS = 2500
 
 export function OnboardingScreen({
   onDone,
@@ -55,6 +56,7 @@ export function OnboardingScreen({
   const [reply, setReply] = useState('Oi, eu sou o eilo.')
   const [typed, setTyped] = useState('')
   const [thinking, setThinking] = useState(false)
+  const offline = useRef(false)
   const ask = nextAsk(answers, skipped)
   const question = ask ? questionFor(ask, answers) : 'Última coisa: qual voz vai te acompanhar?'
 
@@ -67,7 +69,10 @@ export function OnboardingScreen({
       setThinking(true)
       void Haptics.selectionAsync()
 
-      const remote = auto ? null : await onboardingTurn({ message, asked: question, known: answers })
+      const askServer = !auto && !offline.current
+      const started = Date.now()
+      const remote = askServer ? await onboardingTurn({ message, asked: question, known: answers }) : null
+      if (askServer && remote === null && Date.now() - started > SLOW_FAILURE_MS) offline.current = true
       const fromModel = remote ? tidy(remote.answers, answers) : {}
       const found = Object.keys(fromModel).length > 0 ? fromModel : parseLocally(message, ask, answers)
       const understood = Object.keys(found).length > 0

@@ -1,4 +1,5 @@
 import { CryptoDigestAlgorithm, digestStringAsync } from 'expo-crypto'
+import { genderOf } from './kinship'
 import { cueable, firstSyllable, syllables } from './phonology'
 import type { GraphEdge, GraphNode, LifeGraph, NodeKind, Provenance, Scene } from './types'
 
@@ -23,54 +24,6 @@ export const DEMO_SEED: Seed = {
   object: 'escumadeira',
   activity: 'almoço de domingo'
 }
-
-export const SEED_QUESTIONS: Array<{
-  key: SeedKey
-  question: string
-  note: string
-  placeholder: string
-  optional?: boolean
-}> = [
-  {
-    key: 'owner',
-    question: 'Como a gente te chama?',
-    note: 'Só o primeiro nome basta.',
-    placeholder: 'seu nome'
-  },
-  {
-    key: 'person',
-    question: 'O nome de alguém que você vê toda semana.',
-    note: 'Alguém que aparece muito na sua vida.',
-    placeholder: 'um nome'
-  },
-  {
-    key: 'relation',
-    question: 'Quem essa pessoa é para você?',
-    note: 'Filha, neto, vizinha, amigo.',
-    placeholder: 'o parentesco',
-    optional: true
-  },
-  {
-    key: 'place',
-    question: 'Em que cidade essa pessoa mora?',
-    note: 'A cidade ajuda a montar uma dica.',
-    placeholder: 'uma cidade'
-  },
-  {
-    key: 'object',
-    question: 'Uma coisa que você pega todo dia.',
-    note: 'O chinelo, a bengala, o controle.',
-    placeholder: 'uma coisa',
-    optional: true
-  },
-  {
-    key: 'activity',
-    question: 'Algo que vocês fazem juntos.',
-    note: 'O almoço de domingo, a caminhada.',
-    placeholder: 'o que vocês fazem',
-    optional: true
-  }
-]
 
 export function clean(value: unknown): string {
   return typeof value === 'string' ? value.trim().slice(0, MAX_ANSWER) : ''
@@ -101,8 +54,64 @@ async function digest(input: string, length: number): Promise<string> {
       .slice(0, length)
   }
 
-  const hex = await digestStringAsync(CryptoDigestAlgorithm.SHA256, input)
+  const hex = await digestStringAsync(CryptoDigestAlgorithm.SHA256, input).catch(() => sha256(input))
   return hex.slice(0, length)
+}
+
+function firstPrimes(count: number): number[] {
+  const primes: number[] = []
+  for (let candidate = 2; primes.length < count; candidate++) {
+    if (primes.every(prime => candidate % prime !== 0)) primes.push(candidate)
+  }
+  return primes
+}
+
+const fractionBits = (value: number) => ((value % 1) * 2 ** 32) >>> 0
+const PRIMES = firstPrimes(64)
+const ROUND_CONSTANTS = PRIMES.map(prime => fractionBits(Math.cbrt(prime)))
+const INITIAL_STATE = PRIMES.slice(0, 8).map(prime => fractionBits(Math.sqrt(prime)))
+
+function rotate(word: number, bits: number): number {
+  return (word >>> bits) | (word << (32 - bits))
+}
+
+function sha256(input: string): string {
+  const bytes = Array.from(new TextEncoder().encode(input))
+  const bitLength = bytes.length * 8
+  bytes.push(0x80)
+  while (bytes.length % 64 !== 56) bytes.push(0)
+  for (let shift = 56; shift >= 0; shift -= 8) bytes.push(Math.floor(bitLength / 2 ** shift) & 0xff)
+
+  const state = [...INITIAL_STATE]
+  const words: number[] = []
+
+  for (let block = 0; block < bytes.length; block += 64) {
+    for (let i = 0; i < 64; i++) {
+      if (i < 16) {
+        const at = block + i * 4
+        words[i] = (bytes[at]! << 24) | (bytes[at + 1]! << 16) | (bytes[at + 2]! << 8) | bytes[at + 3]!
+        continue
+      }
+      const early = words[i - 15]!
+      const late = words[i - 2]!
+      const sigma0 = rotate(early, 7) ^ rotate(early, 18) ^ (early >>> 3)
+      const sigma1 = rotate(late, 17) ^ rotate(late, 19) ^ (late >>> 10)
+      words[i] = (words[i - 16]! + sigma0 + words[i - 7]! + sigma1) | 0
+    }
+
+    let work = [...state]
+    for (let i = 0; i < 64; i++) {
+      const [a, b, c, d, e, f, g, h] = work
+      const t1 = (h + (rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25)) + ((e & f) ^ (~e & g)) + ROUND_CONSTANTS[i]! + words[i]!) | 0
+      const t2 = ((rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0
+      work = [(t1 + t2) | 0, a, b, c, (d + t1) | 0, e, f, g]
+    }
+    work.forEach((word, i) => {
+      state[i] = (state[i]! + word) | 0
+    })
+  }
+
+  return state.map(word => (word >>> 0).toString(16).padStart(8, '0')).join('')
 }
 
 function nodeId(label: string, kind: NodeKind): Promise<string> {
@@ -114,14 +123,17 @@ function edgeId(from: string, to: string, rel: string): Promise<string> {
 }
 
 function phonologyFor(label: string) {
-  if (!cueable(label)) return undefined
-  return { syllables: syllables(label), firstSyllable: firstSyllable(label) }
+  const head = label.trim().split(/[\s-]+/)[0] ?? ''
+  if (!cueable(head)) return undefined
+  return { syllables: syllables(head), firstSyllable: firstSyllable(head) }
 }
 
 export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; scenes: Scene[] }> {
   const ownerId = await nodeId(seed.owner, 'person')
-  const personId = await nodeId(seed.person, 'person')
+  const namesakeId = await nodeId(seed.person, 'person')
+  const personId = namesakeId === ownerId ? await nodeId(`${seed.person}|2`, 'person') : namesakeId
   const placeId = await nodeId(seed.place, 'place')
+  const gender = genderOf(seed.relation)
 
   const declared: Provenance = {
     source: 'family',
@@ -133,7 +145,7 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
   const residence = await edgeId(personId, placeId, 'lives_in')
 
   const bond = seed.relation
-    ? `é ${article(seed.relation)} ${seed.relation.toLowerCase()}`
+    ? `é ${gender === 'ela' ? 'a sua' : 'o seu'} ${seed.relation.toLowerCase()}`
     : 'é uma pessoa próxima de você'
 
   const nodes: Record<string, GraphNode> = {
@@ -183,12 +195,12 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
       targetId: personId,
       speaker: 'alguém na mesa',
       prompt: 'Quem que vem no domingo?',
-      attempt: 'É a… a…'
+      attempt: gender === 'ela' ? 'É a… a…' : gender === 'ele' ? 'É o… o…' : 'É… é…'
     },
     {
       targetId: placeId,
       speaker: 'alguém na mesa',
-      prompt: 'E ela mora onde mesmo?',
+      prompt: `E ${gender ?? seed.person} mora onde mesmo?`,
       attempt: 'Lá em… em…'
     }
   ]
@@ -221,7 +233,7 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
       targetId: objectId,
       speaker: 'alguém em casa',
       prompt: 'Você viu onde foi parar?',
-      attempt: 'O… o…'
+      attempt: genderOf(seed.object) === 'ela' ? 'A… a…' : 'O… o…'
     })
   }
 
@@ -261,12 +273,4 @@ export async function buildSeedGraph(seed: Seed): Promise<{ graph: LifeGraph; sc
   }
 
   return { graph: { owner: ownerId, nodes, edges, ladderPlans }, scenes }
-}
-
-function article(relation: string): string {
-  return /^(filha|neta|irmã|mãe|vizinha|amiga|esposa|prima|tia|sobrinha|nora|cunhada)/i.test(
-    relation
-  )
-    ? 'a sua'
-    : 'o seu'
 }

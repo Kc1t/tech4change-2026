@@ -8,18 +8,18 @@ const HOLD_MS = 6000
 
 export function useCueReceiver() {
   const lastCue = useApp(s => s.lastCue)
-  const paired = useApp(s => s.paired)
-  const intensity = useApp(s => s.intensity)
-  const output = useApp(s => s.output)
   const setLastCue = useApp(s => s.setLastCue)
 
   useEffect(() => {
     if (!lastCue) return
 
+    const { paired, intensity, output } = useApp.getState()
+    const resolved = lastCue.event === 'resolved'
+    const pattern = resolved ? 'success' : patternFor(lastCue.level, lastCue.isFinal)
     const buzzes = buzzTargets(paired).some(device => device.buzz)
-    const stop = buzzes ? pulse(patternFor(lastCue.level, lastCue.isFinal), intensity) : undefined
+    const stop = buzzes ? pulse(pattern, intensity) : undefined
 
-    if (output !== 'text') {
+    if (output !== 'text' && !resolved) {
       const node = lifeGraph.nodes[lastCue.targetId]
       const spoken = lastCue.isFinal
         ? (node?.phon?.firstSyllable ?? null)
@@ -33,7 +33,7 @@ export function useCueReceiver() {
       stop?.()
       clearTimeout(timer)
     }
-  }, [lastCue, paired, intensity, output, setLastCue])
+  }, [lastCue, setLastCue])
 
   return lastCue
 }

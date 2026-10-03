@@ -3,7 +3,7 @@ import graphData from '../data/graph.json'
 import { demoHistory } from '../domain/demo'
 import { BUILT_IN_DEVICES, channelsFrom, DISCOVERABLE, type PairedDevice } from '../domain/devices'
 import type { CuePayload, Device } from '../sync/client'
-import { buildLadder, deterministicPlan, resolve, startingLevel } from '../domain/ladder'
+import { buildLadder, deterministicLadder, mergeLadder, startingLevel, validatePlan } from '../domain/ladder'
 import { CONFIDENCE_FLOOR, EMPTY_PREDICTION, predict, type Prediction } from '../domain/predict'
 import { project } from '../domain/projection'
 import { DEFAULT_COMFORT, saveComfort, type Comfort, type Patience, type VoiceChoice } from '../domain/comfort'
@@ -23,9 +23,9 @@ import type {
   Scene
 } from '../domain/types'
 
-export let lifeGraph = graphData as unknown as LifeGraph
+const EXAMPLE_GRAPH = graphData as unknown as LifeGraph
 
-export let SCENES: Scene[] = [
+const EXAMPLE_SCENES: Scene[] = [
   {
     targetId: 'n_fd8f8a',
     speaker: 'Rodrigo, filho',
@@ -52,13 +52,9 @@ export let SCENES: Scene[] = [
   }
 ]
 
-export let seeded = false
+export let lifeGraph = EXAMPLE_GRAPH
 
-export function installSeed(graph: LifeGraph, scenes: Scene[]) {
-  lifeGraph = graph
-  SCENES = scenes
-  seeded = true
-}
+export let SCENES = EXAMPLE_SCENES
 
 const EMPTY_LEARNING: LearningState = {
   lastLevel: null,
@@ -82,6 +78,15 @@ function nextMastery(current: Mastery, levelsUsed: number, total: number): Maste
   if (levelsUsed <= 1) return 'high'
   if (levelsUsed <= Math.ceil(total / 2)) return 'medium'
   return current === 'unseen' ? 'low' : current
+}
+
+function hasLadder(id: NodeId): boolean {
+  return deterministicLadder(lifeGraph, id).length > 0
+}
+
+function rankedLadder(plan: CuePlan | null, targetId: NodeId): LadderStep[] {
+  if (!plan || plan.origin === 'deterministic' || plan.targetId !== targetId) return []
+  return validatePlan(lifeGraph, plan) ? buildLadder(lifeGraph, plan) : []
 }
 
 interface AppState {
@@ -118,7 +123,7 @@ interface AppState {
   hear: (transcript: string) => void
   start: () => Promise<void>
   advance: () => void
-  succeed: (levelUsed?: number) => number
+  succeed: (levelUsed?: number, rungsUsed?: number) => number
   nextScene: () => void
   setHelpLevel: (level: HelpLevel) => void
   setOutput: (output: OutputMode) => void
@@ -142,14 +147,18 @@ interface AppState {
   clearDemo: () => void
 }
 
-export const useApp = create<AppState>()((set, get) => ({
-  sceneIndex: 0,
+const FRESH_SCENE: Pick<AppState, 'ladder' | 'level' | 'open' | 'origin' | 'startedAt' | 'prediction'> = {
   ladder: [],
   level: 0,
   open: false,
   origin: 'deterministic',
   startedAt: null,
-  prediction: EMPTY_PREDICTION,
+  prediction: EMPTY_PREDICTION
+}
+
+export const useApp = create<AppState>()((set, get) => ({
+  ...FRESH_SCENE,
+  sceneIndex: 0,
   helpLevel: 'hint',
   output: DEFAULT_COMFORT.output,
   voice: DEFAULT_COMFORT.voice,
@@ -186,7 +195,9 @@ export const useApp = create<AppState>()((set, get) => ({
 
   hear: transcript => {
     if (get().open) return
-    const next = transcript.trim() ? predict(lifeGraph, transcript) : EMPTY_PREDICTION
+    const heard = transcript.trim() ? predict(lifeGraph, transcript) : EMPTY_PREDICTION
+    const next =
+      heard.targetId && !hasLadder(heard.targetId) ? { ...heard, targetId: null, confidence: 0 } : heard
     const current = get().prediction
     if (next.targetId === current.targetId && next.confidence === current.confidence) return
     set({ prediction: next })
@@ -195,23 +206,16 @@ export const useApp = create<AppState>()((set, get) => ({
   start: async () => {
     const targetId = get().target()
     const previous = get().learningFor(targetId).lastLevel
-    const offline = resolve(lifeGraph, deterministicPlan(lifeGraph, targetId))
+    const offline = deterministicLadder(lifeGraph, targetId)
+    if (offline.length === 0) return
 
+    const startedAt = Date.now()
     set({
       ladder: offline,
       open: true,
       origin: 'deterministic',
-      startedAt: Date.now(),
+      startedAt,
       level: startingLevel(previous, offline.length)
-    })
-
-    recordEvent({
-      targetId,
-      event: 'block',
-      level: 0,
-      origin: 'deterministic',
-      channel: activeChannel(get().channels),
-      elapsedMs: 0
     })
 
     const heard = get().prediction.mentioned.filter(id => lifeGraph.nodes[id])
@@ -222,14 +226,24 @@ export const useApp = create<AppState>()((set, get) => ({
       lastLevel: previous
     })
 
-    if (!plan || plan.targetId !== targetId || !get().open) return
-    const ranked = resolve(lifeGraph, plan)
-    if (ranked.length === 0) return
+    const current = get()
+    const ranked = current.open && current.startedAt === startedAt ? rankedLadder(plan, targetId) : []
+    const origin = plan && ranked.length > 0 ? plan.origin : 'deterministic'
 
+    recordEvent({
+      targetId,
+      event: 'block',
+      level: 0,
+      origin,
+      channel: activeChannel(current.channels),
+      elapsedMs: 0,
+      occurredAt: new Date(startedAt).toISOString()
+    })
+
+    if (origin === 'deterministic') return
     set(state => ({
-      ladder: ranked,
-      origin: plan.origin,
-      level: Math.min(state.level, ranked.length)
+      ladder: mergeLadder(state.ladder.slice(0, state.level), ranked),
+      origin
     }))
   },
 
@@ -238,9 +252,10 @@ export const useApp = create<AppState>()((set, get) => ({
     set({ level: Math.min(level + 1, ladder.length) })
   },
 
-  succeed: levelUsed => {
+  succeed: (levelUsed, rungsUsed) => {
     const state = get()
     const used = levelUsed ?? state.level
+    const rungs = rungsUsed ?? (state.ladder.length || 4)
     const targetId = state.target()
 
     recordEvent({
@@ -254,10 +269,10 @@ export const useApp = create<AppState>()((set, get) => ({
     const previous = state.learning[targetId] ?? EMPTY_LEARNING
     const isNew = state.learning[targetId] === undefined
     const at = new Date().toISOString()
-    const rungs = state.ladder.length || 4
 
     set({
       open: false,
+      startedAt: null,
       history: [...state.history, { at, targetId, level: used, rungs }].slice(-HISTORY_CAP),
       unseenLearning:
         isNew && !state.unseenLearning.includes(targetId)
@@ -281,13 +296,7 @@ export const useApp = create<AppState>()((set, get) => ({
 
   nextScene: () => {
     const state = get()
-    set({
-      sceneIndex: (state.sceneIndex + 1) % SCENES.length,
-      ladder: [],
-      level: 0,
-      open: false,
-      prediction: EMPTY_PREDICTION
-    })
+    set({ ...FRESH_SCENE, sceneIndex: (state.sceneIndex + 1) % SCENES.length })
   },
 
   setHelpLevel: helpLevel => set({ helpLevel }),
@@ -372,4 +381,12 @@ export const useApp = create<AppState>()((set, get) => ({
   clearDemo: () => set({ history: [], learning: {}, unseenLearning: [], demo: false })
 }))
 
-export { buildLadder }
+export function installSeed(graph: LifeGraph, scenes: Scene[]) {
+  lifeGraph = graph
+  SCENES = scenes
+  useApp.setState({ ...FRESH_SCENE, sceneIndex: 0 })
+}
+
+export function installExample() {
+  installSeed(EXAMPLE_GRAPH, EXAMPLE_SCENES)
+}

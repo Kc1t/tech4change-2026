@@ -1,6 +1,6 @@
 import { apiBase } from '../sync/client'
 
-const CONNECT_TIMEOUT_MS = 3000
+const CONNECT_TIMEOUT_MS = 7000
 const MAX_KEYTERMS = 24
 const TRANSCRIPT_TAIL = 160
 

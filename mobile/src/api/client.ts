@@ -62,10 +62,11 @@ export interface AuditEvent {
   origin: CuePlan['origin']
   channel: AuditChannel
   elapsedMs: number
+  occurredAt?: string
 }
 
 export function recordEvent(event: AuditEvent): void {
-  void send('/audit/events', { ...event, occurredAt: new Date().toISOString() })
+  void send('/audit/events', { ...event, occurredAt: event.occurredAt ?? new Date().toISOString() })
 }
 
 export function onboardingTurn(request: { message: string; asked: string; known: Partial<Seed> }) {

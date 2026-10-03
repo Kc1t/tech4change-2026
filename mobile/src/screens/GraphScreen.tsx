@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { NodeSheet } from '../components/NodeSheet'
-import { MemoryRow, SOURCE_LABEL, SourceMark } from '../components/MemoryRow'
+import { SOURCE_LABEL, SourceMark } from '../components/MemoryRow'
 import { WordCloud, type CloudWord } from '../components/WordCloud'
 import { BrandMark, ScreenHeader, ScreenTop, TopBar } from '../components/ui'
 import { memoriesAbout, memoriesOf, memoryTags } from '../domain/memories'

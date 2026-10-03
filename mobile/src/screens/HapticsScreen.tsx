@@ -138,8 +138,6 @@ export function HapticsScreen({ id, onBack }: { id: string; onBack: () => void }
           ))}
         </View>
       </View>
-
-      <View className="h-[104px]" />
     </Screen>
   )
 }

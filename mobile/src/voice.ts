@@ -6,10 +6,12 @@ import type { VoiceChoice } from './domain/comfort'
 
 const PREFETCH_TIMEOUT_MS = 6000
 const PREVIEW_TIMEOUT_MS = 8000
+const PLAY_GUARD_MS = 15000
 
 const ready = new Set<string>()
 const pending = new Set<string>()
 let finishCurrent: (() => void) | null = null
+let previewTurn = 0
 
 function spoken(text: string): string {
   return text.replace(/…/g, '').trim()
@@ -52,6 +54,7 @@ export function prefetchVoice(texts: string[]) {
 }
 
 export function stopVoice() {
+  previewTurn += 1
   const finish = finishCurrent
   finishCurrent = null
   finish?.()
@@ -61,17 +64,25 @@ export function stopVoice() {
 function play(text: string, voice: VoiceChoice, onDone: () => void) {
   const player = createAudioPlayer(voiceUrl(text, voice))
   let finished = false
-  const finish = () => {
+  const finish = (failed = false) => {
     if (finished) return
     finished = true
+    clearTimeout(guard)
     if (finishCurrent === finish) finishCurrent = null
     player.remove()
-    onDone()
+    if (failed) {
+      ready.delete(`${voice}:${text}`)
+      speakOnDevice(text, onDone)
+    } else {
+      onDone()
+    }
   }
+  const guard = setTimeout(() => finish(), PLAY_GUARD_MS)
   finishCurrent = finish
 
   player.addListener('playbackStatusUpdate', status => {
     if (status.didJustFinish) finish()
+    else if (status.error) finish(true)
   })
   player.play()
 }
@@ -92,7 +103,9 @@ export function speakVoice(raw: string, onDone: () => void) {
 export async function previewVoice(voice: VoiceChoice, raw: string, onDone: () => void) {
   const text = spoken(raw)
   stopVoice()
+  const turn = previewTurn
   const available = await warm(text, voice, PREVIEW_TIMEOUT_MS)
+  if (turn !== previewTurn) return onDone()
   if (available) play(text, voice, onDone)
   else speakOnDevice(text, onDone)
 }

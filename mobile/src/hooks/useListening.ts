@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Linking } from 'react-native'
 import { useAudioRecorder } from '@siteed/audio-studio'
-import { requestRecordingPermissionsAsync } from 'expo-audio'
+import { getRecordingPermissionsAsync, requestRecordingPermissionsAsync } from 'expo-audio'
 import { startTranscriber, type Transcriber } from '../api/stt'
 
 const CHUNK_MS = 80
@@ -15,19 +16,23 @@ const DRIFT = 0.04
 const MIN_SPEECH_MS = 700
 const BLOCK_SILENCE_MS = 1300
 
+export type TranscriptionEngine = 'connecting' | 'cloud' | 'lost'
+
 export interface ListeningState {
   active: boolean
   denied: boolean
+  canAskAgain: boolean
   calibrating: boolean
   noisy: boolean
   speaking: boolean
-  engine: 'cloud' | null
+  engine: TranscriptionEngine | null
   transcript: string
 }
 
 const IDLE: ListeningState = {
   active: false,
   denied: false,
+  canAskAgain: true,
   calibrating: false,
   noisy: false,
   speaking: false,
@@ -188,13 +193,13 @@ export function useListening(
 
     const permission = await requestRecordingPermissionsAsync()
     if (!permission.granted) {
-      setState({ ...IDLE, denied: true })
+      setState({ ...IDLE, denied: true, canAskAgain: permission.canAskAgain })
       return
     }
 
     recordingRef.current = true
     meterRef.current = freshMeter(Date.now())
-    setState({ ...IDLE, active: true, calibrating: true })
+    setState({ ...IDLE, active: true, calibrating: true, engine: 'connecting' })
 
     try {
       await startRecording({
@@ -205,6 +210,7 @@ export function useListening(
         interval: CHUNK_MS,
         keepFullAnalysis: false,
         output: { primary: { enabled: false } },
+        android: { audioFocusStrategy: 'none' },
         onAudioStream: async event => {
           const samples = event.data as Float32Array
           if (!deafRef.current) transcriberRef.current?.send(samples)
@@ -212,8 +218,14 @@ export function useListening(
         }
       })
     } catch {
+      await stopRecording().catch(() => undefined)
       recordingRef.current = false
       setState(IDLE)
+      return
+    }
+
+    if (!recordingRef.current) {
+      await stopRecording().catch(() => undefined)
       return
     }
 
@@ -222,7 +234,7 @@ export function useListening(
       onText: transcript => setState(previous => ({ ...previous, transcript })),
       onLost: () => {
         transcriberRef.current = null
-        setState(previous => ({ ...previous, engine: null }))
+        setState(previous => ({ ...previous, engine: 'lost' }))
       }
     })
 
@@ -232,10 +244,21 @@ export function useListening(
     }
 
     transcriberRef.current = transcriber
-    if (transcriber) setState(previous => ({ ...previous, engine: 'cloud' }))
-  }, [measure, startRecording])
+    setState(previous => ({ ...previous, engine: transcriber ? 'cloud' : 'lost' }))
+  }, [measure, startRecording, stopRecording])
 
-  useEffect(() => teardown, [teardown])
+  const enableMicrophone = useCallback(async () => {
+    const permission = await getRecordingPermissionsAsync()
+    if (permission.granted || permission.canAskAgain) await start()
+    else await Linking.openSettings()
+  }, [start])
 
-  return { levelRef, state, start, stop, setDeaf }
+  const stopRef = useRef(stop)
+  useEffect(() => {
+    stopRef.current = stop
+  }, [stop])
+
+  useEffect(() => () => stopRef.current(), [])
+
+  return { levelRef, state, start, stop, setDeaf, enableMicrophone }
 }

@@ -91,7 +91,7 @@ export function ProgressScreen({ onHome, onBell }: { onHome: () => void; onBell:
   return (
     <Screen>
       <TopBar left={<BrandMark />} right={<NotificationBell onPress={onBell} />} />
-      <ScreenHeader title="Progresso" sub="Quanto ela já alcança sozinha." />
+      <ScreenHeader title="Progresso" sub="Quanto já sai sem ajuda." />
 
       <View className="-mx-6 mt-3">
         <TrendSky series={progress.series} marks={marks} />
@@ -124,7 +124,7 @@ export function ProgressScreen({ onHome, onBell }: { onHome: () => void; onBell:
           tone={drop !== null && drop < -0.05 ? 'down' : 'up'}
         />
         <StatCard
-          label="Sozinha"
+          label="Sem ajuda"
           value={String(unaided)}
           unit={words.length > 0 ? `de ${words.length}` : undefined}
           delta={`${history.length} ${history.length === 1 ? 'tentativa' : 'tentativas'}`}
@@ -139,7 +139,7 @@ export function ProgressScreen({ onHome, onBell }: { onHome: () => void; onBell:
         </View>
         <Text className="font-mid text-[15px] leading-[23px] text-dim">
           {drop !== null && drop > 0.05
-            ? `O degrau médio caiu de ${formatLevel(progress.previous!)} para ${formatLevel(progress.average!)}. Ela está chegando na palavra mais cedo na escada — que é exatamente o que este aplicativo existe para fazer.`
+            ? `O degrau médio caiu de ${formatLevel(progress.previous!)} para ${formatLevel(progress.average!)}. A palavra está vindo mais cedo na escada — que é exatamente o que este aplicativo existe para fazer.`
             : `Foram ${history.length} ${history.length === 1 ? 'palavra alcançada' : 'palavras alcançadas'} até agora. A partir de dez tentativas dá para comparar uma semana com a outra e ver se a ajuda está diminuindo.`}
         </Text>
       </View>
@@ -182,8 +182,8 @@ export function ProgressScreen({ onHome, onBell }: { onHome: () => void; onBell:
         </View>
       ) : (
         <Text className={NOTE}>
-          Nada aqui é estimativa. Cada ponto é uma palavra que ela alcançou neste aparelho, com o
-          degrau em que chegou.
+          Nada aqui é estimativa. Cada ponto é uma palavra alcançada neste aparelho, com o degrau
+          em que chegou.
         </Text>
       )}
     </Screen>

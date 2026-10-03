@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 import { color } from '../theme/tokens'
 import type { Alert } from '../domain/patients'
 
+const DONE: Record<Alert['kind'], string> = {
+  idle: 'Família avisada',
+  ready: 'Pista sonora tirada'
+}
+
 export function AlertStrip({ alert }: { alert: Alert }) {
+  const [done, setDone] = useState(false)
   const ready = alert.kind === 'ready'
   const tone = ready ? color.goodSoft : color.warnSoft
   const ink = ready ? color.goodInk : color.warnInk
@@ -44,11 +51,15 @@ export function AlertStrip({ alert }: { alert: Alert }) {
       </Text>
 
       <Pressable
+        onPress={() => setDone(true)}
+        disabled={done}
         accessibilityRole="button"
+        accessibilityState={{ disabled: done }}
         className="h-[34px] justify-center rounded-[10px] bg-surface px-3"
+        style={done ? { opacity: 0.6 } : undefined}
       >
         <Text className="font-heavy text-[12.5px]" style={{ color: ink }}>
-          {alert.action}
+          {done ? DONE[alert.kind] : alert.action}
         </Text>
       </Pressable>
     </View>

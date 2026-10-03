@@ -31,7 +31,25 @@ const STOP = new Set([
   'mais',
   'muito',
   'tava',
-  'esta',
+  'voce',
+  'voces',
+  'sua',
+  'seu',
+  'por',
+  'pega',
+  'todo',
+  'dia',
+  'fica',
+  'sempre',
+  'perto',
+  'algo',
+  'fazem',
+  'juntos',
+  'pessoa',
+  'proxima',
+  'lugar',
+  'mapa',
+  'mora',
   'the'
 ])
 
@@ -79,6 +97,7 @@ function hitsFor(graph: LifeGraph, transcript: string): Hit[] {
   const hits: Hit[] = []
 
   for (const node of Object.values(graph.nodes)) {
+    if (node.id === graph.owner) continue
     const names = [node.label, ...(node.aliases ?? [])].flatMap(tokens)
     const byName = names.some(name => said.includes(name))
 
@@ -93,10 +112,6 @@ function hitsFor(graph: LifeGraph, transcript: string): Hit[] {
   }
 
   return hits.sort((a, b) => b.score - a.score)
-}
-
-export function mentioned(graph: LifeGraph, transcript: string): NodeId[] {
-  return hitsFor(graph, transcript).map(hit => hit.id)
 }
 
 function spread(graph: LifeGraph, seeds: NodeId[]): Map<NodeId, number> {

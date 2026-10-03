@@ -8,12 +8,10 @@ import {
   PATIENTS,
   drop,
   latest,
-  type Patient,
   type PatientWord,
   type WordKind
 } from '../domain/patients'
 import { color, shadow } from '../theme/tokens'
-import { TOP_INSET } from '../theme/insets'
 
 const SOFT = { ...shadow.card, shadowOpacity: 0.06 }
 const CHART_HEIGHT = 120
@@ -144,8 +142,6 @@ export function PatientScreen({
           path="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"
         />
       </View>
-
-      <View className="h-[104px]" />
     </Screen>
   )
 }
@@ -298,5 +294,3 @@ function Action({
     </Pressable>
   )
 }
-
-export const PATIENT_TOP = TOP_INSET

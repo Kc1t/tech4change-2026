@@ -9,7 +9,6 @@ import Animated, {
 import * as Haptics from 'expo-haptics'
 import { patternFor, pulse } from '../haptics'
 import { prefetchVoice, speakVoice } from '../voice'
-import { BackdropToggle } from '../components/BackdropToggle'
 import { Buddy, type BuddyMood } from '../components/Buddy'
 import { AuroraField, type OrbState } from '../components/AuroraField'
 import { Typed } from '../components/Typed'
@@ -21,9 +20,9 @@ import { useListening } from '../hooks/useListening'
 import { recordEvent } from '../api/client'
 import { CONFIDENCE_FLOOR, mentionsOf } from '../domain/predict'
 import { silenceFor } from '../domain/comfort'
+import { deterministicLadder } from '../domain/ladder'
 import { activeChannel, lifeGraph, useApp } from '../store'
 import { broadcastCue, type CuePayload } from '../sync/client'
-import { color } from '../theme/tokens'
 import type { LadderStep } from '../domain/types'
 
 const KIND_LABEL: Record<LadderStep['kind'], string> = {
@@ -67,7 +66,6 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   const level = useApp(s => s.level)
   const open = useApp(s => s.open)
   const output = useApp(s => s.output)
-  const backdrop = useApp(s => s.backdrop)
   const helpLevel = useApp(s => s.helpLevel)
   const start = useApp(s => s.start)
   const advance = useApp(s => s.advance)
@@ -82,22 +80,13 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
 
   const { width } = useWindowDimensions()
   const orbSize = Math.min(width * 0.52, 200)
-  const swap = useSharedValue(backdrop === 'orb' ? 1 : 0)
-
-  useEffect(() => {
-    swap.value = withTiming(backdrop === 'orb' ? 1 : 0, {
-      duration: 460,
-      easing: Easing.bezier(0.22, 1, 0.36, 1)
-    })
-  }, [backdrop, swap])
-
-  const waveBox = useAnimatedStyle(() => ({ opacity: (1 - swap.value) * 0.5 }))
   const focus = useSharedValue(0)
   const buddyHeight = orbSize * 0.78 * 1.25
   const [pulseCount, setPulseCount] = useState(0)
   const [pressed, setPressed] = useState(false)
   const [flash, setFlash] = useState<Flash | null>(null)
   const [resolvedAt, setResolvedAt] = useState<number | null>(null)
+  const [delivered, setDelivered] = useState(false)
   const target = lifeGraph.nodes[targetId]!
 
   useEffect(() => {
@@ -118,6 +107,7 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   )
 
   const deafen = useRef<(deaf: boolean) => void>(() => {})
+  const cueTurn = useRef(0)
   const transcriptRef = useRef('')
   const mentionsAtCue = useRef(0)
 
@@ -126,8 +116,11 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
       if (output !== 'voice') setFlash({ text, caption, isWord, id: Date.now() })
       if (output === 'text') return
 
+      const turn = ++cueTurn.current
       deafen.current(true)
-      speakVoice(text, () => deafen.current(false))
+      speakVoice(text, () => {
+        if (cueTurn.current === turn) deafen.current(false)
+      })
     },
     [output]
   )
@@ -138,8 +131,24 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
     show(target.label, 'foi você que achou', true)
     const level = succeed()
     share({ targetId: target.id, level, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
+    setDelivered(false)
     setResolvedAt(level)
   }, [show, succeed, share, target.label, target.id, intensity])
+
+  const reveal = useCallback(() => {
+    const state = useApp.getState()
+    recordEvent({
+      targetId: state.target(),
+      event: 'abandoned',
+      level: state.level,
+      origin: state.origin,
+      channel: activeChannel(state.channels),
+      elapsedMs: state.startedAt ? Date.now() - state.startedAt : 0
+    })
+    pulse('success', intensity)
+    show(target.label, 'aqui está a palavra', true)
+    nextScene()
+  }, [show, nextScene, target.label, intensity])
 
   const trigger = useCallback(() => {
     if (resolvedAt !== null) {
@@ -150,10 +159,13 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
     }
 
     if (helpLevel === 'deliver') {
+      const full = deterministicLadder(lifeGraph, target.id)
       pulse('success', intensity)
       show(target.label, 'aqui está a palavra', true)
-      setResolvedAt(succeed(0))
-      share({ targetId: target.id, level: 0, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
+      const level = succeed(full.length, full.length)
+      setDelivered(true)
+      setResolvedAt(level)
+      share({ targetId: target.id, level, attr: 'phon', edge: null, isFinal: true, event: 'resolved' })
       return
     }
 
@@ -210,7 +222,8 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
     state: listening,
     start: listen,
     stop: unlisten,
-    setDeaf
+    setDeaf,
+    enableMicrophone
   } = useListening(trigger, keyterms, silenceFor(patience))
 
   useEffect(() => {
@@ -219,8 +232,9 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
 
   useEffect(() => {
     transcriptRef.current = listening.transcript
+    if (resolvedAt !== null) return
     hear(listening.transcript)
-    if (!useApp.getState().open || resolvedAt !== null) return
+    if (!useApp.getState().open) return
     const mentions = mentionsOf(target, listening.transcript)
     if (mentions < mentionsAtCue.current) mentionsAtCue.current = mentions
     else if (mentions > mentionsAtCue.current) handleSuccess()
@@ -238,8 +252,12 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
 
   useEffect(() => {
     if (output === 'text') return
-    prefetchVoice([target.label, ...ladder.map(step => step.text)])
-  }, [output, target.label, ladder])
+    prefetchVoice([
+      target.label,
+      ...deterministicLadder(lifeGraph, target.id).map(step => step.text),
+      ...ladder.map(step => step.text)
+    ])
+  }, [output, target.id, target.label, ladder])
 
   const { demo, start: runDemo } = useDemoFlow({
     onCue: trigger,
@@ -264,6 +282,14 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   const confident = guess !== undefined && guess !== null && prediction.confidence >= CONFIDENCE_FLOOR
   const heard = listening.transcript.trim()
   const resolved = resolvedAt !== null
+  const exhausted = open && ladder.length > 0 && level >= ladder.length
+
+  const tap = () => {
+    if (!armed) void listen()
+    else if (exhausted) reveal()
+    else trigger()
+  }
+
   const orbState: OrbState = resolved
     ? 'delivering'
     : flash
@@ -286,12 +312,12 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
             ? 'speaking'
             : 'listening'
 
-  const status = demo.running && demo.heard
+  const status = demo.running && demo.heard && !open && !resolved
     ? 'ouvindo a frase'
     : !armed
       ? 'a escuta está em pausa'
       : listening.denied
-        ? 'é só tocar quando precisar'
+        ? 'microfone desligado'
         : listening.calibrating
           ? 'me acostumando com o ambiente'
           : listening.noisy
@@ -300,9 +326,11 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
               ? `pista ${level} de ${ladder.length}`
               : confident
                 ? 'acho que sei qual é'
-                : listening.speaking
-                  ? 'ouvindo a frase'
-                  : 'ouvindo com você'
+                : listening.active && listening.engine === 'lost'
+                  ? 'ouvindo sem transcrição'
+                  : listening.speaking
+                    ? 'ouvindo a frase'
+                    : 'ouvindo com você'
   const expected = flash
     ? flash.text
     : resolved
@@ -336,9 +364,11 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
   }))
 
   const caption = resolved
-    ? resolvedAt === 0
-      ? 'Saiu sem nenhuma pista.'
-      : `Você chegou lá com ${resolvedAt} ${resolvedAt === 1 ? 'pista' : 'pistas'}. A cada vez fica mais fácil.`
+    ? delivered
+      ? 'Aqui está a palavra.'
+      : resolvedAt === 0
+        ? 'Saiu sem nenhuma pista.'
+        : `Você chegou lá na pista ${resolvedAt}. A cada vez fica mais fácil.`
     : flash
       ? flash.caption
       : armed
@@ -347,20 +377,12 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
 
   return (
     <View className="flex-1 bg-ink">
-      <Animated.View className="absolute inset-x-0 bottom-0 h-[34%]" style={waveBox}>
+      <View className="absolute inset-x-0 bottom-0 h-[34%] opacity-50">
         <AuroraField state={orbState} level={listening.speaking ? 0.62 : armed ? 0.3 : 0} />
-      </Animated.View>
+      </View>
 
       <ScreenTop>
-        <TopBar
-          left={<BrandMark />}
-          right={
-            <>
-              <BackdropToggle />
-              <NotificationBell onPress={onBell} />
-            </>
-          }
-        />
+        <TopBar left={<BrandMark />} right={<NotificationBell onPress={onBell} />} />
         <View>
           <Text className="font-strong text-[11px] tracking-[1.4px] text-label">
             {status.toUpperCase()}
@@ -380,14 +402,28 @@ export function MomentScreen({ onBell }: { onBell: () => void }) {
               <Text className="font-strong text-hint text-dim">Pausar a escuta</Text>
             </Pressable>
           )}
+          {listening.denied && !demo.running && (
+            <Pressable
+              onPress={() => void enableMicrophone()}
+              accessibilityRole="button"
+              accessibilityLabel="Ligar o microfone"
+              hitSlop={8}
+              className="mt-3 min-h-tap flex-row items-center gap-2 self-start"
+            >
+              <View className="size-2 rounded-full bg-faint" />
+              <Text className="font-strong text-hint text-dim">Ligar o microfone</Text>
+            </Pressable>
+          )}
         </View>
       </ScreenTop>
 
       <Pressable
-        onPress={() => (armed ? trigger() : void listen())}
+        onPress={demo.running ? undefined : tap}
         onPressIn={() => setPressed(true)}
         onPressOut={() => setPressed(false)}
-        accessibilityLabel={armed ? 'Travou — pedir ajuda agora' : 'Ativar a escuta'}
+        accessibilityLabel={
+          !armed ? 'Ativar a escuta' : exhausted ? 'Mostrar a palavra' : 'Travou — pedir ajuda agora'
+        }
         className="flex-1 items-center justify-center px-6"
       >
         <Animated.View style={buddyBox}>

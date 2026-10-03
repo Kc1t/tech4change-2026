@@ -1,7 +1,7 @@
 import './global.css'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { LogBox, View } from 'react-native'
+import { BackHandler, LogBox, View } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import {
   Manrope_400Regular,
@@ -23,9 +23,9 @@ import { GraphScreen } from './src/screens/GraphScreen'
 import { MemoriesScreen } from './src/screens/MemoriesScreen'
 import { MomentScreen } from './src/screens/MomentScreen'
 import { ProgressScreen } from './src/screens/ProgressScreen'
-import { useSyncChannel } from './src/hooks/useSyncChannel'
+import { useSyncChannel, useSyncPolling } from './src/hooks/useSyncChannel'
 import { CLINIC_ROUTES, HOME, type Route } from './src/navigation'
-import { installSeed, useApp } from './src/store'
+import { installExample, installSeed, useApp } from './src/store'
 import { DEMO_SEED, buildSeedGraph, type Seed } from './src/domain/seed'
 import { forgetSeed, readSeed, saveSeed } from './src/domain/seedStore'
 import { readComfort } from './src/domain/comfort'
@@ -52,11 +52,17 @@ export default function App() {
   const [touring, setTouring] = useState(false)
   const walk = useRef<Array<ReturnType<typeof setTimeout>>>([])
   const sync = useSyncChannel()
+  useSyncPolling()
 
   const stopWalk = useCallback(() => {
     walk.current.forEach(clearTimeout)
     walk.current = []
   }, [])
+
+  const cancelTour = useCallback(() => {
+    stopWalk()
+    setTouring(false)
+  }, [stopWalk])
 
   useEffect(() => stopWalk, [stopWalk])
 
@@ -67,18 +73,26 @@ export default function App() {
       if (alive) useApp.getState().applyComfort(comfort)
     })
 
-    void readSeed().then(async seed => {
-      if (!alive) return
-      if (seed) {
-        const { graph, scenes } = await buildSeedGraph(seed)
+    void readSeed()
+      .then(async seed => {
         if (!alive) return
-        installSeed(graph, scenes)
+        if (seed) {
+          const { graph, scenes } = await buildSeedGraph(seed)
+          if (!alive) return
+          installSeed(graph, scenes)
+          setSplash(true)
+        } else {
+          setNeedsSeed(true)
+        }
+      })
+      .catch(() => {
+        if (!alive) return
+        installExample()
         setSplash(true)
-      } else {
-        setNeedsSeed(true)
-      }
-      setBooted(true)
-    })
+      })
+      .finally(() => {
+        if (alive) setBooted(true)
+      })
 
     return () => {
       alive = false
@@ -115,29 +129,38 @@ export default function App() {
     if (touring) startWalk()
   }, [demoPending, touring, startWalk])
 
+  const showExample = useCallback(() => {
+    installExample()
+    leaveOnboarding()
+  }, [leaveOnboarding])
+
   const acceptSeed = useCallback(async (seed: Seed) => {
-    await saveSeed(seed)
-    const { graph, scenes } = await buildSeedGraph(seed)
-    installSeed(graph, scenes)
+    const built = await buildSeedGraph(seed).catch(() => null)
+    if (built) {
+      await saveSeed(seed)
+      installSeed(built.graph, built.scenes)
+    } else {
+      installExample()
+    }
     leaveOnboarding()
   }, [leaveOnboarding])
 
   const restartSeed = useCallback(async () => {
-    stopWalk()
-    setTouring(false)
+    cancelTour()
     setDemoPending(false)
     await forgetSeed()
-    setPrefill(DEMO_SEED)
     setNeedsSeed(true)
     setStack([HOME])
-  }, [stopWalk])
+  }, [cancelTour])
 
   const startTour = useCallback(async () => {
     stopWalk()
     await forgetSeed()
 
-    if (!useApp.getState().sessionCode) await sync.open()
+    if (!useApp.getState().sessionCode) void sync.open()
 
+    useApp.getState().setHelpLevel('hint')
+    useApp.getState().clearDemo()
     setPrefill(DEMO_SEED)
     setTouring(true)
     setDemoPending(true)
@@ -149,12 +172,23 @@ export default function App() {
   const route = stack[stack.length - 1]!
 
   const go = useCallback((next: Route) => {
+    cancelTour()
     setStack(current => (current[current.length - 1] === next ? current : [...current, next]))
-  }, [])
+  }, [cancelTour])
 
   const back = useCallback(() => {
+    cancelTour()
     setStack(current => (current.length > 1 ? current.slice(0, -1) : current))
-  }, [])
+  }, [cancelTour])
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (stack.length <= 1) return false
+      back()
+      return true
+    })
+    return () => subscription.remove()
+  }, [stack.length, back])
 
   const openMemories = useCallback(
     (id: NodeId | null) => {
@@ -175,7 +209,7 @@ export default function App() {
             prefill={prefill}
             auto={touring}
             onDone={seed => void acceptSeed(seed)}
-            onExample={leaveOnboarding}
+            onExample={showExample}
           />
         </View>
       </View>
@@ -193,12 +227,14 @@ export default function App() {
         {route === 'progress' && (
           <ProgressScreen onHome={() => go(HOME)} onBell={() => go('graph')} />
         )}
-        {route === 'body' && <BodyScreen
+        {route === 'body' && (
+          <BodyScreen
             onBell={() => go('graph')}
             onClinical={() => go('clinical')}
             onRestart={() => void restartSeed()}
             onDemo={() => void startTour()}
-          />}
+          />
+        )}
         {route === 'clinical' && (
           <ClinicalScreen
             onBack={back}
@@ -224,18 +260,27 @@ export default function App() {
       {CLINIC_ROUTES.includes(route) ? (
         <ClinicianBar
           active="patients"
-          onPatients={() => setStack(current => [...current.slice(0, current.indexOf('clinical') + 1)])}
-          onLeave={() => setStack(['moment', 'body'])}
+          onPatients={() => {
+            cancelTour()
+            setStack(current => [...current.slice(0, current.indexOf('clinical') + 1)])
+          }}
+          onLeave={() => {
+            cancelTour()
+            setStack(['moment', 'body'])
+          }}
         />
       ) : (
-      <BottomBar
-        route={route}
-        onNavigate={next => {
-          if (next === 'memories') setMemoryFilter(null)
-          go(next)
-        }}
-        onHome={() => setStack([HOME])}
-      />
+        <BottomBar
+          route={route}
+          onNavigate={next => {
+            if (next === 'memories') setMemoryFilter(null)
+            go(next)
+          }}
+          onHome={() => {
+            cancelTour()
+            setStack([HOME])
+          }}
+        />
       )}
 
       {splash && <Splash onDone={closeSplash} />}

@@ -97,6 +97,21 @@ export function resolve(graph: LifeGraph, plan: CuePlan): LadderStep[] {
   return buildLadder(graph, safePlan)
 }
 
+export function deterministicLadder(graph: LifeGraph, targetId: NodeId): LadderStep[] {
+  return buildLadder(graph, deterministicPlan(graph, targetId))
+}
+
+export function mergeLadder(shown: LadderStep[], ranked: LadderStep[]): LadderStep[] {
+  if (shown.some(step => step.isFinal)) return shown
+  const seen = new Set(shown.map(step => step.attr))
+  const fresh = ranked.filter(step => {
+    if (seen.has(step.attr)) return false
+    seen.add(step.attr)
+    return true
+  })
+  return [...shown, ...fresh].map((step, index) => ({ ...step, level: index + 1 }))
+}
+
 export function startingLevel(lastLevel: number | null, totalSteps: number): number {
   if (lastLevel === null) return 1
   return Math.max(1, Math.min(totalSteps, lastLevel - 1))
