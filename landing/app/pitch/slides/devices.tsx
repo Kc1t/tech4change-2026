@@ -1,31 +1,35 @@
 import { SLIDE_ASSETS } from '../deck/assets'
 import { motionDelay } from '../deck/motion'
+import { SlideFooter } from '../deck/slide-footer'
+import type { StepProps } from '../deck/types'
 import './devices.css'
 
-const DEVICES = [
-  { photo: 'aparelho-celular', name: 'Só o celular', badge: 'já basta · qualquer celular', text: 'A escada inteira roda no celular: a dica na tela e a vibração na mão.' },
-  { photo: 'aparelho-pulseira', name: 'Uma pulseira simples', badge: 'opcional · R$ 50–150', text: 'Qualquer pulseira ou relógio com bluetooth e vibração recebe o aviso.' },
-  { photo: 'aparelho-relogio', name: 'Um relógio', badge: 'opcional · mais discreto', text: 'Ela sente a dica no pulso e lê de relance, sem tirar o celular do bolso.' }
+const CARDS = [
+  { image: 'celulares', badge: 'já basta · qualquer celular', title: 'Só o celular', text: 'A dica aparece na tela e vibra na mão.', main: true },
+  { image: 'pulseiras', badge: 'opcional · a partir de R$ 50', title: 'Uma pulseira simples', text: 'Qualquer pulseira que vibre com as notificações do celular.' },
+  { image: 'relogios', badge: 'opcional · mais discreto', title: 'Um relógio', text: 'Qualquer relógio: ela sente a dica no pulso e lê de relance.' }
 ]
 
-export function Devices() {
+export function Devices({ index, total }: StepProps) {
   return (
     <div className="devices">
-      <h2 className="abs rise" style={motionDelay(150)}>O celular já basta.<br /><em>O relógio é opcional e só facilita.</em></h2>
-      <div className="abs cards">
-        {DEVICES.map((device, index) => (
-          <div key={device.photo} className={`device rise${index === 0 ? ' device--featured' : ''}`} style={motionDelay(350 + index * 180)}>
-            <div className="photo"><img src={`${SLIDE_ASSETS}/${device.photo}.webp`} alt="" /><span className="badge">{device.badge}</span></div>
-            <b>{device.name}</b>
-            <p>{device.text}</p>
+      <p className="abs slide-eyebrow rise" style={motionDelay(100)}>FUNCIONA COM O QUE ELA TEM</p>
+      <h2 className="abs rise" style={motionDelay(200)}>
+        Qualquer celular já basta.<br /><em>Qualquer relógio só facilita.</em>
+      </h2>
+      {CARDS.map((card, n) => (
+        <div key={card.image} className={`abs device-card${card.main ? ' device-card--main' : ''} rise`} style={{ ...motionDelay(400 + n * 150), left: 55 + n * 586 }}>
+          <div className={`device-photo device-photo--${card.image}`}>
+            <img src={`${SLIDE_ASSETS}/aparelhos-${card.image}.webp`} alt="" />
           </div>
-        ))}
-      </div>
-      <div className="abs convenience rise" style={motionDelay(950)}>
-        <span>mais facilidade</span>
-        <i />
-      </div>
-      <p className="abs note rise" style={motionDelay(1100)}>Nenhum aparelho extra é pré-requisito. Cada um só deixa a ajuda mais à mão.</p>
+          <span className="device-badge">{card.badge}</span>
+          <b>{card.title}</b>
+          <p>{card.text}</p>
+        </div>
+      ))}
+      <p className="abs ease-label rise" style={motionDelay(900)}>MAIS FACILIDADE</p>
+      <img className="abs ease-arrow rise" style={motionDelay(950)} src={`${SLIDE_ASSETS}/aparelhos-seta.svg`} alt="" />
+      <SlideFooter index={index} total={total} />
     </div>
   )
 }

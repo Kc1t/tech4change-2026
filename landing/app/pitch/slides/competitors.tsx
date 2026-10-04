@@ -17,6 +17,9 @@ const COMPETITORS: { name: string; about: string; logo: string; kind: Kind; mark
 ]
 
 const cellLeft = (column: number) => 805 + column * 330
+const EILO_TOP = 376
+const FIRST_ROW_TOP = 468
+const ROW_HEIGHT = 78
 
 function Cell({ mark }: { mark: Mark }) {
   if (mark === true) return <span className="yes">✓</span>
@@ -31,8 +34,14 @@ export function Competitors() {
       {COLUMNS.map((column, index) => (
         <p key={column} className="abs column rise" style={{ ...motionDelay(400 + index * 80), left: cellLeft(index) + 144 }}>{column}</p>
       ))}
+      <div className="abs row row--eilo" style={{ ...motionDelay(550), top: EILO_TOP }}>
+        <img className="eilo-brand" src={`${PITCH_ASSETS}/eilo-icon-lilas.png`} alt="" />
+        <b>Eilo</b>
+        <small>pista no instante do bloqueio</small>
+        {COLUMNS.map((column, index) => <div key={column} className="cell" style={{ left: cellLeft(index) }}><span className="yes" style={motionDelay(1000 + index * 140)}>✓</span></div>)}
+      </div>
       {COMPETITORS.map((competitor, index) => (
-        <div key={competitor.name} className={`abs row rise${index === COMPETITORS.length - 1 ? ' row--last' : ''}`} style={{ ...motionDelay(600 + index * 140), top: 376 + index * 78 }}>
+        <div key={competitor.name} className={`abs row rise${index === COMPETITORS.length - 1 ? ' row--last' : ''}`} style={{ ...motionDelay(900 + index * 140), top: FIRST_ROW_TOP + index * ROW_HEIGHT }}>
           <span className={`brand brand--${competitor.logo}`}><img src={`${SLIDE_ASSETS}/conc-${competitor.logo}.png`} alt="" /></span>
           <b>{competitor.name}</b>
           <small>{competitor.about}</small>
@@ -40,12 +49,6 @@ export function Competitors() {
           {competitor.marks.map((mark, column) => <div key={column} className="cell" style={{ left: cellLeft(column) }}><Cell mark={mark} /></div>)}
         </div>
       ))}
-      <div className="abs row row--eilo" style={motionDelay(1450)}>
-        <img className="eilo-brand" src={`${PITCH_ASSETS}/eilo-icon-lilas.png`} alt="" />
-        <b>Eilo</b>
-        <small>pista no instante do bloqueio</small>
-        {COLUMNS.map((column, index) => <div key={column} className="cell" style={{ left: cellLeft(index) }}><span className="yes" style={motionDelay(1900 + index * 140)}>✓</span></div>)}
-      </div>
     </div>
   )
 }

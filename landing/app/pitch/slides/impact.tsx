@@ -2,40 +2,35 @@ import { SLIDE_ASSETS } from '../deck/assets'
 import { motionDelay } from '../deck/motion'
 import './impact.css'
 
-const STATS = [
-  { value: '4+ dias', lines: ['de terapia por semana:', 'o que a diretriz recomenda'] },
-  { value: '1–2', lines: ['sessões de fono por', 'semana: o que existe hoje'] },
-  { value: '7 dias', lines: ['com possibilidade de praticar', 'entre as sessões'] },
-  { value: '4 → 1', lines: ['projeção: o degrau médio cair', 'com o uso · medir no piloto'], goal: true }
+const TIMELINE = [
+  { label: 'Hoje', value: '3 meses', className: 'row--today' },
+  { label: 'Com o Eilo', value: '1 mês', className: 'row--eilo' }
 ]
 
 export function Impact() {
   return (
     <div className="impact">
-      <h2 className="abs rise" style={motionDelay(150)}>Mais prática, <em>entre sessões.</em></h2>
-      <div className="abs stats">
-        {STATS.map((stat, index) => (
-          <div key={stat.value} className={`stat rise${stat.goal ? ' stat--goal' : ''}`} style={motionDelay(350 + index * 120)}>
-            <b>{stat.value}</b>
-            <span>{stat.lines[0]}<br />{stat.lines[1]}</span>
-          </div>
-        ))}
+      <div className="abs backdrop rise" style={motionDelay(100)} />
+      <div className="abs table-crop rise" style={motionDelay(200)}>
+        <img src={`${SLIDE_ASSETS}/impacto-mesa.webp`} alt="Mulher sorrindo, apoiada na mesa com uma xícara de café" />
       </div>
-      <p className="abs sources rise" style={motionDelay(850)}>Diretriz europeia de reabilitação da afasia (ESO, 2025) · RELEASE, Stroke 2022 · Brady et al., Cochrane 2016</p>
-      <div className="abs tile tile--talk rise" style={motionDelay(700)}>
-        <img className="cover" src={`${SLIDE_ASSETS}/impacto-telefone.webp`} alt="" />
-        <div className="gradient" />
-        <b>A conversa é a meta</b>
-        <p>Queremos reduzir a ajuda necessária para encontrar a palavra. Essa evolução será medida no piloto.</p>
+      <img className="abs bubble-tail rise" style={motionDelay(700)} src={`${SLIDE_ASSETS}/impacto-balao-ponta.svg`} alt="" />
+      <div className="abs bubble rise" style={motionDelay(700)}>
+        <small>A PALAVRA VOLTOU</small>
+        <b>Letícia!</b>
       </div>
-      <div className="abs tile tile--lunch rise" style={motionDelay(850)}>
-        <img src={`${SLIDE_ASSETS}/impacto-almoco.webp`} alt="" />
-      </div>
-      <div className="abs tile tile--therapist rise" style={motionDelay(1000)}>
-        <img src={`${SLIDE_ASSETS}/impacto-telas.webp`} alt="" />
-        <b>Complementa o tratamento</b>
-        <p>A prática pode continuar no dia a dia, enquanto o fono acompanha a evolução pelo painel.</p>
-      </div>
+      <p className="abs eyebrow rise" style={motionDelay(400)}>NOSSA META</p>
+      <p className="abs headline rise" style={motionDelay(500)}>1 mês</p>
+      <p className="abs lead rise" style={motionDelay(650)}>para chegar no treino que</p>
+      <p className="abs lead-em serif rise" style={motionDelay(750)}>traz a fala de volta.</p>
+      {TIMELINE.map((row, index) => (
+        <div key={row.label} className={`abs row ${row.className} rise`} style={motionDelay(900 + index * 150)}>
+          <b>{row.label}</b>
+          <i style={motionDelay(1100 + index * 150)} />
+          <span>{row.value}</span>
+        </div>
+      ))}
+      <p className="abs source rise" style={motionDelay(1300)}>Meta do piloto: 20 h de treino, a faixa de maior ganho (RELEASE, Stroke 2022).</p>
     </div>
   )
 }

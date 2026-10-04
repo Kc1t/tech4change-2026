@@ -5,6 +5,7 @@ import { Deck } from './deck/deck'
 const newsreader = Newsreader({
   subsets: ['latin'],
   weight: ['300', '400', '600'],
+  style: ['normal', 'italic'],
   variable: '--font-newsreader',
   display: 'swap'
 })

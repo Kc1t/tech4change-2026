@@ -14,7 +14,7 @@
 .pitch .competitors .yes { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--violet); color: #fff; font-size: 18px; font-weight: 700; }
 .pitch .competitors .no { width: 18px; height: 2.5px; background: #a6a3b5; }
 .pitch .competitors .note { color: var(--gray); font-size: 16px; font-weight: 500; }
-.pitch .competitors .row--eilo { top: 780px; border: 0; border-radius: 24px; background: var(--violet); color: #fff; box-shadow: 0 16px 36px rgba(107, 95, 168, .28); animation: competitors-eilo 900ms cubic-bezier(.3, 1.25, .5, 1) both; animation-delay: var(--d); }
+.pitch .competitors .row--eilo { border: 0; border-radius: 24px; background: var(--violet); color: #fff; box-shadow: 0 16px 36px rgba(107, 95, 168, .28); animation: competitors-eilo 900ms cubic-bezier(.3, 1.25, .5, 1) both; animation-delay: var(--d); }
 @keyframes competitors-eilo { from { opacity: 0; translate: 0 30px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
 .pitch .competitors .row--eilo small { color: var(--highlight); }
 .pitch .competitors .eilo-brand { position: absolute; left: 20px; top: 12px; width: 54px; height: 54px; border-radius: 13px; object-fit: cover; }

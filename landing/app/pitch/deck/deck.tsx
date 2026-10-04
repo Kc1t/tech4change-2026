@@ -69,7 +69,7 @@ export function Deck() {
         <div className="panel">
           {!slide.bare && slide.label && <SectionChip label={slide.label} />}
           {!slide.bare && <img className="logo" src={`${PITCH_ASSETS}/eilo-wordmark-lilas2.png`} alt="eilo" />}
-          <div key={position.index} style={{ position: 'absolute', inset: 0 }}>{slide.render({ step: position.step, setStep })}</div>
+          <div key={position.index} style={{ position: 'absolute', inset: 0 }}>{slide.render({ step: position.step, setStep, index: position.index, total: SLIDES.length })}</div>
         </div>
       </div>
       <SlideMenu slides={SLIDES} current={position.index} open={menuOpen} go={go} remote={remote} />

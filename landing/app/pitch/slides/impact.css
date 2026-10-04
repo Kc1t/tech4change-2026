@@ -1,22 +1,25 @@
-.pitch .impact h2 { left: 0; right: 0; top: 111px; text-align: center; font-size: 70px; font-weight: 500; line-height: 1.37; letter-spacing: -1.05px; }
-.pitch .impact h2 em { font-style: normal; color: var(--violet); background: linear-gradient(var(--highlight), var(--highlight)) 0 64% / 100% 78% no-repeat; border-radius: 12px; padding: 0 8px; margin-left: -4px; }
-.pitch .impact .stats { left: 0; right: 0; top: 235px; display: flex; justify-content: center; align-items: center; }
-.pitch .impact .stat { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 46px; white-space: nowrap; }
-.pitch .impact .stat + .stat { border-left: 1.5px solid #e6e3f0; }
-.pitch .impact .stat b { font-size: 42px; font-weight: 700; }
-.pitch .impact .stat--goal b { color: var(--violet); }
-.pitch .impact .stat span { color: var(--gray); font-size: 17px; line-height: 1.3; text-align: center; }
-.pitch .impact .sources { left: 0; right: 0; top: 371px; text-align: center; color: #a5a2b4; font-size: 15px; }
-.pitch .impact .tile { top: 419px; height: 520px; border-radius: 32px; overflow: hidden; }
-.pitch .impact .tile b { position: absolute; font-size: 32px; font-weight: 700; white-space: nowrap; }
-.pitch .impact .tile p { position: absolute; font-size: 21px; line-height: 1.4; }
-.pitch .impact .tile--talk { left: 55px; width: 540px; background: var(--violet); }
-.pitch .impact .tile--talk .gradient { position: absolute; left: 0; top: 192px; width: 100%; height: 328px; background: linear-gradient(to bottom, rgba(107, 95, 168, 0) 25%, rgba(107, 95, 168, .97) 72%); }
-.pitch .impact .tile--talk b { left: 40px; top: 356px; color: #fff; }
-.pitch .impact .tile--talk p { left: 40px; top: 406px; width: 460px; color: #e6e2f6; font-weight: 500; }
-.pitch .impact .tile--lunch { left: 620px; width: 543px; }
-.pitch .impact .tile--lunch img { position: absolute; top: 0; left: -59.82%; width: 171.56%; height: 100%; }
-.pitch .impact .tile--therapist { left: 1183px; width: 596px; background: #fff; border: 2px solid var(--highlight); }
-.pitch .impact .tile--therapist img { position: absolute; left: -35.4px; top: -48px; width: 656.7px; height: 493px; }
-.pitch .impact .tile--therapist b { left: 38px; top: 368px; }
-.pitch .impact .tile--therapist p { left: 38px; top: 416px; width: 510px; color: var(--gray); }
+.pitch .impact .backdrop { left: 55px; top: 339px; width: 770px; height: 600px; border-radius: 44px; background: #eeeafb; }
+.pitch .impact .table-crop { left: 55px; top: -1px; width: 770px; height: 940px; overflow: hidden; border-radius: 0 0 44px 44px; }
+.pitch .impact .table-crop img { position: absolute; left: -5px; top: 45.68px; width: 780px; height: 923.203px; object-fit: cover; }
+.pitch .impact .bubble-tail { left: 522.7px; top: 243.5px; width: 157.093px; height: 136.983px; }
+.pitch .impact .bubble { left: 559px; top: 149px; display: flex; flex-direction: column; gap: 2px; padding: 18px 34px 20px 30px; border-radius: 34px; background: var(--violet); box-shadow: 0 12px 30px rgba(64, 51, 128, .22); font-weight: 700; line-height: normal; white-space: nowrap; }
+.pitch .impact .bubble small { color: rgba(255, 255, 255, .72); font-size: 14px; letter-spacing: 1.96px; }
+.pitch .impact .bubble b { color: #fff; font-size: 50px; letter-spacing: -1px; }
+.pitch .impact .eyebrow { left: 979px; top: 189px; color: var(--violet); font-size: 18px; font-weight: 700; letter-spacing: 3.96px; white-space: nowrap; }
+.pitch .impact .headline { left: 965px; top: 199px; color: var(--ink); font-size: 280px; font-weight: 800; line-height: 1; letter-spacing: -16.8px; white-space: nowrap; }
+.pitch .impact .lead { left: 979px; top: 499px; color: var(--ink); font-size: 44px; font-weight: 500; letter-spacing: -0.88px; white-space: nowrap; }
+.pitch .impact .lead-em { left: 977px; top: 551px; color: var(--violet); font-size: 62px; font-style: italic; font-weight: 400; line-height: normal; letter-spacing: -0.62px; white-space: nowrap; }
+.pitch .impact .row { left: 979px; display: flex; align-items: center; height: 34px; white-space: nowrap; }
+.pitch .impact .row b { width: 150px; font-size: 22px; font-weight: 700; }
+.pitch .impact .row i { height: 34px; border-radius: 17px; transform-origin: 0 50%; animation: impact-bar 900ms var(--ease) both; animation-delay: var(--d, 0ms); }
+.pitch .impact .row span { margin-left: 16px; font-size: 26px; font-weight: 700; letter-spacing: -0.26px; }
+.pitch .impact .row--today { top: 689px; color: #9a96ae; }
+.pitch .impact .row--today i { width: 450px; background: #e6e3f0; }
+.pitch .impact .row--eilo { top: 759px; color: var(--violet); }
+.pitch .impact .row--eilo i { width: 150px; background: var(--violet); }
+.pitch .impact .row--eilo span { color: var(--ink); }
+.pitch .impact .source { left: 979px; top: 911px; width: 760px; color: #a5a2b4; font-size: 14px; line-height: normal; letter-spacing: 0; }
+@keyframes impact-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .pitch .impact .row i { animation: none; }
+}
