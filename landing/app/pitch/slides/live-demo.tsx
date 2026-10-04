@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AppHome } from '../app-home/home'
 import { PITCH_ASSETS } from '../deck/assets'
 import { motionDelay } from '../deck/motion'
@@ -6,23 +6,25 @@ import type { DemoCue } from '../demo/types'
 import { useLiveDemo } from '../demo/use-live-demo'
 import { splitTurns } from '../eilo/stall'
 import { nextVoiceMode, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
-import { useRemoteDemo } from '../sync'
+import { useRemoteDemo, vibrationPattern } from '../sync'
+import { buzzOf } from '../watch-mock/buzz'
 import { WatchMock } from '../watch-mock/watch'
+import { DemoReserve } from './demo-reserve'
 import './live-demo.css'
 
-const PLACEHOLDER = 'Ontem a minha neta veio me visitar, a…'
+const PLACEHOLDER = 'Ah, saí de casa sem a… a…'
 const BUBBLE_WORDS = 8
 const MIN_QUESTION_WORDS = 2
 const CLOCK_MS = 10_000
 const ORDINAL = ['Um', 'Dois', 'Três', 'Quatro', 'Cinco']
 
 const KIND_COPY: Record<string, string> = {
-  category: 'A frase travou. A primeira dica diz do que se trata, tirada do mapa da vida dela.',
-  relation: 'Ainda não veio. A dica agora é o laço: quem ela é na vida da pessoa.',
-  place: 'Mais um degrau: onde ela mora. Ainda sem entregar a palavra.',
+  category: 'A frase travou. A primeira dica diz do que se trata, e o pulso vibra uma vez.',
+  relation: 'Ainda não veio. Mais um detalhe, e o pulso vibra de novo.',
+  place: 'Mais um degrau: onde fica. Ainda sem entregar a palavra.',
   use: 'Mais um degrau: para que serve.',
   shape: 'Mais um degrau: como é.',
-  phonological: 'Só o som do começo. A palavra continua sendo dela.'
+  phonological: 'Só o som do começo, no celular e no pulso. A palavra continua sendo de quem fala.'
 }
 
 const ORIGIN_BADGE: Record<string, { label: string; ai: boolean }> = {
@@ -32,16 +34,6 @@ const ORIGIN_BADGE: Record<string, { label: string; ai: boolean }> = {
   cache: { label: 'IA · ordem já aprendida', ai: true },
   openrouter: { label: 'IA · ordem escolhida agora', ai: true }
 }
-
-const BUZZ_FRAMES: Keyframe[] = [
-  { translate: '0 0', rotate: '0deg' },
-  { translate: '-4px 0', rotate: '-1deg', offset: 0.15 },
-  { translate: '4px 0', rotate: '1deg', offset: 0.3 },
-  { translate: '-3px 0', rotate: '-0.6deg', offset: 0.45 },
-  { translate: '3px 0', rotate: '0.6deg', offset: 0.6 },
-  { translate: '-1px 0', rotate: '0deg', offset: 0.8 },
-  { translate: '0 0', rotate: '0deg' }
-]
 
 function clock() {
   return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -63,8 +55,8 @@ function stepCopy(cue: DemoCue, heard: boolean) {
       ? { title: 'Ouvindo', text: 'A frase vai chegando. Se ela parar no meio, o Eilo percebe a pausa.' }
       : { title: 'Ouvindo', text: 'O Eilo acompanha a conversa e espera. Se a palavra sumir, ele percebe a pausa.' }
   }
-  if (cue.phase === 'success') return { title: 'Ela disse', text: 'Quem achou a palavra foi ela. O Eilo guarda em qual dica ela lembrou.' }
-  if (cue.phase === 'given') return { title: 'A palavra', text: 'Se não vier, ela recebe a palavra, e o Eilo anota onde precisou de ajuda.' }
+  if (cue.phase === 'success') return { title: 'Lembrou', text: 'Quem achou a palavra foi quem falava. O Eilo guarda em qual dica ela veio.' }
+  if (cue.phase === 'given') return { title: 'A palavra', text: 'Quando não vem, o Eilo fala a palavra e anota onde precisou de ajuda.' }
   return { title: `Passo ${ORDINAL[cue.level] ?? cue.level + 1}`, text: KIND_COPY[cue.kind ?? ''] ?? KIND_COPY.category }
 }
 
@@ -121,9 +113,12 @@ export function LiveDemoSlide() {
   const origin = cue.origin ? ORIGIN_BADGE[cue.origin] : undefined
   const offline = (cue.network ?? local.network) === 'offline'
 
+  const { phase, level } = cue
+  const buzz = useMemo(() => buzzOf(vibrationPattern({ phase, level })), [phase, level])
+
   useEffect(() => {
-    if (buzzing) phone.current?.animate(BUZZ_FRAMES, { duration: 480, easing: 'ease-in-out' })
-  }, [buzzing, cue.phase, cue.level])
+    if (buzzing && buzz.duration > 0) phone.current?.animate(buzz.keyframes, { duration: buzz.duration })
+  }, [buzzing, buzz])
 
   return (
     <div className="live-demo">
@@ -153,6 +148,7 @@ export function LiveDemoSlide() {
           <div className="demo-note"><span className="demo-note-chip">{VOICE_MODE_LABEL[mode]} · V muda</span></div>
         )}
       </div>
+      <DemoReserve />
     </div>
   )
 }

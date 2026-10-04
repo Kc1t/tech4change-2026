@@ -6,6 +6,7 @@ import { nextVoiceMode, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
 import type { DemoCue } from '../demo/types'
 import { useLiveDemo } from '../demo/use-live-demo'
 import { publish, vibrationPattern } from '../sync'
+import { PhoneControls } from './phone-controls'
 import { useDeckGate } from './use-deck-gate'
 
 type Link = 'pitch' | 'alone' | 'offline' | 'paused'
@@ -91,6 +92,7 @@ function useScreenAwake(on: boolean) {
 export function PhoneDemo() {
   const [armed, setArmed] = useState(false)
   const [link, setLink] = useState<Link>('alone')
+  const [controlsOpen, setControlsOpen] = useState(false)
   const { voice, mode } = useVoice()
   const buzzedRef = useRef('')
 
@@ -107,7 +109,7 @@ export function PhoneDemo() {
 
   const gate = useDeckGate()
   const listening = armed && gate.open
-  const { state, reset, micLevel } = useLiveDemo(listening, onCue, { voice })
+  const { state, reset, micLevel, nextLevel, giveWord, wake } = useLiveDemo(listening, onCue, { voice, wakeWord: true })
   const mic = listening ? state.mic : 'off'
   const activity = listening ? state.activity : 'off'
   const latest = useRef({ state, mic, activity })
@@ -198,7 +200,26 @@ export function PhoneDemo() {
           >
             recomeçar
           </button>
+          <button aria-pressed={controlsOpen} onClick={() => setControlsOpen(open => !open)}>
+            controles
+          </button>
         </div>
+      )}
+      {armed && controlsOpen && (
+        <PhoneControls
+          state={state}
+          paused={gate.paused}
+          controls={{
+            wake: () => wake(),
+            nextLevel,
+            giveWord,
+            reset: () => {
+              buzzedRef.current = ''
+              reset()
+            }
+          }}
+          onClose={() => setControlsOpen(false)}
+        />
       )}
       {!armed && (
         <button
@@ -211,7 +232,7 @@ export function PhoneDemo() {
           }}
         >
           <b>Começar</b>
-          <span>O celular ouve, dá as dicas e vibra. Se a palavra não vier, ele fala. A tela do pitch acompanha.</span>
+          <span>Diga “Olá, Eilo” para começar. Ele ouve, dá as dicas e vibra; se a palavra não vier, ele fala. A tela do pitch acompanha.</span>
         </button>
       )}
     </div>

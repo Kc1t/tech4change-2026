@@ -7,7 +7,7 @@ import { cleanTranscript, maskOffensive } from './text-safety'
 const PHASES = new Set(['idle', 'cue', 'success', 'given'])
 const MICS = new Set(['off', 'listening', 'unsupported', 'blocked', 'simulating'])
 const CUE_ORIGINS = new Set(['offline', 'model', 'cache', 'deterministic', 'openrouter'])
-const ACTIVITIES = new Set<Activity>(['off', 'listening', 'hearing', 'thinking', 'helping', 'recalled'])
+const ACTIVITIES = new Set<Activity>(['off', 'waiting', 'listening', 'hearing', 'thinking', 'helping', 'recalled'])
 
 function syncText(value: unknown, max: number): string {
   return maskOffensive(cleanTranscript(value, max, 40))

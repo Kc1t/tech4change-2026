@@ -11,7 +11,7 @@ export type SyncedDemo = { cue: DemoCue; words: string[]; mic: LiveDemoState['mi
 
 const STALE_MS = 12_000
 
-export function vibrationPattern(cue: DemoCue): number[] {
+export function vibrationPattern(cue: Pick<DemoCue, 'phase' | 'level'>): number[] {
   if (cue.phase === 'success') return [60, 80, 60]
   if (cue.phase === 'given') return [220]
   if (cue.phase !== 'cue') return []

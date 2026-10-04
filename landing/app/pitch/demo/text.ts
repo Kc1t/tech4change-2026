@@ -49,6 +49,18 @@ export function countMentions(text: string, names: string[]): number {
   return names.reduce((total, name) => total + occurrences(spoken, name), 0)
 }
 
+const GREETS_EILO = /\b(ola|oi|alo|ei|hey) ?(eilo|eilu|ailo|ailu|eiro|airo|eylo|hilo|heilo|elo|helio|elio|eliu)\b/
+
+export function greetsEilo(text: string): boolean {
+  return GREETS_EILO.test(tokensOf(text).join(' '))
+}
+
+export function greetingEnd(words: string[]): number | null {
+  if (!greetsEilo(words.join(' '))) return null
+  for (let end = 1; end <= words.length; end += 1) if (greetsEilo(words.slice(0, end).join(' '))) return end
+  return null
+}
+
 export function reachesFor(text: string, names: string[]): boolean {
   const last = tokensOf(text).at(-1) ?? ''
   return last.length >= 2 && names.some(name => tokensOf(name)[0]?.startsWith(last))

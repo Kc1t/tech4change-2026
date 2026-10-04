@@ -12,7 +12,7 @@ import { GuessAhead } from './guess-ahead'
 import { HelpSession, type TargetSource } from './help-session'
 import { ModelClient, networkOf, warmRoutes, type Reply, type Timed } from './model-client'
 import { SIMULATION } from './simulation'
-import { countMentions, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
+import { countMentions, greetingEnd, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
 import { TranscriptBuffer } from './transcript'
 import { IDLE_CUE, INITIAL_STATE, type Activity, type CueOrigin, type CuePhase, type DemoCue, type DemoGuess, type LiveDemoState, type Network } from './types'
 
@@ -21,7 +21,9 @@ export type EngineCallbacks = {
   onCue: (cue: DemoCue) => void
 }
 
-export type EngineOptions = { listen: boolean }
+export type EngineOptions = { listen: boolean; wakeWord?: boolean }
+
+const GREETING = 'Oi! Pode falar.'
 
 const graph = lifeGraph
 
@@ -68,6 +70,7 @@ export class DemoEngine {
   private unsubscribeVoice: (() => void) | null = null
 
   private running = false
+  private awake: boolean
   private waitingForModel = false
   private cloudStarting = false
   private browserListening = false
@@ -95,7 +98,9 @@ export class DemoEngine {
   constructor(
     private readonly callbacks: EngineCallbacks,
     private readonly options: EngineOptions = { listen: true }
-  ) {}
+  ) {
+    this.awake = !options.wakeWord
+  }
 
   readonly start = () => {
     if (this.running) return
@@ -148,6 +153,21 @@ export class DemoEngine {
 
   readonly micLevel = () => this.cloudEar?.level() ?? 0
 
+  readonly wake = (mark = this.transcript.wordCount) => {
+    if (this.awake) return
+    this.awake = true
+    const after = wordsFrom(this.transcript.text, mark).split(' ').filter(Boolean)
+    this.shownFrom = mark
+    this.segment = { startedAt: after.length > 0 ? this.lastSpeechAt : null, wordMark: mark, handled: false }
+    this.patch({ words: after.slice(-WORD_COUNTS.visible).map(maskOffensive), activity: this.activityAt(performance.now()) })
+    void this.voice?.say(GREETING, 'word')
+  }
+
+  readonly giveWord = () => {
+    const session = this.session
+    if (session && this.phase === 'cue') this.showLevel(session.wordLevel)
+  }
+
   readonly nextLevel = () => {
     const session = this.session
     if (!session) {
@@ -177,10 +197,12 @@ export class DemoEngine {
     this.patch({ words: [], guess: null, mic: wasSimulating ? (listening ? 'listening' : 'off') : this.state.mic })
     this.backToIdle()
     this.blockEndedAt = -Infinity
+    this.awake = !this.options.wakeWord
   }
 
   readonly simulate = () => {
     this.reset()
+    this.awake = true
     this.simulating = true
     this.patch({ mic: 'simulating' })
     let spoken = ''
@@ -525,6 +547,10 @@ export class DemoEngine {
     this.transcript.set(finalText, interim)
     const words = wordsFrom(`${finalText} ${interim}`, this.shownFrom).split(' ').filter(Boolean)
     this.patch({ words: words.slice(-WORD_COUNTS.visible).map(maskOffensive) })
+    if (!this.awake) {
+      const end = greetingEnd(words)
+      if (end !== null) this.wake(this.shownFrom + end)
+    }
     this.checkSuccess()
   }
 
@@ -638,6 +664,7 @@ export class DemoEngine {
   private activityAt(now: number): Activity {
     const mic = this.state.mic
     if (mic !== 'listening' && mic !== 'simulating') return 'off'
+    if (!this.awake) return 'waiting'
     if (this.phase === 'success') return 'recalled'
     if (this.phase === 'cue' || this.phase === 'given') return 'helping'
     const silence = now - this.lastSpeechAt
@@ -655,7 +682,7 @@ export class DemoEngine {
       if (this.phase === 'cue' && this.session) this.session.lastCueAt = now
       return
     }
-    if (this.phase === 'idle') this.watchForStall(now)
+    if (this.phase === 'idle' && this.awake) this.watchForStall(now)
     else if (this.phase === 'cue' && this.session) this.guideSession(this.session, now)
   }
 

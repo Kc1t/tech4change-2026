@@ -42,6 +42,7 @@ export function AppHome({ cue, heard, mic = 'listening', activity }: { cue: Demo
   const denied = mic === 'blocked' || mic === 'unsupported'
   const active = mic === 'listening' || mic === 'simulating'
   const speaking = activity ? activity === 'hearing' : active && talking
+  const waiting = activity === 'waiting'
   const open = cue.phase === 'cue' || cue.phase === 'given'
   const resolved = cue.phase === 'success'
   const rungs = Math.max(cue.total - 1, 0)
@@ -61,7 +62,7 @@ export function AppHome({ cue, heard, mic = 'listening', activity }: { cue: Demo
 
   const mood: BuddyMood = resolved
     ? 'happy'
-    : !armed
+    : !armed || waiting
       ? 'asleep'
       : flash && !flash.isWord
         ? 'cue'
@@ -85,11 +86,13 @@ export function AppHome({ cue, heard, mic = 'listening', activity }: { cue: Demo
         ? `dica ${level} de ${rungs}`
         : resolved
           ? 'você lembrou'
-          : shownActivity === 'thinking'
-            ? 'pensando…'
-            : speaking
-              ? 'ouvindo a frase'
-              : 'ouvindo com você'
+          : waiting
+            ? 'diga “olá, eilo”'
+            : shownActivity === 'thinking'
+              ? 'pensando…'
+              : speaking
+                ? 'ouvindo a frase'
+                : 'ouvindo com você'
 
   const expected = flash ? flash.text : resolved ? cue.text : SCENE.attempt
   const expectedKind = flash?.isWord || resolved ? 'word' : flash ? 'cue' : 'waiting'
@@ -103,11 +106,11 @@ export function AppHome({ cue, heard, mic = 'listening', activity }: { cue: Demo
     : flash
       ? armed && flash.isWord ? 'aqui está a palavra, em voz alta' : flash.caption
       : armed
-        ? 'Se a palavra não vier, eu percebo e ajudo. Sem pressa.'
+        ? waiting ? 'Eu fico quieto até você me chamar.' : 'Se a palavra não vier, eu percebo e ajudo. Sem pressa.'
         : 'Quando quiser, eu acompanho a conversa. Nada é gravado.'
 
   const lead = armed
-    ? focused ? '' : 'Pode falar no seu ritmo. Eu fico ouvindo.'
+    ? focused ? '' : waiting ? 'Para começar, diga “Olá, Eilo”.' : 'Pode falar no seu ritmo. Eu fico ouvindo.'
     : focused && speech !== SCENE.prompt ? SCENE.prompt : focused ? '' : speech || SCENE.prompt
   const dots = open || resolved ? rungs : 0
   const buddyHeight = buddySize * 1.25

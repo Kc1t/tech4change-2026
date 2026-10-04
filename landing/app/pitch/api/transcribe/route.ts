@@ -9,7 +9,7 @@ import type { LifeGraph } from '../../eilo/types'
 export const dynamic = 'force-dynamic'
 
 const BUDGET_MS = 7000
-const VOCABULARY = Object.values((graphData as unknown as LifeGraph).nodes).flatMap(node => [node.label, ...(node.aliases ?? [])])
+const VOCABULARY = ['Eilo', ...Object.values((graphData as unknown as LifeGraph).nodes).flatMap(node => [node.label, ...(node.aliases ?? [])])]
 
 export async function GET(request: Request) {
   return warmed(request, warmUpstream)

@@ -21,7 +21,7 @@ export type MicState = 'off' | 'listening' | 'unsupported' | 'blocked' | 'simula
 
 export type EarSource = 'openrouter' | 'browser' | 'off'
 
-export type Activity = 'off' | 'listening' | 'hearing' | 'thinking' | 'helping' | 'recalled'
+export type Activity = 'off' | 'waiting' | 'listening' | 'hearing' | 'thinking' | 'helping' | 'recalled'
 
 export type DemoGuess = {
   word: string

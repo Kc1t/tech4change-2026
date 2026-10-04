@@ -116,6 +116,7 @@
 .ah-activity--helping .ah-activity__icon i { background: var(--ah-brand); opacity: 1; }
 .ah-activity--recalled .ah-activity__icon i { background: #3fae7a; opacity: 1; }
 .ah-activity--off .ah-activity__icon i { opacity: .25; }
+.ah-activity--waiting .ah-activity__icon i { opacity: .45; animation: ah-breathe 3.2s ease-in-out infinite; }
 .ah-activity__icon i:nth-child(2) { animation-delay: .15s; }
 .ah-activity__icon i:nth-child(3) { animation-delay: .3s; }
 @keyframes ah-breathe { 0%, 100% { opacity: .3; scale: 1; } 50% { opacity: .8; scale: 1.3; } }

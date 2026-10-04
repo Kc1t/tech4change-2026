@@ -76,12 +76,17 @@
 .wm-mark { width: calc(78 * var(--dp)); height: calc(78 * var(--dp)); object-fit: contain; filter: drop-shadow(0 calc(4 * var(--dp)) calc(10 * var(--dp)) rgba(107, 85, 245, .35)); }
 
 .wm-marks { display: flex; gap: calc(7 * var(--dp)); height: calc(6 * var(--dp)); }
-.wm-marks i { width: calc(6 * var(--dp)); height: calc(6 * var(--dp)); border-radius: 999px; background: var(--accent); }
-.wm-marks i.wm-dash { width: calc(26 * var(--dp)); }
+.wm-marks i { width: calc(6 * var(--dp)); height: calc(6 * var(--dp)); border-radius: 999px; background: var(--accent); animation: wm-pulse 380ms cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes wm-pulse { from { opacity: .25; scale: 1; } 35% { opacity: 1; scale: 1.9; } to { opacity: 1; scale: 1; } }
 
 .wm-cue { width: 82%; margin-top: calc(14 * var(--dp)); color: var(--fg); font: 300 calc(26 * var(--dp)) / 1.16 'Eilo Watch Light', var(--font-manrope), sans-serif; text-align: center; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .wm-cue--idle { font: 600 calc(15 * var(--dp)) / 1.3 var(--font-manrope), sans-serif; }
 .wm-cue--word { color: var(--accent); }
+.wm-cue--hint { font: 600 calc(14 * var(--dp)) / 1.3 var(--font-manrope), sans-serif; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
+.wm-cue--sound { font-size: calc(48 * var(--dp)); color: var(--accent); }
+.wm-known { font-weight: 600; color: var(--accent); }
+.wm-rest { color: var(--fg); animation: wm-rest 700ms 250ms cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes wm-rest { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: none; } }
 
 .wm-trail { flex: none; display: flex; justify-content: center; width: calc(96 * var(--dp)); height: calc(20 * var(--dp)); margin-top: calc(16 * var(--dp)); }
 .wm-trail-mark { flex: none; width: calc(40 * var(--dp)); height: calc(20 * var(--dp)); margin: 0 calc(-5.8 * var(--dp)); overflow: visible; }
