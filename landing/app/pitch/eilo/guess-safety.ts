@@ -198,7 +198,9 @@ export function safeRungs(names: string[], word: string, ladder: LadderLike, con
     .filter(step => step.kind === 'phonological' || !leaksTarget(step.text, names))
     .filter(step => step.kind !== 'phonological' || fold(step.text).replace(/ /g, '').length < fold(word).replace(/ /g, '').length)
     .map(step => ({ text: step.text, kind: step.kind }))
-  return [...rungs, { text: word, kind: 'word' }]
+  const hints = rungs.filter(rung => rung.kind !== 'phonological')
+  const sound = rungs.find(rung => rung.kind === 'phonological') ?? hints[1]
+  return [hints[0], sound, { text: word, kind: 'word' }].filter((rung): rung is Rung => rung !== undefined)
 }
 
 export function freeWordRungs(guess: Guess): Rung[] {

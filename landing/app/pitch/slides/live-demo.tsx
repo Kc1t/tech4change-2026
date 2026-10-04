@@ -144,7 +144,7 @@ export function LiveDemoSlide() {
         <WatchMock cue={cue} time={time} buzzing={buzzing} />
         {offline ? (
           <div className="demo-note"><span className="demo-note-chip">sem internet · escada no aparelho</span></div>
-        ) : !connected && mode !== 'word' && (
+        ) : !connected && mode === 'off' && (
           <div className="demo-note"><span className="demo-note-chip">{VOICE_MODE_LABEL[mode]} · V muda</span></div>
         )}
       </div>

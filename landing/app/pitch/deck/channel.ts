@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { keepStreaming } from '../eilo/event-stream'
 import { parseDeckCommand, parseDeckState, parsePresence, type DeckCommand, type DeckState, type Presence } from '../eilo/deck-schema'
 
 export const DECK_URL = '/pitch/api/deck'
@@ -37,25 +38,26 @@ export function useDeckChannel({ role, onCommand, session, code }: DeckChannelOp
     const params = new URLSearchParams({ role })
     if (session) params.set('session', session)
     if (code) params.set('code', code)
-    const source = new EventSource(`${DECK_URL}?${params}`)
-    source.onopen = () => setOnline(true)
-    source.onerror = () => setOnline(false)
-    source.addEventListener('state', event => {
-      const parsed = parseDeckState(parseEventData(event.data))
-      if (!parsed) return
-      setState(parsed)
-      setReceivedAt(Date.now())
-    })
-    source.addEventListener('presence', event => {
-      const parsed = parsePresence(parseEventData(event.data))
-      if (parsed) setPresence(parsed)
-    })
-    source.addEventListener('command', event => {
-      const parsed = parseDeckCommand(parseEventData(event.data))
-      if (parsed) handler.current?.(parsed)
+    const close = keepStreaming(`${DECK_URL}?${params}`, source => {
+      source.onopen = () => setOnline(true)
+      source.onerror = () => setOnline(false)
+      source.addEventListener('state', event => {
+        const parsed = parseDeckState(parseEventData(event.data))
+        if (!parsed) return
+        setState(parsed)
+        setReceivedAt(Date.now())
+      })
+      source.addEventListener('presence', event => {
+        const parsed = parsePresence(parseEventData(event.data))
+        if (parsed) setPresence(parsed)
+      })
+      source.addEventListener('command', event => {
+        const parsed = parseDeckCommand(parseEventData(event.data))
+        if (parsed) handler.current?.(parsed)
+      })
     })
     return () => {
-      source.close()
+      close()
       setOnline(false)
     }
   }, [role, session, code])

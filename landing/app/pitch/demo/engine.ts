@@ -153,22 +153,23 @@ export class DemoEngine {
 
   readonly micLevel = () => this.cloudEar?.level() ?? 0
 
-  readonly wake = (mark = this.transcript.wordCount) => {
-    if (this.awake) return
+  readonly wake = (mark = this.transcript.wordCount, greet = true) => {
+    if (this.awake || !this.running) return
     this.awake = true
     const after = wordsFrom(this.transcript.text, mark).split(' ').filter(Boolean)
     this.shownFrom = mark
     this.segment = { startedAt: after.length > 0 ? this.lastSpeechAt : null, wordMark: mark, handled: false }
     this.patch({ words: after.slice(-WORD_COUNTS.visible).map(maskOffensive), activity: this.activityAt(performance.now()) })
-    void this.voice?.say(GREETING, 'word')
+    if (greet) void this.voice?.say(GREETING)
   }
 
   readonly giveWord = () => {
     const session = this.session
-    if (session && this.phase === 'cue') this.showLevel(session.wordLevel)
+    if (session && this.awake && this.phase === 'cue') this.showLevel(session.wordLevel)
   }
 
   readonly nextLevel = () => {
+    if (!this.awake) return
     const session = this.session
     if (!session) {
       this.startHelp()
@@ -295,12 +296,13 @@ export class DemoEngine {
   }
 
   private aimAt(node: GraphNode, ladder: LadderStep[], rungs: Rung[], origin: CueOrigin, targetBy: TargetSource) {
-    const voice = this.voice
-    if (voice) {
-      voice.prefetch(node.label)
-      rungs.slice(0, -1).filter(rung => voice.mode() === 'all' || rung.kind === 'phonological').forEach(rung => voice.prefetch(rung.text))
-    }
+    this.voice?.prefetch(node.label)
+    this.prefetchRungs(rungs)
     return { target: node, ladder, rungs, origin, targetBy, baseline: countMentions(this.transcript.text, namesOf(node)), wordMark: this.transcript.wordCount }
+  }
+
+  private prefetchRungs(rungs: Rung[]) {
+    rungs.slice(0, -1).forEach(rung => this.voice?.prefetch(rung.text))
   }
 
   private openSession(node: GraphNode, ladder: LadderStep[], rungs: Rung[], origin: CueOrigin, targetBy: TargetSource, confidence: number): HelpSession {
@@ -326,7 +328,7 @@ export class DemoEngine {
     const key = `${this.epoch}-${session.target.id}-${level}`
     if (this.voice && this.spokenKey !== key) {
       this.spokenKey = key
-      void this.voice.say(cue.text, cue.phase === 'given' ? 'word' : cue.kind === 'phonological' ? 'sound' : 'hint')
+      void this.voice.say(cue.text)
     }
   }
 
@@ -344,6 +346,7 @@ export class DemoEngine {
     if (rungs.length < 2) return
     session.ladder = ladder
     session.rungs = rungs
+    this.prefetchRungs(rungs)
     session.origin = ranked.value.origin
     this.patch({ latency: { ...this.state.latency, cue: ranked.ms } })
     this.republishCue()
@@ -353,7 +356,9 @@ export class DemoEngine {
     const before = session.confidence
     session.confidence = Math.max(before, confidence)
     const crossed = before < PHONOLOGICAL_CONFIDENCE_GATE && session.confidence >= PHONOLOGICAL_CONFIDENCE_GATE
-    if (crossed && this.phase === 'cue' && this.session === session) session.rungs = rungsFor(session.target, session.ladder, session.confidence)
+    if (!crossed || this.phase !== 'cue' || this.session !== session) return
+    session.rungs = rungsFor(session.target, session.ladder, session.confidence)
+    this.prefetchRungs(session.rungs)
   }
 
   private rankLater(session: HelpSession, node: GraphNode, mentioned: NodeId[], last: number | null) {
@@ -390,7 +395,7 @@ export class DemoEngine {
       session.confidence = guess.confidence
       session.retarget(this.aimAt(node, ladder, rungs, 'offline', 'openrouter'))
       const last = lastFor(node.id)
-      session.startLevel = session.startLevelFor(last, false)
+      session.startLevel = session.startLevelFor(last)
       this.showLevel(session.startLevel)
       this.applyPlan(session, node, await this.client.plan(node.id, [...prediction.mentioned, node.id], last))
       return
@@ -405,7 +410,7 @@ export class DemoEngine {
     this.showLevel(0)
   }
 
-  private startFromGuess(completed: Timed<Guess>, askedForWord = false): boolean {
+  private startFromGuess(completed: Timed<Guess>): boolean {
     const guess = completed.value
     const graphNode = guess.nodeId ? graph.nodes[guess.nodeId] : undefined
     const node = graphNode ?? freeNode(guess.word)
@@ -421,16 +426,12 @@ export class DemoEngine {
     this.guess = { word: guess.word, confidence: guess.confidence, alternatives: guess.alternatives.map(alt => alt.word), origin: 'openrouter', inGraph: Boolean(graphNode) }
     this.patch({ latency: { ...this.state.latency, complete: completed.ms } })
     const last = this.recall.get(node.id) ?? null
-    session.startLevel = session.startLevelFor(last, askedForWord || wantsWord(guess.help, guess.frustration))
+    session.startLevel = session.startLevelFor(last)
     const spoken = struggleOf(wordsFrom(this.transcript.text, this.segment.wordMark)).frustration
     session.openingStruggle = Math.min(Math.max(guess.frustration ?? 0, spoken), THRESHOLDS.openingFrustrationCap)
     this.showLevel(session.startLevel)
     if (graphNode) this.rankLater(session, graphNode, [...predict(graph, recent).mentioned, graphNode.id], last)
     return true
-  }
-
-  private segmentAskedForWord(): boolean {
-    return asksForWord(wordsFrom(this.transcript.text, this.segment.wordMark))
   }
 
   private async awaitGuess(text: string, needsStall: boolean) {
@@ -442,14 +443,15 @@ export class DemoEngine {
     this.judging = false
     if (!completed || this.epoch !== epoch || this.session || this.phase !== 'idle') return
     if (this.lastSpeechAt !== spokeAt || (needsStall && !judgedStall(completed.value))) return
-    this.startFromGuess(completed, this.segmentAskedForWord())
+    this.startFromGuess(completed)
   }
 
   private startHelp() {
     if (this.session || this.phase !== 'idle') return
     const text = lastWords(this.transcript.text, WORD_COUNTS.recent)
+    if (!text.trim()) return
     const ready = this.ahead.resultFor(text)
-    if (ready && this.startFromGuess(ready, this.segmentAskedForWord())) return
+    if (ready && this.startFromGuess(ready)) return
     if (ready === undefined && this.network === 'online') void this.startWhenModelAnswers(text)
     else this.startFromGraph(text)
   }
@@ -461,12 +463,11 @@ export class DemoEngine {
     const completed = await within(this.ahead.request(text), TIMING.modelFirstMs)
     this.waitingForModel = false
     if (!this.running || this.epoch !== epoch || this.session || this.phase !== 'idle') return
-    if (completed && this.startFromGuess(completed, this.segmentAskedForWord())) return
+    if (completed && this.startFromGuess(completed)) return
     this.startFromGraph(text)
   }
 
   private startFromGraph(text: string) {
-    const askedForWord = this.segmentAskedForWord()
     const prediction = predict(graph, wordsFrom(this.transcript.text, this.shownFrom))
     const targetId = prediction.targetId
     const node = targetId && prediction.confidence >= CONFIDENCE_FLOOR ? graph.nodes[targetId] : undefined
@@ -485,7 +486,7 @@ export class DemoEngine {
       inGraph: true
     }
     session.addCandidates(this.guess.alternatives, this.transcript.text)
-    session.startLevel = session.startLevelFor(this.recall.get(targetId), askedForWord)
+    session.startLevel = session.startLevelFor(this.recall.get(targetId))
     session.openingStruggle = Math.min(struggleOf(wordsFrom(this.transcript.text, this.segment.wordMark)).frustration, THRESHOLDS.openingFrustrationCap)
     this.showLevel(session.startLevel)
     void this.refine(session, prediction)
@@ -550,6 +551,7 @@ export class DemoEngine {
     if (!this.awake) {
       const end = greetingEnd(words)
       if (end !== null) this.wake(this.shownFrom + end)
+      else if (asksForWord(wordsFrom(this.transcript.text, this.segment.wordMark))) this.wake(Math.max(this.shownFrom, this.segment.wordMark), false)
     }
     this.checkSuccess()
   }
@@ -633,7 +635,7 @@ export class DemoEngine {
         this.composeCloud()
       },
       onFail: () => this.fallBackToBrowser()
-    }).then(ear => {
+    }).catch(() => null).then(ear => {
       this.cloudStarting = false
       if (!this.running) {
         ear?.stop()
@@ -679,7 +681,7 @@ export class DemoEngine {
     const activity = this.activityAt(now)
     if (activity !== this.state.activity) this.patch({ activity })
     if (now < this.deafUntil) {
-      if (this.phase === 'cue' && this.session) this.session.lastCueAt = now
+      if (this.phase === 'cue' && this.session && this.voice?.speaking()) this.session.lastCueAt = now
       return
     }
     if (this.phase === 'idle' && this.awake) this.watchForStall(now)

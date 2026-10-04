@@ -51,9 +51,9 @@ export function PhoneControls({ state, paused, controls, onClose }: { state: Liv
         ))}
       </dl>
       <div className="phone-controls__actions">
-        <button onClick={controls.wake} disabled={!asleep}>Acordar</button>
-        <button onClick={controls.nextLevel} disabled={asleep}>Próxima pista</button>
-        <button onClick={controls.giveWord} disabled={!helping}>Dar a palavra</button>
+        <button onClick={controls.wake} disabled={paused || !asleep}>Acordar</button>
+        <button onClick={controls.nextLevel} disabled={paused || asleep}>Próxima pista</button>
+        <button onClick={controls.giveWord} disabled={paused || !helping}>Dar a palavra</button>
         <button onClick={controls.reset}>Recomeçar</button>
       </div>
     </div>

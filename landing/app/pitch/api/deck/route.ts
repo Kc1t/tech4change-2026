@@ -117,11 +117,11 @@ export async function GET(request: Request) {
   if (url.searchParams.has('info')) return info(request)
   const role = url.searchParams.get('role') ?? ''
   if (!ROLES.has(role)) return fail(400, 'invalid role')
+  const limited = rateLimited(request, 'deck-get', { limit: 60, windowMs: 60_000 })
+  if (limited) return limited
   const session = role === 'deck' ? url.searchParams.get('session') : null
   if (role === 'deck' && (!session || !SESSION_PATTERN.test(session))) return fail(400, 'invalid session')
   if (role === 'deck' && !codeMatches(url.searchParams.get('code'))) return fail(403, 'invalid code')
-  const limited = rateLimited(request, 'deck-get', { limit: 60, windowMs: 60_000 })
-  if (limited) return limited
   if (hub.listeners.size >= MAX_LISTENERS) return fail(503, 'too many listeners')
   return subscribe(request, role as Role, session)
 }

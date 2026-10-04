@@ -1,6 +1,6 @@
-.pitch .devices h2 { left: 55px; top: 96px; color: var(--ink); font-size: 60px; font-weight: 500; line-height: 1.1; letter-spacing: -1.5px; white-space: nowrap; }
+.pitch .devices h2 { left: 54px; top: 150px; color: var(--ink); font-size: 67px; font-weight: 500; line-height: 1.02; letter-spacing: -2.211px; white-space: nowrap; }
 .pitch .devices h2 em { font-style: normal; color: var(--violet); }
-.pitch .devices .device-card { top: 296px; width: 554px; height: 500px; border-radius: 28px; overflow: hidden; box-sizing: border-box; background: #fff; border: 2px solid #eeebf7; }
+.pitch .devices .device-card { top: 340px; width: 554px; height: 500px; border-radius: 28px; overflow: hidden; box-sizing: border-box; background: #fff; border: 2px solid #eeebf7; }
 .pitch .devices .device-card--main { background: var(--violet); border: 0; }
 .pitch .devices .device-photo { position: absolute; left: -2px; top: -2px; width: 554px; height: 290px; overflow: hidden; }
 .pitch .devices .device-photo img { position: absolute; left: 0; top: -1.62px; width: 554px; height: 293.2px; }
@@ -12,5 +12,5 @@
 .pitch .devices .device-card p { position: absolute; left: 28px; top: 410px; width: 494px; color: var(--gray); font-size: 21px; line-height: 1.4; letter-spacing: 0; }
 .pitch .devices .device-card--main b { left: 30px; top: 360px; color: #fff; }
 .pitch .devices .device-card--main p { left: 30px; top: 412px; color: #e6e2f6; }
-.pitch .devices .ease-label { left: 57px; top: 836px; color: var(--violet); font-size: 15px; font-weight: 700; line-height: normal; letter-spacing: 3.3px; white-space: nowrap; }
-.pitch .devices .ease-arrow { left: 252px; top: 836.75px; width: 1529px; height: 18.5px; }
+.pitch .devices .ease-label { left: 57px; top: 880px; color: var(--violet); font-size: 15px; font-weight: 700; line-height: normal; letter-spacing: 3.3px; white-space: nowrap; }
+.pitch .devices .ease-arrow { left: 252px; top: 880.75px; width: 1529px; height: 18.5px; }

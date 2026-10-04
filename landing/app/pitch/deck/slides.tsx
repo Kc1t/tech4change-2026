@@ -6,7 +6,6 @@ import { Cover } from '../slides/cover'
 import { Devices } from '../slides/devices'
 import { GoToMarket } from '../slides/go-to-market'
 import { Impact } from '../slides/impact'
-import { Interviews } from '../slides/interviews'
 import { InterviewsNumbers } from '../slides/interviews-numbers'
 import { LiveDemoSlide } from '../slides/live-demo'
 import { MarketScale } from '../slides/market'
@@ -20,14 +19,13 @@ import type { SlideEntry } from './types'
 export const SLIDES: SlideEntry[] = [
   { part: 'Problema', name: 'Nenhum deles esqueceu', bare: true, steps: 4, render: props => <Cover {...props} /> },
   { part: 'Problema', name: 'O problema', label: 'O problema', render: () => <Problem /> },
-  { part: 'Problema', name: 'O que ouvimos', label: 'O que ouvimos', render: () => <Interviews /> },
-  { part: 'Problema', name: 'O que ouvimos 2', bare: true, render: props => <InterviewsNumbers {...props} /> },
+  { part: 'Problema', name: 'O que ouvimos', bare: true, render: props => <InterviewsNumbers {...props} /> },
   { part: 'Solução', name: 'A solução', label: 'A solução', render: () => <Solution /> },
   { part: 'Solução', name: 'Demo ao vivo', label: 'Como funciona', listens: true, render: () => <LiveDemoSlide /> },
-  { part: 'Solução', name: 'Painel da fono', label: 'O que a fono vê', render: () => <ClinicianDashboard /> },
   { part: 'Solução', name: 'O papel da IA', label: 'O papel da IA', render: () => <AiRole /> },
   { part: 'Solução', name: 'A vibração', label: 'A vibração', render: () => <Vibration /> },
-  { part: 'Solução', name: 'Qualquer aparelho', bare: true, render: props => <Devices {...props} /> },
+  { part: 'Solução', name: 'Qualquer aparelho', label: 'Qualquer aparelho', render: () => <Devices /> },
+  { part: 'Solução', name: 'Painel da fono', label: 'O que a fono vê', render: () => <ClinicianDashboard /> },
   { part: 'Negócio', name: 'Concorrentes', label: 'Concorrentes', render: () => <Competitors /> },
   { part: 'Negócio', name: 'Mercado e escala', label: 'Mercado e escala', render: () => <MarketScale /> },
   { part: 'Negócio', name: 'Go-to-market e preço', label: 'Go-to-market e preço', render: () => <GoToMarket /> },

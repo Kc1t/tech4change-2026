@@ -106,7 +106,7 @@ export function AppHome({ cue, heard, mic = 'listening', activity }: { cue: Demo
     : flash
       ? armed && flash.isWord ? 'aqui está a palavra, em voz alta' : flash.caption
       : armed
-        ? waiting ? 'Eu fico quieto até você me chamar.' : 'Se a palavra não vier, eu percebo e ajudo. Sem pressa.'
+        ? waiting ? 'Estou dormindo. Diga “Olá, Eilo” para eu ajudar.' : 'Se a palavra não vier, eu percebo e ajudo. Sem pressa.'
         : 'Quando quiser, eu acompanho a conversa. Nada é gravado.'
 
   const lead = armed

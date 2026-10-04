@@ -49,10 +49,17 @@ export function countMentions(text: string, names: string[]): number {
   return names.reduce((total, name) => total + occurrences(spoken, name), 0)
 }
 
-const GREETS_EILO = /\b(ola|oi|alo|ei|hey) ?(eilo|eilu|ailo|ailu|eiro|airo|eylo|hilo|heilo|elo|helio|elio|eliu)\b/
+const GREETING = /^(ola|oi|alo|ei|ai|hey)$/
+const PLAIN_GREETING = /^(ola|oi|alo|hey)$/
+const EILO = /^(eilo|eilu|ailo|ailu|eiro|airo|eylo|eylu|hilo|heilo|elo|elu|helio|elio|eliu)$/
+const EILO_HEARD_AS = /^(h?[aeiy]{0,2}l{1,2}[aeiouw]?|h?e[iy]|h?eli[ou])$/
 
 export function greetsEilo(text: string): boolean {
-  return GREETS_EILO.test(tokensOf(text).join(' '))
+  const tokens = tokensOf(text)
+  return tokens.some((token, n) => {
+    const next = tokens[n + 1] ?? ''
+    return (GREETING.test(token) && EILO.test(next)) || (PLAIN_GREETING.test(token) && EILO_HEARD_AS.test(next))
+  })
 }
 
 export function greetingEnd(words: string[]): number | null {

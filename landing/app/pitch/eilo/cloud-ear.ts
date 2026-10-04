@@ -75,6 +75,15 @@ export async function startCloudEar(events: EarEvents): Promise<CloudEar | null>
     return null
   }
 
+  try {
+    return listen(stream, events)
+  } catch {
+    stream.getTracks().forEach(track => track.stop())
+    return null
+  }
+}
+
+function listen(stream: MediaStream, events: EarEvents): CloudEar {
   const mimeType = pickMime()
   const context = new AudioContext()
   const analyser = context.createAnalyser()
@@ -103,6 +112,10 @@ export async function startCloudEar(events: EarEvents): Promise<CloudEar | null>
   let lastRms = 0
   const pending = new Set<Promise<void>>()
   let segment = open()
+  const onTrackEnded = () => {
+    if (!stopped) events.onFail()
+  }
+  stream.getAudioTracks().forEach(track => track.addEventListener('ended', onTrackEnded))
 
   function open(): Segment {
     const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
@@ -223,6 +236,7 @@ export async function startCloudEar(events: EarEvents): Promise<CloudEar | null>
       window.removeEventListener('pointerdown', wake)
       window.removeEventListener('keydown', wake)
       document.removeEventListener('visibilitychange', onVisible)
+      stream.getAudioTracks().forEach(track => track.removeEventListener('ended', onTrackEnded))
       segment.recorder.onstop = null
       if (segment.recorder.state !== 'inactive') segment.recorder.stop()
       stream.getTracks().forEach(track => track.stop())

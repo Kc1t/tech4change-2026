@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { keepStreaming } from './eilo/event-stream'
 import { LIMITS } from './eilo/limits'
 import { parseSynced } from './eilo/sync-schema'
 import type { Activity, DemoCue, LiveDemoState } from './demo/types'
@@ -41,19 +42,20 @@ export function useRemoteDemo() {
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    const source = new EventSource(roomUrl())
-    source.onmessage = event => {
-      try {
-        const parsed = parseSynced(JSON.parse(event.data))
-        if (!parsed) return
-        const receivedAt = Date.now()
-        setNow(receivedAt)
-        setRemote(current => (current && parsed.at < current.at && receivedAt - current.receivedAt < STALE_MS ? { ...current, receivedAt } : { ...parsed, receivedAt }))
-      } catch {}
-    }
+    const close = keepStreaming(roomUrl(), source => {
+      source.onmessage = event => {
+        try {
+          const parsed = parseSynced(JSON.parse(event.data))
+          if (!parsed) return
+          const receivedAt = Date.now()
+          setNow(receivedAt)
+          setRemote(current => (current && parsed.at < current.at && receivedAt - current.receivedAt < STALE_MS ? { ...current, receivedAt } : { ...parsed, receivedAt }))
+        } catch {}
+      }
+    })
     const tick = window.setInterval(() => setNow(Date.now()), 2000)
     return () => {
-      source.close()
+      close()
       window.clearInterval(tick)
     }
   }, [])

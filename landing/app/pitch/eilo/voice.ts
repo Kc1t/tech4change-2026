@@ -2,13 +2,12 @@ import { useState, useSyncExternalStore } from 'react'
 
 export const SPEAK_URL = '/pitch/api/speak'
 
-export type VoiceMode = 'word' | 'all' | 'off'
-export type SpeechKind = 'word' | 'sound' | 'hint'
+export type VoiceMode = 'on' | 'off'
 
 export type Voice = {
   unlock: () => void
   prefetch: (text: string) => void
-  say: (text: string, kind: SpeechKind) => Promise<void>
+  say: (text: string) => Promise<void>
   stop: () => void
   speaking: () => boolean
   mode: () => VoiceMode
@@ -19,7 +18,6 @@ export type Voice = {
 const CLIP_VERSION = 'gia-3'
 const FETCH_TIMEOUT_MS = 7000
 const MAX_PLAY_MS = 7000
-const HINT_VOLUME = 0.6
 const MODE_KEY = 'eilo-pitch-voice'
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
 
@@ -29,20 +27,18 @@ function spoken(text: string): string {
 
 function storedMode(): VoiceMode {
   try {
-    const value = window.localStorage.getItem(MODE_KEY)
-    return value === 'all' || value === 'off' || value === 'word' ? value : 'word'
+    return window.localStorage.getItem(MODE_KEY) === 'off' ? 'off' : 'on'
   } catch {
-    return 'word'
+    return 'on'
   }
 }
 
 export function nextVoiceMode(mode: VoiceMode): VoiceMode {
-  return mode === 'word' ? 'all' : mode === 'all' ? 'off' : 'word'
+  return mode === 'on' ? 'off' : 'on'
 }
 
 export const VOICE_MODE_LABEL: Record<VoiceMode, string> = {
-  word: 'voz: som e palavra',
-  all: 'voz: dicas e palavra',
+  on: 'voz ligada',
   off: 'sem voz'
 }
 
@@ -87,13 +83,12 @@ export function createVoice(): Voice {
     return pending
   }
 
-  const onDevice = (text: string, volume: number, done: () => void) => {
+  const onDevice = (text: string, done: () => void) => {
     const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined
     if (!synth || typeof SpeechSynthesisUtterance === 'undefined') return done()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'pt-BR'
     utterance.rate = 1
-    utterance.volume = volume
     utterance.onend = done
     utterance.onerror = done
     synth.cancel()
@@ -131,12 +126,11 @@ export function createVoice(): Voice {
       const text = spoken(raw)
       if (text && mode !== 'off') void clip(text)
     },
-    say(raw, kind) {
+    say(raw) {
       const text = spoken(raw)
-      if (!text || mode === 'off' || (kind === 'hint' && mode !== 'all')) return Promise.resolve()
+      if (!text || mode === 'off') return Promise.resolve()
       stop()
       const mine = ++token
-      const volume = kind === 'hint' ? HINT_VOLUME : 1
       return new Promise<void>(resolve => {
         let guard = 0
         function done() {
@@ -150,14 +144,14 @@ export function createVoice(): Voice {
           if (mine !== token) return
           setActive(true)
           guard = window.setTimeout(done, MAX_PLAY_MS)
-          if (!url) return onDevice(text, volume, done)
+          if (!url) return onDevice(text, done)
           const el = element()
           el.onended = done
-          el.onerror = () => onDevice(text, volume, done)
+          el.onerror = () => onDevice(text, done)
           el.muted = false
-          el.volume = volume
+          el.volume = 1
           el.src = url
-          el.play().catch(() => onDevice(text, volume, done))
+          el.play().catch(() => onDevice(text, done))
         })
       })
     },
@@ -184,7 +178,7 @@ const noop = () => () => {}
 export function useVoice() {
   const [voice] = useState<Voice | null>(() => (typeof window === 'undefined' ? null : createVoice()))
   const subscribe = voice ? voice.subscribe : noop
-  const mode = useSyncExternalStore(subscribe, () => voice?.mode() ?? 'word', () => 'word' as VoiceMode)
+  const mode = useSyncExternalStore(subscribe, () => voice?.mode() ?? 'on', () => 'on' as VoiceMode)
   const speaking = useSyncExternalStore(subscribe, () => voice?.speaking() ?? false, () => false)
   return { voice, mode, speaking }
 }

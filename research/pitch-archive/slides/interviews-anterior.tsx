@@ -1,6 +1,6 @@
 import { SLIDE_ASSETS } from '../deck/assets'
 import { motionDelay } from '../deck/motion'
-import './interviews.css'
+import './interviews-anterior.css'
 
 const FINDINGS = [
   { value: '11', label: 'Quem ouvimos', text: 'fonoaudiólogos e familiares entrevistados' },

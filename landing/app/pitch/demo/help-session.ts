@@ -66,8 +66,7 @@ export class HelpSession {
     return Math.max(0, this.rungs.length - 2)
   }
 
-  startLevelFor(lastRecall: number | null | undefined, askedForWord: boolean): number {
-    if (askedForWord) return this.wordLevel
+  startLevelFor(lastRecall: number | null | undefined): number {
     if (lastRecall === null || lastRecall === undefined) return 0
     return Math.max(0, Math.min(lastRecall - 1, this.lastHintLevel))
   }

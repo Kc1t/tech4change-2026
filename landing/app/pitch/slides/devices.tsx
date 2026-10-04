@@ -1,7 +1,5 @@
 import { SLIDE_ASSETS } from '../deck/assets'
 import { motionDelay } from '../deck/motion'
-import { SlideFooter } from '../deck/slide-footer'
-import type { StepProps } from '../deck/types'
 import './devices.css'
 
 const CARDS = [
@@ -10,10 +8,9 @@ const CARDS = [
   { image: 'relogios', badge: 'opcional · mais discreto', title: 'Um relógio', text: 'Qualquer relógio: ela sente a dica no pulso e lê de relance.' }
 ]
 
-export function Devices({ index, total }: StepProps) {
+export function Devices() {
   return (
     <div className="devices">
-      <p className="abs slide-eyebrow rise" style={motionDelay(100)}>FUNCIONA COM O QUE ELA TEM</p>
       <h2 className="abs rise" style={motionDelay(200)}>
         Qualquer celular já basta.<br /><em>Qualquer relógio só facilita.</em>
       </h2>
@@ -29,7 +26,6 @@ export function Devices({ index, total }: StepProps) {
       ))}
       <p className="abs ease-label rise" style={motionDelay(900)}>MAIS FACILIDADE</p>
       <img className="abs ease-arrow rise" style={motionDelay(950)} src={`${SLIDE_ASSETS}/aparelhos-seta.svg`} alt="" />
-      <SlideFooter index={index} total={total} />
     </div>
   )
 }
