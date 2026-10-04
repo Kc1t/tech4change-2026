@@ -3,7 +3,7 @@ import { useState, useSyncExternalStore } from 'react'
 export const SPEAK_URL = '/pitch/api/speak'
 
 export type VoiceMode = 'word' | 'all' | 'off'
-export type SpeechKind = 'word' | 'hint'
+export type SpeechKind = 'word' | 'sound' | 'hint'
 
 export type Voice = {
   unlock: () => void
@@ -16,7 +16,7 @@ export type Voice = {
   subscribe: (listener: () => void) => () => void
 }
 
-const CLIP_VERSION = 'gia-2'
+const CLIP_VERSION = 'gia-3'
 const FETCH_TIMEOUT_MS = 7000
 const MAX_PLAY_MS = 7000
 const HINT_VOLUME = 0.6
@@ -41,7 +41,7 @@ export function nextVoiceMode(mode: VoiceMode): VoiceMode {
 }
 
 export const VOICE_MODE_LABEL: Record<VoiceMode, string> = {
-  word: 'voz: palavra',
+  word: 'voz: som e palavra',
   all: 'voz: dicas e palavra',
   off: 'sem voz'
 }

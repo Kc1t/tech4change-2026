@@ -298,7 +298,7 @@ export class DemoEngine {
     const voice = this.voice
     if (voice) {
       voice.prefetch(node.label)
-      if (voice.mode() === 'all') rungs.slice(0, -1).forEach(rung => voice.prefetch(rung.text))
+      rungs.slice(0, -1).filter(rung => voice.mode() === 'all' || rung.kind === 'phonological').forEach(rung => voice.prefetch(rung.text))
     }
     return { target: node, ladder, rungs, origin, targetBy, baseline: countMentions(this.transcript.text, namesOf(node)), wordMark: this.transcript.wordCount }
   }
@@ -326,7 +326,7 @@ export class DemoEngine {
     const key = `${this.epoch}-${session.target.id}-${level}`
     if (this.voice && this.spokenKey !== key) {
       this.spokenKey = key
-      void this.voice.say(cue.text, cue.phase === 'given' ? 'word' : 'hint')
+      void this.voice.say(cue.text, cue.phase === 'given' ? 'word' : cue.kind === 'phonological' ? 'sound' : 'hint')
     }
   }
 

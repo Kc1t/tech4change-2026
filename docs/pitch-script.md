@@ -26,7 +26,7 @@ Conversamos com 11 fonos e familiares. / A Flávia, fonoaudióloga, resumiu o qu
 
 Criamos o Eilo para esse instante. / Ele oferece uma pista de cada vez: primeiro o significado, depois o contexto e o começo do som. A palavra inteira fica para o fim. / O celular já basta; o pulso é opcional. O fono continua no centro do cuidado.
 
-### 5 · Demo ao vivo (38 s)
+### 5 · Demo ao vivo (35 s)
 
 [Abra o app antes de entrar neste slide.]
 
@@ -34,7 +34,7 @@ Criamos o Eilo para esse instante. / Ele oferece uma pista de cada vez: primeiro
 
 **Colega:** “Kauã, por que você chegou atrasado hoje?”
 
-**Kauã:** “Ah, saí de casa sem a… a… aquela de abrir a porta…” [Pare e olhe para o celular. Deixe aparecerem as duas primeiras pistas; o relógio vibra uma vez, depois duas.] “Como é que chama?” [Aparece o som “Cha…” no celular e no relógio.] “Ai, não vou lembrar.” [O Eilo mostra e fala “chave”; no relógio, o “Cha” fica destacado dentro da palavra.] “Chave! Isso, a chave.” //
+**Kauã:** “Ah, saí de casa sem a… a… aquela de abrir a porta…” [Pare e olhe para o celular. Deixe aparecer a primeira pista; o relógio vibra uma vez.] “Como é que chama?” [O Eilo fala “Chá…” em voz alta, e o som aparece no celular e grande no relógio.] “Ai, não vou lembrar.” [O Eilo mostra e fala “chave”; no relógio, o “Cha” fica destacado dentro da palavra.] “Chave! Isso, a chave.” //
 
 Eu não apertei nada. / Ele percebeu que eu travei, deu as pistas e, quando eu desisti, falou a palavra por mim. / Com a Helena, as pistas viriam da vida dela: o nome da neta, a cidade onde ela mora.
 
@@ -80,7 +80,7 @@ Somos três: Kauã em produto e engenharia, Adriel na validação clínica e Ale
 
 A inteligência é artificial. A voz é dela.
 
-**Ritmo de ensaio:** as metas somam 4min30s. Faça três ensaios cronometrados com a demo real; se ultrapassar 4min45s, encurte as falas dos slides 2, 7 e 9 antes de acelerar a voz.
+**Ritmo de ensaio:** as metas somam 4min27s. Faça três ensaios cronometrados com a demo real; se ultrapassar 4min45s, encurte as falas dos slides 2, 7 e 9 antes de acelerar a voz.
 
 ## Demo: plano de execução
 
@@ -90,7 +90,7 @@ A inteligência é artificial. A voz é dela.
 4. Diga para que serve a coisa na sua resposta (“aquela de abrir a porta”). É com isso que a IA descobre a palavra, mesmo que o celular não ouça a pergunta. Prefira “saí sem a…” a “esqueci a…”.
 5. Palavras do dia a dia dependem da internet, porque a IA cria as pistas na hora. Sem rede, use o exemplo pronto do passo 8.
 6. A desistência pode sair do seu jeito: “não vou lembrar”, “acho que não vou lembrar não”, “não vou conseguir lembrar” e “não consigo lembrar por nada” funcionam.
-7. Use fone no notebook para o celular ouvir só você. Deixe o celular perto do microfone do notebook, com volume alto e no modo “voz: palavra”, para o júri ouvir o Eilo falar o nome.
+7. Use fone no notebook para o celular ouvir só você. Deixe o celular perto do microfone do notebook, com volume alto e no modo “voz: som e palavra”, para o júri ouvir o Eilo falar o nome.
 8. Se a primeira pista demorar mais de dez segundos, diga: “Vou mostrar a mesma escada no exemplo pronto.” Abra o exemplo e passe pelas pistas. Volte ao roteiro no slide “O papel da IA”. Não espere indefinidamente pela rede.
 9. Se a demo funcionar, não faça uma segunda rodada. Use a folga para respirar e mostrar o resultado.
 
