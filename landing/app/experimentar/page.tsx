@@ -1,13 +1,15 @@
-import type { Metadata } from 'next'
-import '../v3.css'
-import { DemoFlow } from '@/components/demo/demo-flow'
+import type { Metadata, Viewport } from 'next'
+import { TryApp } from './try-app'
 
 export const metadata: Metadata = {
   title: 'Experimentar o Eilo',
-  description:
-    'Monte o seu mapa em três perguntas e veja a escada alcançar a palavra, degrau a degrau.'
+  description: 'Fale com o eilo no navegador e veja as pistas levarem você até a palavra, uma de cada vez.'
+}
+
+export const viewport: Viewport = {
+  themeColor: '#f6f5fb'
 }
 
 export default function Page() {
-  return <DemoFlow />
+  return <TryApp />
 }
