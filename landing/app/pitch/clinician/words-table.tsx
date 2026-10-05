@@ -35,7 +35,7 @@ export function WordsTable({ rows, selected, onSelect, fresh, period }: WordsTab
           <tr>
             <th>Palavra</th>
             <th className="num">Vezes</th>
-            <th>Degrau médio</th>
+            <th>Pistas por palavra</th>
             <th>Evolução</th>
             <th className="end">Estado</th>
           </tr>

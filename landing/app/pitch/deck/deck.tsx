@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PITCH_ASSETS } from './assets'
 import './deck.css'
-import { MenuToggle } from './menu-toggle'
 import { SectionChip } from './section-chip'
 import { SlideMenu } from './slide-menu'
 import { SLIDES } from './slides'
 import { useDeckLink } from './use-deck-link'
 
 const STAGE = { width: 1920, height: 1080 }
-const NEXT_KEYS = ['ArrowRight', 'PageDown', ' ']
+const NEXT_KEYS = ['ArrowRight', 'PageDown']
 const PREVIOUS_KEYS = ['ArrowLeft', 'PageUp']
 
 function clampSlide(index: number): number {
@@ -73,7 +72,6 @@ export function Deck() {
         </div>
       </div>
       <SlideMenu slides={SLIDES} current={position.index} open={menuOpen} go={go} remote={remote} />
-      <MenuToggle open={menuOpen} onToggle={() => setMenuOpen(open => !open)} />
     </div>
   )
 }

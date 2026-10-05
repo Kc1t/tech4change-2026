@@ -5,8 +5,8 @@ import './problem.css'
 const STATS = [
   { label: 'Causa', value: 'AVC', text: 'e também traumatismo craniano, tumor cerebral, doenças neurodegenerativas', x: 255.75 },
   { label: 'Quem vive', value: '~700 mil', text: 'brasileiros com afasia hoje', x: 697.25 },
-  { label: 'Quem convive', value: 'a família', text: 'vira intérprete: completa a frase, fala por ela', x: 1138.75 },
-  { label: 'O que falta', value: '1 em 4', text: 'é o que o SUS tem dos fonos que precisaria na atenção básica', x: 1580.25 }
+  { label: 'Na conversa', value: 'frustração', text: 'a palavra some no meio da frase, e tentar de novo cansa', x: 1138.75 },
+  { label: 'Com o fono', value: '1× semana', text: 'é a sessão, mas a palavra trava todo dia', x: 1580.25 }
 ]
 
 export function Problem() {
@@ -31,7 +31,7 @@ export function Problem() {
         <i />
         <span>Em um estudo pós AVC, <b>28%</b> voltaram ao trabalho.</span>
       </div>
-      <p className="abs sources rise" style={motionDelay(1550)}>Fontes: NIDCD/NIH · Rede Brasil AVC × Engelter, Stroke 2006 (estimativa) · o que ouvimos de 11 fonos e familiares · Thomazi, Unifesp 2025 · Graham, Pereira &amp; Teasell, Aphasiology 2011</p>
+      <p className="abs sources rise" style={motionDelay(1550)}>Fontes: NIDCD/NIH · Rede Brasil AVC × Engelter, Stroke 2006 (estimativa) · o que ouvimos de 11 fonos e familiares · Graham, Pereira &amp; Teasell, Aphasiology 2011</p>
     </div>
   )
 }

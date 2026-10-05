@@ -27,7 +27,7 @@ export function TrendChart({ trend }: { trend: TrendPoint[] }) {
           ao vivo, vindo do app · {WEEKS} semanas
         </span>
       </div>
-      <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="cd-chart-svg" role="img" aria-label="Degrau médio por semana caindo ao longo de oito semanas" onPointerLeave={() => setHover(null)}>
+      <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} className="cd-chart-svg" role="img" aria-label="Pistas por palavra, por semana, caindo ao longo de oito semanas" onPointerLeave={() => setHover(null)}>
         <text x={CHART.left + 10} y={CHART.top - 10} fontSize={12} fill="#6b5fa8" fontWeight={800}>AO VIVO</text>
         {LEVELS.map(level => (
           <g key={level}>
@@ -53,7 +53,7 @@ export function TrendChart({ trend }: { trend: TrendPoint[] }) {
       {hover != null && hovered && (
         <div className="cd-tip" style={{ left: `${(x(hover) / CHART.width) * 100}%` }}>
           <p>Semana {hovered.week} · ao vivo</p>
-          <span>degrau médio {formatLevel(hovered.level)} · {hovered.attempts} palavras</span>
+          <span>{formatLevel(hovered.level)} pistas por palavra · {hovered.attempts} palavras</span>
         </div>
       )}
     </div>

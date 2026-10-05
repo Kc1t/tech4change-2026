@@ -19,7 +19,7 @@ import type { SlideEntry } from './types'
 export const SLIDES: SlideEntry[] = [
   { part: 'Problema', name: 'Nenhum deles esqueceu', bare: true, steps: 4, render: props => <Cover {...props} /> },
   { part: 'Problema', name: 'O problema', label: 'O problema', render: () => <Problem /> },
-  { part: 'Problema', name: 'O que ouvimos', bare: true, render: props => <InterviewsNumbers {...props} /> },
+  { part: 'Problema', name: 'O que ouvimos', label: 'O que ouvimos', render: () => <InterviewsNumbers /> },
   { part: 'Solução', name: 'A solução', label: 'A solução', render: () => <Solution /> },
   { part: 'Solução', name: 'Demo ao vivo', label: 'Como funciona', listens: true, render: () => <LiveDemoSlide /> },
   { part: 'Solução', name: 'O papel da IA', label: 'O papel da IA', render: () => <AiRole /> },

@@ -3,9 +3,9 @@ import { motionDelay } from '../deck/motion'
 import './solution.css'
 
 const POINTS = [
-  { icon: 'list', title: 'A ajuda é progressiva', text: 'Da dica mais leve à palavra, só o necessário.' },
-  { icon: 'zap', title: 'Chega no segundo em que trava', text: 'Percebe a pausa no meio da conversa.' },
-  { icon: 'user', title: 'Quem diz a palavra é ela', text: 'E a fala treina a cada conversa.', active: true }
+  { icon: 'zap', title: '1. Percebe a pausa', text: 'Ouve a frase e nota quando a palavra não vem.' },
+  { icon: 'list', title: '2. Dá uma pista por vez', text: 'Primeiro uma dica, depois o som do começo.' },
+  { icon: 'user', title: '3. A palavra só no fim', text: 'Antes, ela tenta. Se não vier, o Eilo fala.', active: true }
 ]
 
 const DEVICES = [
@@ -17,8 +17,8 @@ const DEVICES = [
 export function Solution() {
   return (
     <div className="solution">
-      <h2 className="abs rise" style={motionDelay(150)}>Não entregamos a palavra.<br />Reabrimos o caminho.</h2>
-      <p className="abs lead rise" style={motionDelay(300)}>Uma dica de cada vez, no celular e no pulso.</p>
+      <h2 className="abs rise" style={motionDelay(150)}>O Eilo ouve a conversa<br /><em>e ajuda quando trava.</em></h2>
+      <p className="abs lead rise" style={motionDelay(300)}>Um app no celular que guia a pessoa até a palavra.</p>
       <img className="abs connector rise" style={motionDelay(500)} src={`${SLIDE_ASSETS}/k2-ligacao.svg`} alt="" />
       {POINTS.map((point, index) => (
         <div key={point.icon} className={`abs point point--${index + 1} rise`} style={motionDelay(450 + index * 160)}>
@@ -39,7 +39,7 @@ export function Solution() {
         <span className="scene-chip"><img src={`${SLIDE_ASSETS}/k2-ponto.svg`} alt="" />No pulso</span>
       </div>
       <img className="abs arcs" src={`${SLIDE_ASSETS}/k2-arcos.svg`} alt="" />
-      <div className="abs buzz rise" style={motionDelay(1100)}><img src={`${SLIDE_ASSETS}/k2-vibra.svg`} alt="" />2 toques = dica 2</div>
+      <div className="abs buzz rise" style={motionDelay(1100)}><img src={`${SLIDE_ASSETS}/k2-vibra.svg`} alt="" />2 toques = o som</div>
       <div className="abs compatible rise" style={motionDelay(1250)}>
         <p className="title">Funciona com o que ela tem</p>
         <div className="device-list">

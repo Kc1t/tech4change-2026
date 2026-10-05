@@ -1,5 +1,6 @@
 .pitch .solution h2 { left: 55px; top: 150px; color: #1b1a22; font-size: 53px; font-weight: 500; line-height: 1.02; letter-spacing: -1.749px; white-space: nowrap; }
-.pitch .solution .lead { left: 55px; top: 282px; color: var(--gray); font-size: 24px; white-space: nowrap; }
+.pitch .solution h2 em { font-style: normal; color: var(--violet); }
+.pitch .solution .lead { left: 55px; top: 282px; width: 620px; color: var(--gray); font-size: 24px; line-height: 1.35; }
 .pitch .solution .connector { left: 85px; top: 450px; width: 4px; height: 280px; }
 .pitch .solution .point { left: 55px; width: 640px; height: 64px; padding-left: 88px; }
 .pitch .solution .point--1 { top: 418px; }

@@ -11,7 +11,7 @@ const MILESTONES = [
 export function GoToMarket() {
   return (
     <div className="go-to-market">
-      <h2 className="abs rise" style={motionDelay(150)}>Começamos pela clínica.<br /><em>A cada degrau, chega mais gente.</em></h2>
+      <h2 className="abs rise" style={motionDelay(150)}>Começamos pela clínica.<br /><em>A cada etapa, chega mais gente.</em></h2>
       <p className="abs cost rise" style={motionDelay(350)}>IA custa até R$ 2,50 por paciente · sobram ~R$ 75 por fono</p>
       {MILESTONES.map((milestone, index) => (
         <div key={milestone.photo} className={`milestone milestone--${milestone.tone} rise`} style={motionDelay(400 + index * 250)}>

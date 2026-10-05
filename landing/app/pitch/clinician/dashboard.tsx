@@ -20,7 +20,7 @@ import './dashboard.css'
 type Tab = 'trend' | 'words' | 'practice' | 'feed'
 
 const TABS: Array<{ id: Tab; label: string; title: string; note: string }> = [
-  { id: 'trend', label: 'Evolução', title: 'Degrau médio por semana', note: 'Quanto mais baixo, menos pista a pessoa precisou. O que se espera é a linha descer.' },
+  { id: 'trend', label: 'Evolução', title: 'Pistas por palavra, por semana', note: 'Quanto mais baixo, menos pista a pessoa precisou. O que se espera é a linha descer.' },
   { id: 'words', label: 'Palavras', title: 'Palavra por palavra', note: 'Das que mais pedem pista para as que menos pedem. Clique numa palavra para ver a escada dela.' },
   { id: 'practice', label: 'Prática', title: 'Prática fora da sessão', note: 'Minutos por semana com o eilo no dia a dia, contra a meta da diretriz europeia (ESO).' },
   { id: 'feed', label: 'Agora', title: 'Agora', note: 'Do mais novo para o mais antigo.' }

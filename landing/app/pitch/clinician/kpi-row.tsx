@@ -39,7 +39,7 @@ export function KpiRow({ kpis, rows, period }: { kpis: Kpis; rows: Row[]; period
   return (
     <div className="cd-kpis">
       <Kpi
-        label="Degrau médio"
+        label="Pistas por palavra"
         hint={PERIOD_LABEL[period].toLowerCase()}
         value={formatLevel(levelNow)}
         unit="de 4"
