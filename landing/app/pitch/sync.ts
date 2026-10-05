@@ -8,7 +8,9 @@ import type { Activity, DemoCue, LiveDemoState } from './demo/types'
 
 export const SYNC_URL = '/pitch/api/sync'
 
-export type SyncedDemo = { cue: DemoCue; words: string[]; mic: LiveDemoState['mic']; activity?: Activity; at: number }
+export type SyncedSpeech = { id: number; text: string }
+
+export type SyncedDemo = { cue: DemoCue; words: string[]; mic: LiveDemoState['mic']; activity?: Activity; speech?: SyncedSpeech; at: number }
 
 const STALE_MS = 12_000
 

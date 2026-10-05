@@ -2,7 +2,7 @@ import { useState, useSyncExternalStore } from 'react'
 
 export const SPEAK_URL = '/pitch/api/speak'
 
-export type VoiceMode = 'on' | 'off'
+export type VoiceMode = 'on' | 'pc' | 'off'
 
 export type Voice = {
   unlock: () => void
@@ -13,39 +13,45 @@ export type Voice = {
   mode: () => VoiceMode
   setMode: (mode: VoiceMode) => void
   subscribe: (listener: () => void) => () => void
+  onRelay: (listener: (text: string) => void) => () => void
 }
 
 const CLIP_VERSION = 'gia-3'
 const FETCH_TIMEOUT_MS = 7000
 const MAX_PLAY_MS = 7000
-const MODE_KEY = 'eilo-pitch-voice'
+const RELAY_MS_PER_CHAR = 70
+const PHONE_MODE_KEY = 'eilo-pitch-voice'
+export const DECK_MODE_KEY = 'eilo-pitch-voice-deck'
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
 
 function spoken(text: string): string {
   return text.replace(/…|\.{3}/g, '').replace(/\s+/g, ' ').trim().slice(0, 80)
 }
 
-function storedMode(): VoiceMode {
+function storedMode(key: string): VoiceMode {
   try {
-    return window.localStorage.getItem(MODE_KEY) === 'off' ? 'off' : 'on'
+    const stored = window.localStorage.getItem(key)
+    return stored === 'off' || stored === 'pc' ? stored : 'on'
   } catch {
     return 'on'
   }
 }
 
 export function nextVoiceMode(mode: VoiceMode): VoiceMode {
-  return mode === 'on' ? 'off' : 'on'
+  return mode === 'on' ? 'pc' : mode === 'pc' ? 'off' : 'on'
 }
 
 export const VOICE_MODE_LABEL: Record<VoiceMode, string> = {
-  on: 'voz ligada',
+  on: 'voz no celular',
+  pc: 'voz no PC',
   off: 'sem voz'
 }
 
-export function createVoice(): Voice {
+export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
   const clips = new Map<string, Promise<string | null>>()
   const listeners = new Set<() => void>()
-  let mode: VoiceMode = storedMode()
+  const relays = new Set<(text: string) => void>()
+  let mode: VoiceMode = storedMode(modeKey)
   let audio: HTMLAudioElement | null = null
   let finish: (() => void) | null = null
   let active = false
@@ -84,6 +90,10 @@ export function createVoice(): Voice {
   }
 
   const onDevice = (text: string, done: () => void) => {
+    if (mode === 'pc') {
+      window.setTimeout(done, text.length * RELAY_MS_PER_CHAR)
+      return
+    }
     const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined
     if (!synth || typeof SpeechSynthesisUtterance === 'undefined') return done()
     const utterance = new SpeechSynthesisUtterance(text)
@@ -130,6 +140,7 @@ export function createVoice(): Voice {
       const text = spoken(raw)
       if (!text || mode === 'off') return Promise.resolve()
       stop()
+      if (mode === 'pc') relays.forEach(relay => relay(text))
       const mine = ++token
       return new Promise<void>(resolve => {
         let guard = 0
@@ -148,8 +159,8 @@ export function createVoice(): Voice {
           const el = element()
           el.onended = done
           el.onerror = () => onDevice(text, done)
-          el.muted = false
-          el.volume = 1
+          el.muted = mode === 'pc'
+          el.volume = mode === 'pc' ? 0 : 1
           el.src = url
           el.play().catch(() => onDevice(text, done))
         })
@@ -161,7 +172,7 @@ export function createVoice(): Voice {
     setMode(next) {
       mode = next
       try {
-        window.localStorage.setItem(MODE_KEY, next)
+        window.localStorage.setItem(modeKey, next)
       } catch {}
       if (next === 'off') stop()
       notify()
@@ -169,14 +180,18 @@ export function createVoice(): Voice {
     subscribe(listener) {
       listeners.add(listener)
       return () => listeners.delete(listener)
+    },
+    onRelay(listener) {
+      relays.add(listener)
+      return () => relays.delete(listener)
     }
   }
 }
 
 const noop = () => () => {}
 
-export function useVoice() {
-  const [voice] = useState<Voice | null>(() => (typeof window === 'undefined' ? null : createVoice()))
+export function useVoice(modeKey?: string) {
+  const [voice] = useState<Voice | null>(() => (typeof window === 'undefined' ? null : createVoice(modeKey)))
   const subscribe = voice ? voice.subscribe : noop
   const mode = useSyncExternalStore(subscribe, () => voice?.mode() ?? 'on', () => 'on' as VoiceMode)
   const speaking = useSyncExternalStore(subscribe, () => voice?.speaking() ?? false, () => false)

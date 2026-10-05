@@ -11,7 +11,7 @@ import { lifeGraph, SCRIPTED_TARGET, THRESHOLDS, TIMING, WORD_COUNTS } from './c
 import { GuessAhead } from './guess-ahead'
 import { HelpSession, type TargetSource } from './help-session'
 import { ModelClient, networkOf, warmRoutes, type Reply, type Timed } from './model-client'
-import { SIMULATION } from './simulation'
+import { SIMULATION, type SimulationStep } from './simulation'
 import { countMentions, greetingEnd, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
 import { TranscriptBuffer } from './transcript'
 import { IDLE_CUE, INITIAL_STATE, type Activity, type CueOrigin, type CuePhase, type DemoCue, type DemoGuess, type LiveDemoState, type Network } from './types'
@@ -79,6 +79,7 @@ export class DemoEngine {
   private idleTimer: number | null = null
   private simulationTimers: number[] = []
   private simulating = false
+  private onSimulatedSound: (() => void) | null = null
 
   private session: HelpSession | null = null
   private epoch = 0
@@ -89,6 +90,7 @@ export class DemoEngine {
   private spokenKey = ''
   private judging = false
   private outcome: { at: number; words: number } | null = null
+  private resolved: { id: NodeId; at: number } | null = null
   private lastSpeechAt = 0
   private segment: { startedAt: number | null; wordMark: number; handled: boolean } = { startedAt: null, wordMark: 0, handled: false }
   private shownFrom = 0
@@ -188,6 +190,7 @@ export class DemoEngine {
     this.shownFrom = 0
     this.epoch += 1
     this.recall.clear()
+    this.resolved = null
     this.guess = null
     this.ahead.reset()
     this.clearSimulation()
@@ -207,7 +210,13 @@ export class DemoEngine {
     this.simulating = true
     this.patch({ mic: 'simulating' })
     let spoken = ''
-    this.simulationTimers = SIMULATION.map(step =>
+    const last = SIMULATION[SIMULATION.length - 1]
+    const finish = () => {
+      this.simulating = false
+      this.transcript.set('', '')
+      this.setMic(this.browserListening || this.cloudEar ? 'listening' : 'off')
+    }
+    const play = (step: SimulationStep) =>
       window.setTimeout(() => {
         if (step.final) {
           spoken = `${spoken} ${step.text}`.trim()
@@ -215,16 +224,13 @@ export class DemoEngine {
         } else {
           this.hear(spoken, step.text)
         }
+        if (step === last) this.simulationTimers.push(window.setTimeout(finish, TIMING.resultHoldMs + 500))
       }, step.at)
-    )
-    const end = SIMULATION[SIMULATION.length - 1].at + TIMING.resultHoldMs + 500
-    this.simulationTimers.push(
-      window.setTimeout(() => {
-        this.simulating = false
-        this.transcript.set('', '')
-        this.setMic(this.browserListening || this.cloudEar ? 'listening' : 'off')
-      }, end)
-    )
+    this.simulationTimers = SIMULATION.filter(step => !step.afterSound).map(play)
+    this.onSimulatedSound = () => {
+      this.onSimulatedSound = null
+      this.simulationTimers.push(...SIMULATION.filter(step => step.afterSound).map(play))
+    }
   }
 
   private patch(next: Partial<LiveDemoState>) {
@@ -274,6 +280,7 @@ export class DemoEngine {
   private clearSimulation() {
     this.simulationTimers.forEach(timer => window.clearTimeout(timer))
     this.simulationTimers = []
+    this.onSimulatedSound = null
   }
 
   private scheduleIdle() {
@@ -322,9 +329,11 @@ export class DemoEngine {
     const cue = session.cueAt(level, this.network)
     if (cue.phase === 'given') {
       this.recall.set(session.target.id, level)
+      this.resolved = { id: session.target.id, at: performance.now() }
       this.scheduleIdle()
     }
     this.publish(cue)
+    if (this.simulating && cue.kind === 'phonological') this.onSimulatedSound?.()
     const key = `${this.epoch}-${session.target.id}-${level}`
     if (this.voice && this.spokenKey !== key) {
       this.spokenKey = key
@@ -410,12 +419,16 @@ export class DemoEngine {
     this.showLevel(0)
   }
 
+  private resolvedRecently(id: NodeId): boolean {
+    return this.resolved?.id === id && performance.now() - this.resolved.at < TIMING.repeatGuardMs
+  }
+
   private startFromGuess(completed: Timed<Guess>): boolean {
     const guess = completed.value
     const graphNode = guess.nodeId ? graph.nodes[guess.nodeId] : undefined
     const node = graphNode ?? freeNode(guess.word)
     const recent = lastWords(this.transcript.text, WORD_COUNTS.recent)
-    if (countMentions(recent, namesOf(node)) > 0) return false
+    if (this.resolvedRecently(node.id) || countMentions(recent, namesOf(node)) > 0) return false
     if (!graphNode && (guess.confidence < THRESHOLDS.freeWordConfidence || guess.cues.length === 0)) return false
     const ladder = graphNode ? buildLadder(graph, deterministicPlan(graph, graphNode.id)) : []
     const rungs = graphNode ? rungsFor(graphNode, ladder, guess.confidence) : freeWordRungs(guess)
@@ -473,7 +486,7 @@ export class DemoEngine {
     const node = targetId && prediction.confidence >= CONFIDENCE_FLOOR ? graph.nodes[targetId] : undefined
     const ladder = node ? buildLadder(graph, deterministicPlan(graph, node.id)) : []
     const rungs = node ? rungsFor(node, ladder, prediction.confidence) : []
-    if (!targetId || !node || rungs.length < 2) {
+    if (!targetId || !node || rungs.length < 2 || this.resolvedRecently(node.id)) {
       void this.awaitGuess(text, false)
       return
     }
@@ -502,6 +515,7 @@ export class DemoEngine {
     const session = this.session
     if (!session) return
     if (recalled) this.recall.set(recalled.id, session.level)
+    this.resolved = { id: session.target.id, at: performance.now() }
     this.publish({ phase: 'success', level: session.level, total: session.rungs.length, text: word, origin: session.origin, targetBy: session.targetBy, network: this.network })
     this.scheduleIdle()
   }
@@ -715,12 +729,14 @@ export class DemoEngine {
   }
 
   private guideSession(session: HelpSession, now: number) {
+    const spokeBeforeCue = this.segment.startedAt !== null && this.segment.startedAt < session.lastCueAt
+    if (spokeBeforeCue && this.transcript.wordCount > session.cueWordMark) session.cueWordMark = this.transcript.wordCount
     const silence = now - this.lastSpeechAt
     const sinceCue = now - session.lastCueAt
     const fresh = wordsFrom(this.transcript.text, session.cueWordMark)
     const verdict = session.verdict
     if (asksForWord(fresh) && sinceCue >= TIMING.minCueGapMs) {
-      this.showLevel(session.wordLevel)
+      this.escalate()
       return
     }
     if (silence < TIMING.struggleSilenceMs) return
@@ -729,7 +745,7 @@ export class DemoEngine {
     if (reachesFor(fresh, namesOf(session.target)) && silence < TIMING.talkQuietMs) return
     const upToDate = !session.assessing && session.assessedText === fresh
     if (upToDate && wantsWord(verdict?.help, verdict?.frustration) && sinceCue >= TIMING.minCueGapMs) {
-      this.showLevel(session.wordLevel)
+      this.escalate()
       return
     }
     const local = struggleOf(fresh)

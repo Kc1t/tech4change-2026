@@ -5,6 +5,13 @@
 .phone-page__tools { position: absolute; right: 14px; bottom: 18px; display: flex; gap: 8px; }
 .phone-page__tools button { padding: 8px 14px; border: 1px solid #e3def7; border-radius: 999px; background: rgba(255, 255, 255, .9); color: #6b5fa8; font: 600 13px var(--font-manrope), sans-serif; }
 .phone-page__tools button[aria-pressed="false"] { color: #9a94b8; }
+.phone-page__quick { position: absolute; left: 12px; right: 12px; bottom: 162px; z-index: 42; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.phone-page__quick button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border: 1px solid #e3def7; border-radius: 16px; background: rgba(255, 255, 255, .92); color: #6b5fa8; font: 600 12px var(--font-manrope), sans-serif; box-shadow: 0 4px 14px rgba(64, 51, 115, .1); }
+.phone-page__quick button svg { width: 20px; height: 20px; }
+.phone-page__quick button:disabled { opacity: .4; }
+.phone-page__quick button.is-held { border-color: #6b5fa8; background: #6b5fa8; color: #fff; }
+.phone-page__status--held { background: #6b5fa8; color: #fff; }
+.phone-page__status--held i { background: #fff; }
 .phone-page__alert { position: absolute; inset: 16px 16px auto; display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 18px; background: #fff; box-shadow: 0 8px 30px rgba(60, 40, 140, .15); color: #2b2640; font: 14px/1.4 var(--font-manrope), sans-serif; z-index: 45; }
 .phone-page__alert b { font-size: 16px; }
 .phone-page__status { position: absolute; top: 6px; left: 50%; z-index: 41; translate: -50% 0; display: flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, .88); color: #57546a; font: 600 11px/16px var(--font-manrope), sans-serif; white-space: nowrap; box-shadow: 0 2px 8px rgba(64, 51, 115, .08); }

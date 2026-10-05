@@ -3,28 +3,46 @@
 import { useEffect, useRef, useState } from 'react'
 import { PITCH_ASSETS } from '../deck/assets'
 
+type Reel = 'quick' | 'full'
+
+const REEL_FILE: Record<Reel, string> = {
+  quick: 'demo-reserva-narrar.mp4',
+  full: 'demo-reserva.mp4'
+}
+
 function typingIn(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
 }
 
 export function DemoReserve() {
-  const video = useRef<HTMLVideoElement>(null)
-  const showing = useRef(false)
-  const [visible, setVisible] = useState(false)
+  const videos = useRef<Record<Reel, HTMLVideoElement | null>>({ quick: null, full: null })
+  const showing = useRef<Reel | null>(null)
+  const [visible, setVisible] = useState<Reel | null>(null)
 
   useEffect(() => {
+    const show = (reel: Reel | null) => {
+      for (const element of Object.values(videos.current)) element?.pause()
+      showing.current = reel
+      setVisible(reel)
+      const element = reel ? videos.current[reel] : null
+      if (!element) return
+      element.currentTime = 0
+      void element.play().catch(() => {})
+    }
+
     const onKey = (event: KeyboardEvent) => {
-      if (event.code !== 'KeyF' || event.ctrlKey || event.metaKey || event.altKey || event.repeat || typingIn(event.target)) return
-      const element = video.current
-      if (!element || (!showing.current && element.error)) return
-      event.preventDefault()
-      showing.current = !showing.current
-      setVisible(showing.current)
-      if (showing.current) {
-        element.currentTime = 0
-        void element.play().catch(() => {})
-      } else {
-        element.pause()
+      if (event.ctrlKey || event.metaKey || event.altKey || event.repeat || typingIn(event.target)) return
+      if (event.code === 'KeyF') {
+        const reel: Reel = event.shiftKey ? 'full' : 'quick'
+        if (showing.current !== reel && videos.current[reel]?.error) return
+        event.preventDefault()
+        show(showing.current === reel ? null : reel)
+      } else if ((event.code === 'Space' || event.code === 'KeyK' || event.code === 'KeyP') && showing.current) {
+        const element = videos.current[showing.current]
+        if (!element) return
+        event.preventDefault()
+        if (element.paused) void element.play().catch(() => {})
+        else element.pause()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -32,17 +50,25 @@ export function DemoReserve() {
   }, [])
 
   return (
-    <video
-      ref={video}
-      className={`abs demo-reserve${visible ? ' demo-reserve--on' : ''}`}
-      src={`${PITCH_ASSETS}/demo-reserva.mp4`}
-      preload="auto"
-      playsInline
-      onError={() => {
-        showing.current = false
-        setVisible(false)
-      }}
-      aria-hidden={!visible}
-    />
+    <>
+      {(Object.keys(REEL_FILE) as Reel[]).map(reel => (
+        <video
+          key={reel}
+          ref={element => {
+            videos.current[reel] = element
+          }}
+          className={`abs demo-reserve${visible === reel ? ' demo-reserve--on' : ''}`}
+          src={`${PITCH_ASSETS}/${REEL_FILE[reel]}`}
+          preload="auto"
+          playsInline
+          onError={() => {
+            if (showing.current !== reel) return
+            showing.current = null
+            setVisible(null)
+          }}
+          aria-hidden={visible !== reel}
+        />
+      ))}
+    </>
   )
 }

@@ -1,5 +1,5 @@
 import type { Activity, DemoCue, LiveDemoState } from '../demo/types'
-import type { SyncedDemo } from '../sync'
+import type { SyncedDemo, SyncedSpeech } from '../sync'
 import { parseLevel } from './guess-safety'
 import { LIMITS } from './limits'
 import { cleanTranscript, maskOffensive } from './text-safety'
@@ -11,6 +11,14 @@ const ACTIVITIES = new Set<Activity>(['off', 'waiting', 'listening', 'hearing', 
 
 function syncText(value: unknown, max: number): string {
   return maskOffensive(cleanTranscript(value, max, 40))
+}
+
+function parseSpeech(value: unknown): SyncedSpeech | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined
+  const raw = value as Record<string, unknown>
+  if (typeof raw.id !== 'number' || !Number.isFinite(raw.id)) return undefined
+  const text = syncText(raw.text, LIMITS.syncText)
+  return text ? { id: raw.id, text } : undefined
 }
 
 export function parseSynced(value: unknown): SyncedDemo | null {
@@ -32,5 +40,5 @@ export function parseSynced(value: unknown): SyncedDemo | null {
     .map(word => syncText(word, LIMITS.syncWordChars))
     .filter(Boolean)
   const activity = typeof raw.activity === 'string' && ACTIVITIES.has(raw.activity as Activity) ? (raw.activity as Activity) : undefined
-  return { cue: parsed, words, mic: raw.mic as LiveDemoState['mic'], activity, at }
+  return { cue: parsed, words, mic: raw.mic as LiveDemoState['mic'], activity, speech: parseSpeech(raw.speech), at }
 }

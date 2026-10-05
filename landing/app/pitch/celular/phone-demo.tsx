@@ -1,21 +1,23 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Check, Pause, Play, SkipForward } from 'lucide-react'
 import { AppHome } from '../app-home/home'
 import { nextVoiceMode, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
 import type { DemoCue } from '../demo/types'
 import { useLiveDemo } from '../demo/use-live-demo'
-import { publish, vibrationPattern } from '../sync'
+import { publish, vibrationPattern, type SyncedDemo, type SyncedSpeech } from '../sync'
 import { PhoneControls } from './phone-controls'
 import { useDeckGate } from './use-deck-gate'
 
-type Link = 'pitch' | 'alone' | 'offline' | 'paused'
+type Link = 'pitch' | 'alone' | 'offline' | 'paused' | 'held'
 
 const LINK_LABEL: Record<Link, string> = {
   pitch: 'conectado ao pitch',
   alone: 'tela do pitch fechada',
   offline: 'sem internet',
-  paused: 'em pausa até o slide da demo'
+  paused: 'em pausa até o slide da demo',
+  held: 'pausado por você · o telão congelou'
 }
 
 const LOUD_RMS = 0.1
@@ -93,6 +95,9 @@ export function PhoneDemo() {
   const [armed, setArmed] = useState(false)
   const [link, setLink] = useState<Link>('alone')
   const [controlsOpen, setControlsOpen] = useState(false)
+  const [held, setHeld] = useState(false)
+  const [speech, setSpeech] = useState<SyncedSpeech | undefined>(undefined)
+  const frozen = useRef<SyncedDemo | null>(null)
   const { voice, mode } = useVoice()
   const buzzedRef = useRef('')
 
@@ -108,15 +113,17 @@ export function PhoneDemo() {
   }, [])
 
   const gate = useDeckGate()
-  const listening = armed && gate.open
+  const listening = armed && gate.open && !held
   const { state, reset, micLevel, nextLevel, giveWord, wake } = useLiveDemo(listening, onCue, { voice, wakeWord: true })
   const mic = listening ? state.mic : 'off'
   const activity = listening ? state.activity : 'off'
-  const latest = useRef({ state, mic, activity })
+  const latest = useRef({ state, mic, activity, speech })
   const pausedAt = useRef<number | null>(null)
   useEffect(() => {
-    latest.current = { state, mic, activity }
-  }, [state, mic, activity])
+    latest.current = { state, mic, activity, speech }
+  }, [state, mic, activity, speech])
+
+  useEffect(() => voice?.onRelay(text => setSpeech({ id: Date.now(), text })), [voice])
   useScreenAwake(armed)
 
   useEffect(() => {
@@ -137,18 +144,30 @@ export function PhoneDemo() {
   }, [])
 
   useEffect(() => {
-    if (!armed) return
-    track(publish({ cue: state.cue, words: state.words, mic, activity, at: Date.now() }))
-  }, [armed, state.cue, state.words, mic, activity, track])
+    if (!armed || held) return
+    track(publish({ cue: state.cue, words: state.words, mic, activity, speech, at: Date.now() }))
+  }, [armed, held, state.cue, state.words, mic, activity, speech, track])
 
   useEffect(() => {
     if (!armed) return
     const beat = window.setInterval(() => {
-      const { state: s, mic: m, activity: a } = latest.current
-      track(publish({ cue: s.cue, words: s.words, mic: m, activity: a, at: Date.now() }))
+      const { state: s, mic: m, activity: a, speech: said } = latest.current
+      const shown = frozen.current ?? { cue: s.cue, words: s.words, mic: m, activity: a, speech: said }
+      track(publish({ ...shown, at: Date.now() }))
     }, 3000)
     return () => window.clearInterval(beat)
   }, [armed, track])
+
+  const togglePause = () => {
+    if (held) {
+      frozen.current = null
+      setHeld(false)
+      return
+    }
+    frozen.current = { cue: state.cue, words: state.words, mic, activity, speech, at: Date.now() }
+    voice?.stop()
+    setHeld(true)
+  }
 
   const denied = listening && (state.mic === 'blocked' || state.mic === 'unsupported')
   const insecure = typeof window !== 'undefined' && !window.isSecureContext
@@ -158,7 +177,7 @@ export function PhoneDemo() {
       <AppHome cue={state.cue} heard={state.words.join(' ')} mic={mic} activity={listening ? state.activity : undefined} />
       {armed && (
         <LiveStatus
-          link={state.network === 'offline' ? 'offline' : gate.paused ? 'paused' : link}
+          link={held ? 'held' : state.network === 'offline' ? 'offline' : gate.paused ? 'paused' : link}
           listening={listening && state.mic === 'listening' && state.ear === 'openrouter'}
           level={micLevel}
         />
@@ -181,6 +200,22 @@ export function PhoneDemo() {
           </button>
         </div>
       )}
+      {armed && !gate.paused && !controlsOpen && (
+        <div className="phone-page__quick" aria-label="Atalhos da demo">
+          <button className={held ? 'is-held' : ''} aria-pressed={held} onClick={togglePause}>
+            {held ? <Play aria-hidden /> : <Pause aria-hidden />}
+            {held ? 'continuar' : 'pausar'}
+          </button>
+          <button disabled={held || state.activity === 'waiting'} onClick={nextLevel}>
+            <SkipForward aria-hidden />
+            próxima pista
+          </button>
+          <button disabled={held || state.cue.phase !== 'cue'} onClick={giveWord}>
+            <Check aria-hidden />
+            dar a palavra
+          </button>
+        </div>
+      )}
       {armed && (
         <div className="phone-page__tools">
           <button
@@ -195,6 +230,8 @@ export function PhoneDemo() {
           <button
             onClick={() => {
               buzzedRef.current = ''
+              frozen.current = null
+              setHeld(false)
               reset()
             }}
           >

@@ -16,6 +16,7 @@ export const TIMING = {
   talkQuietMs: 3000,
   minCueGapMs: 700,
   resultHoldMs: 3500,
+  repeatGuardMs: 15_000,
   outcomeEchoMs: 300,
   vadAliveMs: 6000,
   settleMs: 1500,

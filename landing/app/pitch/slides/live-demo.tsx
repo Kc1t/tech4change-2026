@@ -5,7 +5,7 @@ import { motionDelay } from '../deck/motion'
 import type { DemoCue } from '../demo/types'
 import { useLiveDemo } from '../demo/use-live-demo'
 import { splitTurns } from '../eilo/stall'
-import { nextVoiceMode, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
+import { DECK_MODE_KEY, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
 import { useRemoteDemo, vibrationPattern } from '../sync'
 import { buzzOf } from '../watch-mock/buzz'
 import { WatchMock } from '../watch-mock/watch'
@@ -21,9 +21,9 @@ const ORDINAL = ['Um', 'Dois', 'Três', 'Quatro', 'Cinco']
 const KIND_COPY: Record<string, string> = {
   category: 'A frase travou. A primeira dica diz do que se trata, e o pulso vibra uma vez.',
   relation: 'Ainda não veio. Mais um detalhe, e o pulso vibra de novo.',
-  place: 'Mais um degrau: onde fica. Ainda sem entregar a palavra.',
-  use: 'Mais um degrau: para que serve.',
-  shape: 'Mais um degrau: como é.',
+  place: 'Mais uma pista: onde fica. Ainda sem entregar a palavra.',
+  use: 'Mais uma pista: para que serve.',
+  shape: 'Mais uma pista: como é.',
   phonological: 'Só o som do começo, no celular e no pulso. A palavra continua sendo de quem fala.'
 }
 
@@ -71,7 +71,7 @@ function useClock() {
 
 export function LiveDemoSlide() {
   const { remote, connected } = useRemoteDemo()
-  const { voice, mode } = useVoice()
+  const { voice, mode } = useVoice(DECK_MODE_KEY)
   const { state: local, nextLevel, reset, simulate } = useLiveDemo(!connected, () => {}, { voice: connected ? null : voice, listen: false })
   const state = remote ?? local
   const time = useClock()
@@ -80,6 +80,19 @@ export function LiveDemoSlide() {
   useEffect(() => {
     if (connected) voice?.stop()
   }, [connected, voice])
+
+  const relayed = useRef<number | null | undefined>(undefined)
+  const speech = remote?.speech
+  useEffect(() => {
+    if (!connected) return
+    const id = speech?.id ?? null
+    if (relayed.current === undefined || id === relayed.current) {
+      relayed.current = id
+      return
+    }
+    relayed.current = id
+    if (speech) void voice?.say(speech.text)
+  }, [connected, speech, voice])
 
   useEffect(() => {
     const unlock = () => voice?.unlock()
@@ -94,7 +107,7 @@ export function LiveDemoSlide() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return
-      const toggleVoice = () => voice?.setMode(nextVoiceMode(voice.mode()))
+      const toggleVoice = () => voice?.setMode(voice.mode() === 'off' ? 'on' : 'off')
       const actions: Record<string, () => void> = { KeyD: nextLevel, KeyX: reset, KeyS: simulate, KeyV: toggleVoice }
       const action = actions[event.code]
       if (!action) return
