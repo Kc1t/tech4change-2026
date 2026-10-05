@@ -1,55 +1,136 @@
 # Roteiro do pitch Eilo · slides 1 a 9
 
-Do “Nenhum deles esqueceu” até o “O que a fono vê”, que agora vem logo depois do “Qualquer aparelho”. Meta: 2min55s.
+Use `/` para respirar, `//` para uma pausa curta e `[ ]` para ação.
 
-Use `/` para respirar, `//` para uma pausa curta e `[ ]` para uma ação.
+## 1 · Nenhum deles esqueceu
 
-## 1 · Nenhum deles esqueceu (23 s)
+Boa noite! Eu sou o Kauã.
 
-Imaginem a Helena depois de um AVC. / Ela reconhece a neta, sabe o que quer contar, mas o nome não sai. //
+Para explicar do que se trata o nosso projeto, / quero apresentar três pessoas.
 
-O Jorge trava no meio de uma frase. A Ana procura uma palavra simples no trabalho. //
+A Helena teve um AVC. / Ela olha para a neta e sabe perfeitamente quem ela é. / Lembra das histórias, sabe o que queria contar… / mas, quando tenta dizer o nome dela, / o nome simplesmente não vem.
 
-Eles não esqueceram as pessoas ou as ideias. O caminho até a palavra é que falhou.
+O seu Jorge teve um tumor. / Ele sabe exatamente o que quer responder para o filho, / mas trava no meio da frase.
 
-## 2 · O problema (28 s)
+E a Ana, no trabalho, procura uma palavra simples, / que ela conhece e usa todo dia, como “Excel”… / e a palavra não sai.
 
-E o nome do que eles têm é afasia anômica. / A pessoa sabe o que quer dizer, mas a palavra não chega. // A causa mais comum é o AVC, e hoje cerca de 700 mil brasileiros vivem com afasia. / Na atenção básica do SUS, existe só um fono para cada quatro que seriam necessários. // Em casa, a família vira intérprete: completa a frase, fala por ela. / Aos poucos, a pessoa conversa menos e se isola. Num estudo pós-AVC, só 28% voltaram a trabalhar.
+Nos três casos, eles não esqueceram a pessoa, o objeto ou a ideia. // Eles sabem o que querem dizer. / A palavra é que não chega.
 
-## 3 · O que ouvimos (18 s)
+## 2 · O problema
 
-Conversamos com 11 fonos e familiares. / A Flávia Augusta, fonoaudióloga especialista em comunicação de adultos e idosos, resumiu o que todos disseram: “O mais difícil não é treinar depois. É ajudar no segundo em que a palavra some.” / Hoje são uma ou duas sessões por semana, e nada para o meio da conversa.
+Isso tem nome: **afasia anômica**.
 
-## 4 · A solução (18 s)
+A causa mais comum é o AVC, / e cerca de **700 mil brasileiros vivem com afasia**.
 
-E, a partir disso, surgiu o Eilo, feito para esse instante. / Ele dá uma pista de cada vez: primeiro uma dica do que é, depois o som do começo. A palavra inteira fica para o fim. / O celular já basta; o pulso é opcional. O fono continua no centro do cuidado.
+Só que existe um problema de acesso: / na atenção básica do SUS, temos **um fonoaudiólogo para cada quatro que seriam necessários**.
 
-## 5 · Demo ao vivo (35 s)
+Então o acompanhamento acontece uma ou duas vezes por semana… / mas a dificuldade acontece todo dia.
 
-[Abra o app antes de entrar neste slide.]
+E o impacto vai muito além da fala: / a cada palavra que some vem a frustração, / a pessoa vai se isolando, / e, num estudo com pessoas pós-AVC, só **28% conseguiram voltar ao trabalho**.
 
-**Kauã, para o celular:** “Olá, Eilo.” [O Eilo responde “Oi! Pode falar.”]
+Ou seja: / muita gente precisando de apoio, / poucos profissionais / e uma dificuldade que aparece justamente quando não tem ninguém para ajudar.
+
+## 3 · O que ouvimos
+
+Com isso em mente, / fomos entender como isso é tratado hoje.
+
+Conversamos com **11 fonoaudiólogos e familiares** / para saber o que acontece fora da sessão.
+
+E a Flávia Augusta, fonoaudióloga especialista em comunicação, / resumiu assim:
+
+“O mais difícil não é treinar depois. / É ajudar no segundo em que a palavra some.”
+
+Porque a terapia acontece uma ou duas vezes por semana… / mas a trava acontece no almoço, no trabalho, numa ligação, / conversando com a própria família.
+
+## 4 · A solução
+
+E foi daí que surgiu o **Eilo**.
+
+O Eilo é um aplicativo que acompanha a conversa / e percebe quando a pessoa está com dificuldade para encontrar uma palavra.
+
+Mas ele não entrega a resposta de cara.
+
+Primeiro, ele dá uma pista sobre a palavra. / Depois, ajuda com o começo do som. / E só no final, se precisar, fala a palavra.
+
+Assim a pessoa treina a lembrar, / em vez de só receber a resposta pronta.
+
+E essa ajuda não fica só no celular: / se a pessoa usar um relógio ou uma pulseira, / cada etapa vira uma vibração diferente no pulso.
+
+// Deixa eu mostrar na prática.
+
+## 5 · Demo ao vivo
+
+[Abra o app antes.]
+
+**Kauã:** “Olá, Eilo.”
+
+[Eilo responde.]
 
 **Colega:** “Kauã, por que você chegou atrasado hoje?”
 
-**Kauã:** “Ah, saí de casa sem a… a… aquela de abrir a porta…” [Pare e olhe para o celular. O Eilo mostra e lê a primeira pista em voz alta, e o relógio vibra uma vez. Espere ele terminar de falar; se ficar quieto, em 3 s ele mesmo passa para o som.] “Como é que chama?” [O Eilo fala “Chá…” em voz alta, e o som aparece no celular e grande no relógio.] “Ai, não vou lembrar.” [O Eilo mostra e fala “chave”; no relógio, o “Cha” fica destacado dentro da palavra.] “Chave! Isso, a chave.” //
+**Kauã:**
+“Porque eu saí de casa sem a… / a… aquela de abrir a porta…”
 
-Eu não apertei nada. / Ele percebeu que eu travei, deu as pistas e, quando eu desisti, falou a palavra por mim. / Com a Helena, as pistas viriam da vida dela: o nome da neta, a cidade onde ela mora.
+[Eilo apresenta a primeira pista e o relógio vibra. Espere ele terminar de falar a pista.]
+
+“Não lembro.”
+
+[Eilo dá o início do som: “Chá…”]
+
+“Chave! / Isso, a chave.”
+
+//
+
+Percebam duas coisas.
+
+Eu não toquei na tela. / E a ajuda chegou pelo celular e pelo pulso.
+
+O Eilo percebeu que eu travei / e foi aumentando a ajuda aos poucos, / até eu chegar na palavra.
 
 [Se a primeira pista não aparecer em 10 s, ou o celular não acordar com “Olá, Eilo”, aperte F e diga: “Vou mostrar a gravação de um teste que fizemos.”]
 
-## 6 · O papel da IA (17 s)
+## 6 · O papel da IA
 
-A IA usa a frase e o mapa da vida cadastrado pela família para escolher a próxima pista. / A ajuda cresce só se a pessoa precisar. / Essa é a diferença entre dar a resposta e apoiar a busca pela palavra.
+E é para isso que usamos inteligência artificial.
 
-## 7 · A vibração (16 s)
+Ela entende o contexto da conversa / e junta isso com o mapa da vida da pessoa, / com o que a família cadastrou e autorizou.
 
-Identificamos uma oportunidade no pulso. / Num estudo da Northeastern com pessoas com afasia, cerca de 80% dos chamados no relógio foram atendidos no dia a dia. / Por isso a pista também vibra: um toque por degrau, discreto, sem ninguém falar alto no meio da conversa.
+Com a Helena, por exemplo, / a pista viria da vida dela: / o nome da neta, a cidade onde ela mora.
 
-## 8 · Qualquer aparelho (10 s)
+A partir disso, / a IA escolhe qual pista dar e quanto ajudar.
 
-Qualquer celular já basta. / Se a pessoa tiver uma pulseira simples, a partir de cinquenta reais, ou um relógio, a dica chega também no pulso. / Não vendemos aparelho: o Eilo é software.
+Se uma pista bastou, ela para ali. / Se não bastou, passa para a próxima.
 
-## 9 · O que a fono vê (10 s)
+Ou seja: / a IA funciona como uma orquestradora, / que decide na hora do que a pessoa precisa: / de um empurrão para treinar / ou da resposta.
 
-No painel, o fono vê quantas pistas foram necessárias para cada palavra e como isso muda ao longo das semanas. / Assim, a prática fora da sessão pode orientar o acompanhamento.
+## 7 · A vibração
+
+No meio de uma conversa, / parar para olhar uma tela nem sempre é natural.
+
+E aí identificamos uma oportunidade no pulso, / a partir de um estudo da Northeastern / que usa o relógio para treinar palavras com pessoas com afasia.
+
+No Eilo, cada etapa tem um padrão simples: / **um toque é a pista, / dois toques, a sílaba, / e um toque longo, a palavra.**
+
+Assim, a ajuda chega sem atrapalhar a conversa / e sem ser invasiva.
+
+## 8 · Qualquer aparelho
+
+E isso não exige nenhum aparelho caro.
+
+Um celular já basta.
+
+A pulseira e o relógio são opcionais: / se a pessoa já tiver um, / o Eilo só usa para levar a dica até o pulso.
+
+**O Eilo não vende aparelho. / O Eilo é software.**
+
+## 9 · O que a fono vê
+
+E o fono continua no centro de tudo isso.
+
+No painel, ele acompanha quais palavras deram mais trabalho, / quantas pistas cada uma precisou / e se isso está melhorando com o tempo.
+
+E ele também pode revisar e ajustar as sugestões da IA.
+
+Então a lógica é simples:
+
+**a IA não substitui o fono. / Ela ajuda no dia a dia, / e o fono continua conduzindo o tratamento.**

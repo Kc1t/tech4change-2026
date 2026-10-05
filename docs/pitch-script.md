@@ -16,7 +16,7 @@ Eles não esqueceram as pessoas ou as ideias. O caminho até a palavra é que fa
 
 ### 2 · O problema (28 s)
 
-E o nome do que eles têm é afasia anômica. / A pessoa sabe o que quer dizer, mas a palavra não chega. // A causa mais comum é o AVC, e hoje cerca de 700 mil brasileiros vivem com afasia. / Na atenção básica do SUS, existe só um fono para cada quatro que seriam necessários. // Em casa, a família vira intérprete: completa a frase, fala por ela. / Aos poucos, a pessoa conversa menos e se isola. Num estudo pós-AVC, só 28% voltaram a trabalhar.
+E o nome do que eles têm é afasia anômica. / A pessoa sabe o que quer dizer, mas a palavra não chega. // A causa mais comum é o AVC, e hoje cerca de 700 mil brasileiros vivem com afasia. / Quem trata é o fono, numa sessão por semana, mas a trava é todo dia. // A cada palavra que some, vem a frustração. / Aos poucos, a pessoa conversa menos e se isola. Num estudo pós-AVC, só 28% voltaram a trabalhar.
 
 ### 3 · O que ouvimos (18 s)
 
@@ -24,7 +24,7 @@ Conversamos com 11 fonos e familiares. / A Flávia Augusta, fonoaudióloga espec
 
 ### 4 · A solução (18 s)
 
-E, a partir disso, surgiu o Eilo, feito para esse instante. / Ele dá uma pista de cada vez: primeiro uma dica do que é, depois o som do começo. A palavra inteira fica para o fim. / O celular já basta; o pulso é opcional. O fono continua no centro do cuidado.
+E, a partir disso, surgiu o Eilo: / um app no celular que ouve a conversa e percebe quando a palavra trava. / Aí ele dá uma pista por vez: primeiro uma dica do que é, depois o som do começo. Só se ainda não vier, ele fala a palavra. // Então, na prática:
 
 ### 5 · Demo ao vivo (35 s)
 
@@ -44,15 +44,15 @@ A IA usa a frase e o mapa da vida cadastrado pela família para escolher a próx
 
 ### 7 · A vibração (16 s)
 
-Identificamos uma oportunidade no pulso. / Num estudo da Northeastern com pessoas com afasia, cerca de 80% dos chamados no relógio foram atendidos no dia a dia. / Por isso a pista também vibra: um toque por degrau, discreto, sem ninguém falar alto no meio da conversa.
+Identificamos uma oportunidade no pulso. / Num estudo da Northeastern, o relógio vibrava chamando pessoas com afasia para treinar, e elas responderam 8 em cada 10 vezes. / Por isso a pista também vibra no pulso: um toque na dica, dois toques no som do começo e um toque longo quando vem a palavra. / Discreto, sem ninguém falar alto no meio da conversa.
 
 ### 8 · Qualquer aparelho (10 s)
 
-Qualquer celular já basta. / Se a pessoa tiver uma pulseira simples, a partir de cinquenta reais, ou um relógio, a dica chega também no pulso. / Não vendemos aparelho: o Eilo é software.
+Não precisa de aparelho caro: qualquer celular já basta. / A pulseira, a partir de cinquenta reais, e o relógio são opcionais: só levam a dica até o pulso. / Não vendemos aparelho: o Eilo é software.
 
-### 9 · O que a fono vê (10 s)
+### 9 · O que a fono vê (20 s)
 
-No painel, o fono vê quantas pistas foram necessárias para cada palavra e como isso muda ao longo das semanas. / Assim, a prática fora da sessão pode orientar o acompanhamento.
+No painel, o fono vê quantas pistas cada palavra precisou e como isso muda ao longo das semanas. / E ele mede a própria IA: quantas escadas ela montou e se a ajuda está funcionando, com o número de pistas por palavra caindo semana a semana. // Ele também regula a IA: aceita ou descarta cada sugestão e decide até onde a ajuda pode ir. / A IA sugere; quem decide é o fono.
 
 ### 10 · Concorrentes (17 s)
 
@@ -80,7 +80,7 @@ Somos três: Kauã em produto e engenharia, Adriel na validação clínica e Ale
 
 A inteligência é artificial. A voz é dela.
 
-**Ritmo de ensaio:** as metas somam 4min37s. Faça três ensaios cronometrados com a demo real; se ultrapassar 4min45s, encurte as falas dos slides 2, 7 e 9 antes de acelerar a voz.
+**Ritmo de ensaio:** as metas somam 4min47s. Faça três ensaios cronometrados com a demo real; se ultrapassar 4min45s, encurte as falas dos slides 2, 7 e 9 antes de acelerar a voz.
 ## Demo: plano de execução
 
 1. Antes de apresentar, abra o app com o exemplo pronto, confira microfone, rede, áudio e volume e deixe o celular com a tela ativa. A demo começa apenas no slide “Demo ao vivo”.
