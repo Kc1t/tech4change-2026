@@ -21,6 +21,7 @@ const TEASERS = [
 ]
 
 const TEASER_MS = 3400
+const TEASER_SCROLL_LIMIT = 120
 
 const GREETING = /^(oi+|ola|opa|eai|e ai|bom dia|boa tarde|boa noite|hey|hello)\b/
 const THANKS = /(obrigad|valeu|brigad|agradeco)/
@@ -129,6 +130,7 @@ export function HelpChat() {
   const [draft, setDraft] = useState('')
   const [thinking, setThinking] = useState(false)
   const [teaser, setTeaser] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
   const list = useRef<HTMLDivElement>(null)
   const input = useRef<HTMLInputElement>(null)
   const asked = new Set(turns.filter(turn => turn.role === 'user').map(turn => turn.text))
@@ -146,6 +148,13 @@ export function HelpChat() {
     const timer = window.setInterval(() => setTeaser(index => (index + 1) % TEASERS.length), TEASER_MS)
     return () => window.clearInterval(timer)
   }, [open])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > TEASER_SCROLL_LIMIT)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   function send(question: string) {
     const text = question.trim()
@@ -294,7 +303,7 @@ export function HelpChat() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="relative mb-12 rounded-2xl rounded-br-sm bg-white px-3.5 py-2 ring-1 ring-[var(--v3-line)] text-[0.84rem] font-medium whitespace-nowrap text-[#433d56] shadow-[0_12px_30px_-16px_rgba(60,45,110,0.55)]"
+            className={`relative mb-12 rounded-2xl rounded-br-sm bg-white px-3.5 py-2 ring-1 ring-[var(--v3-line)] text-[0.84rem] font-medium whitespace-nowrap text-[#433d56] shadow-[0_12px_30px_-16px_rgba(60,45,110,0.55)] ${scrolled ? 'max-sm:hidden' : ''}`}
           >
             <span key={teaser} className="v3-bubble-in block">
               {TEASERS[teaser]}
@@ -306,7 +315,7 @@ export function HelpChat() {
           onClick={() => setOpen(value => !value)}
           aria-label={open ? 'Fechar as dúvidas' : 'Tirar uma dúvida com o eilo'}
           aria-expanded={open}
-          className="group relative grid place-items-center px-1 pt-1 pb-3"
+          className="group relative grid place-items-center px-1 pt-1 pb-3 max-sm:origin-bottom-right max-sm:scale-[0.8]"
         >
           <span className="v3-buddy-float block transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
             <BuddyMark size={64} />
