@@ -11,6 +11,7 @@ import { Journey } from '@/components/v3/journey'
 import { Principles } from '@/components/v3/principles'
 import { Screens } from '@/components/v3/screens'
 import { Surfaces } from '@/components/v3/surfaces'
+import { Trailer } from '@/components/v3/trailer'
 import { Walkthrough } from '@/components/v3/walkthrough'
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function Page() {
   return (
     <main className="v3">
       <Hero />
+      <Trailer />
       <Journey />
       <Walkthrough />
       <ClinicianPanel />
