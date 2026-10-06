@@ -30,6 +30,7 @@ export class HelpSession {
   level = 0
   startLevel = 0
   lastCueAt = 0
+  shownAt = 0
   cueWordMark = 0
   verdict: Verdict | null = null
   assessedText = ''

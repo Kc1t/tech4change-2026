@@ -5,7 +5,8 @@
 .phone-page__tools { position: absolute; right: 14px; bottom: 18px; display: flex; gap: 8px; }
 .phone-page__tools button { padding: 8px 14px; border: 1px solid #e3def7; border-radius: 999px; background: rgba(255, 255, 255, .9); color: #6b5fa8; font: 600 13px var(--font-manrope), sans-serif; }
 .phone-page__tools button[aria-pressed="false"] { color: #9a94b8; }
-.phone-page__quick { position: absolute; left: 12px; right: 12px; bottom: 162px; z-index: 42; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.phone-page__quick { position: absolute; left: 12px; right: 12px; bottom: 162px; z-index: 42; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.phone-page__quick button.is-current { border-color: #6b5fa8; color: #4a3f8f; box-shadow: 0 0 0 2px rgba(107, 95, 168, .25); }
 .phone-page__quick button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border: 1px solid #e3def7; border-radius: 16px; background: rgba(255, 255, 255, .92); color: #6b5fa8; font: 600 12px var(--font-manrope), sans-serif; box-shadow: 0 4px 14px rgba(64, 51, 115, .1); }
 .phone-page__quick button svg { width: 20px; height: 20px; }
 .phone-page__quick button:disabled { opacity: .4; }

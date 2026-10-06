@@ -25,6 +25,8 @@ const STOP = new Set([
   'ela',
   'eles',
   'elas',
+  'voce',
+  'voces',
   'esta',
   'este',
   'isso',

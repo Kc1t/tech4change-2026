@@ -5,12 +5,13 @@ import { keepStreaming } from './eilo/event-stream'
 import { LIMITS } from './eilo/limits'
 import { parseSynced } from './eilo/sync-schema'
 import type { Activity, DemoCue, LiveDemoState } from './demo/types'
+import type { VoiceMode } from './eilo/voice'
 
 export const SYNC_URL = '/pitch/api/sync'
 
 export type SyncedSpeech = { id: number; text: string }
 
-export type SyncedDemo = { cue: DemoCue; words: string[]; mic: LiveDemoState['mic']; activity?: Activity; speech?: SyncedSpeech; at: number }
+export type SyncedDemo = { cue: DemoCue; words: string[]; mic: LiveDemoState['mic']; activity?: Activity; speech?: SyncedSpeech; held?: boolean; voice?: VoiceMode; at: number }
 
 const STALE_MS = 12_000
 

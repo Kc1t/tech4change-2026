@@ -77,3 +77,10 @@ export function countPlainMentions(text: string, word: string): number {
   const spoken = tokensOf(text)
   return occurrences(spoken, word, at => !spoken.slice(Math.max(0, at - 2), at).some(token => NEGATIONS.has(token)))
 }
+
+export function freshFirst(cues: string[], said: string): string[] {
+  const stems = (text: string) => tokensOf(text).filter(token => token.length >= 4).map(token => token.slice(0, 5))
+  const heard = new Set(stems(said))
+  const echo = (cue: string) => stems(cue).filter(stem => heard.has(stem)).length
+  return cues.filter(cue => echo(cue) < 2).sort((a, b) => echo(a) - echo(b))
+}

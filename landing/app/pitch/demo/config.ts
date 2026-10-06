@@ -23,6 +23,7 @@ export const TIMING = {
   aheadSilenceMs: 250,
   aheadRetryMs: 1500,
   modelFirstMs: 1500,
+  everydayMs: 2000,
   completeTimeoutMs: 7000,
   cueTimeoutMs: 8000,
   earRetryMs: 20_000,

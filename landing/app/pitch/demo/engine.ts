@@ -1,5 +1,5 @@
 import { startCloudEar, type CloudEar } from '../eilo/cloud-ear'
-import { freeWordRungs, safeRungs, type Rung } from '../eilo/guess-safety'
+import { firstSoundFor, freeWordRungs, safeRungs, type Rung } from '../eilo/guess-safety'
 import { buildLadder, deterministicPlan, PHONOLOGICAL_CONFIDENCE_GATE, resolve } from '../eilo/ladder'
 import { CONFIDENCE_FLOOR, normalise, predict, type Prediction } from '../eilo/predict'
 import { asksForWord, BLOCK_TIMING, closesThought, judgedStall, stallDecision, struggleOf } from '../eilo/stall'
@@ -8,11 +8,12 @@ import type { CuePlan, GraphNode, Guess, HelpCall, LadderStep, NodeId } from '..
 import type { Voice } from '../eilo/voice'
 import { BrowserEar, browserSpeechSupported } from './browser-ear'
 import { lifeGraph, SCRIPTED_TARGET, THRESHOLDS, TIMING, WORD_COUNTS } from './config'
+import { everydayWord, SCRIPTED_WORD, type EverydayWord } from './everyday'
 import { GuessAhead } from './guess-ahead'
 import { HelpSession, type TargetSource } from './help-session'
 import { ModelClient, networkOf, warmRoutes, type Reply, type Timed } from './model-client'
 import { SIMULATION, type SimulationStep } from './simulation'
-import { countMentions, greetingEnd, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
+import { countMentions, freshFirst, greetingEnd, labelsOf, lastWords, namesOf, reachesFor, wordsFrom } from './text'
 import { TranscriptBuffer } from './transcript'
 import { IDLE_CUE, INITIAL_STATE, type Activity, type CueOrigin, type CuePhase, type DemoCue, type DemoGuess, type LiveDemoState, type Network } from './types'
 
@@ -24,6 +25,7 @@ export type EngineCallbacks = {
 export type EngineOptions = { listen: boolean; wakeWord?: boolean }
 
 const GREETING = 'Oi! Pode falar.'
+const EAR_SEGMENT_SPAN = 1_000_000
 
 const graph = lifeGraph
 
@@ -41,6 +43,10 @@ function hiddenGuess(guess: DemoGuess): DemoGuess {
 
 function isMobile(): boolean {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+}
+
+function praise(word: string): string {
+  return `Isso! ${word}.`
 }
 
 function wantsWord(help: HelpCall | null | undefined, frustration: number | undefined): boolean {
@@ -73,10 +79,13 @@ export class DemoEngine {
   private awake: boolean
   private waitingForModel = false
   private cloudStarting = false
+  private earSegmentBase = 0
   private browserListening = false
   private tickTimer: number | null = null
   private retryTimer: number | null = null
   private idleTimer: number | null = null
+  private everydayTimer: number | null = null
+  private answeredAt = -1
   private simulationTimers: number[] = []
   private simulating = false
   private onSimulatedSound: (() => void) | null = null
@@ -109,6 +118,8 @@ export class DemoEngine {
     this.running = true
     warmRoutes()
     this.voice?.prefetch(graph.nodes[SCRIPTED_TARGET]?.label ?? '')
+    this.voice?.prefetch(SCRIPTED_WORD.word)
+    this.prefetchRungs(this.preparedRungs(SCRIPTED_WORD))
     window.addEventListener('online', this.onOnline)
     window.addEventListener('offline', this.onOffline)
     if (navigator.onLine === false) this.onOffline()
@@ -135,6 +146,7 @@ export class DemoEngine {
     this.client.cancelAll()
     this.clearSimulation()
     this.clearIdleTimer()
+    this.clearEverydayTimer()
   }
 
   readonly setVoice = (voice: Voice | null) => {
@@ -170,6 +182,13 @@ export class DemoEngine {
     if (session && this.awake && this.phase === 'cue') this.showLevel(session.wordLevel)
   }
 
+  readonly showRung = (level: number) => {
+    if (!this.running || this.phase === 'given' || this.phase === 'success') return
+    if (!this.awake) this.wake(this.transcript.wordCount, false)
+    const session = this.session ?? this.openPrepared(SCRIPTED_WORD, 'deterministic')
+    if (session) this.showLevel(Math.min(level, session.wordLevel))
+  }
+
   readonly nextLevel = () => {
     if (!this.awake) return
     const session = this.session
@@ -177,7 +196,7 @@ export class DemoEngine {
       this.startHelp()
       return
     }
-    if (this.phase !== 'cue' || performance.now() - session.lastCueAt < TIMING.minCueGapMs) return
+    if (this.phase !== 'cue' || performance.now() - session.shownAt < TIMING.minCueGapMs) return
     this.showLevel(Math.min(session.level + 1, session.wordLevel))
   }
 
@@ -195,6 +214,7 @@ export class DemoEngine {
     this.ahead.reset()
     this.clearSimulation()
     this.clearIdleTimer()
+    this.clearEverydayTimer()
     const wasSimulating = this.simulating
     this.simulating = false
     const listening = this.browserListening || this.cloudEar !== null
@@ -304,6 +324,7 @@ export class DemoEngine {
 
   private aimAt(node: GraphNode, ladder: LadderStep[], rungs: Rung[], origin: CueOrigin, targetBy: TargetSource) {
     this.voice?.prefetch(node.label)
+    this.voice?.prefetch(praise(node.label))
     this.prefetchRungs(rungs)
     return { target: node, ladder, rungs, origin, targetBy, baseline: countMentions(this.transcript.text, namesOf(node)), wordMark: this.transcript.wordCount }
   }
@@ -318,11 +339,57 @@ export class DemoEngine {
     return this.session
   }
 
+  private freshCues(guess: Guess): string[] {
+    const fresh = freshFirst(guess.cues, lastWords(this.transcript.text, WORD_COUNTS.recent))
+    if (fresh.length > 0) return fresh
+    return normalise(guess.word) === SCRIPTED_WORD.word ? [SCRIPTED_WORD.cue] : guess.cues
+  }
+
+  private preparedRungs({ word, cue }: EverydayWord): Rung[] {
+    return freeWordRungs({ word, nodeId: null, confidence: 1, stalled: true, stallConfidence: 1, frustration: 0, help: null, alternatives: [], cues: [cue], firstSound: firstSoundFor(word, null) })
+  }
+
+  private openPrepared(entry: EverydayWord, origin: CueOrigin): HelpSession | null {
+    const rungs = this.preparedRungs(entry)
+    if (rungs.length < 3) return null
+    const session = this.openSession(freeNode(entry.word), [], rungs, origin, 'offline', 1)
+    this.segment.handled = true
+    this.guess = { word: entry.word, confidence: 1, alternatives: [], origin: 'offline', inGraph: false }
+    return session
+  }
+
+  private startFromEveryday(): boolean {
+    if (this.session || this.phase !== 'idle') return false
+    const entry = everydayWord(wordsFrom(this.transcript.text, this.shownFrom))
+    if (!entry || this.resolvedRecently(freeNode(entry.word).id)) return false
+    const session = this.openPrepared(entry, 'offline')
+    if (!session) return false
+    this.showLevel(0)
+    return true
+  }
+
+  private fallBackLater() {
+    if (this.everydayTimer !== null) return
+    const epoch = this.epoch
+    const spokeAt = this.lastSpeechAt
+    this.everydayTimer = window.setTimeout(() => {
+      this.everydayTimer = null
+      if (!this.running || this.epoch !== epoch || this.lastSpeechAt !== spokeAt || this.answeredAt === spokeAt) return
+      this.startFromEveryday()
+    }, TIMING.everydayMs)
+  }
+
+  private clearEverydayTimer() {
+    if (this.everydayTimer !== null) window.clearTimeout(this.everydayTimer)
+    this.everydayTimer = null
+  }
+
   private showLevel(level: number) {
     const session = this.session
     if (!session) return
     session.level = level
     session.lastCueAt = performance.now()
+    session.shownAt = session.lastCueAt
     session.cueWordMark = this.transcript.wordCount
     session.verdict = null
     session.assessedText = ''
@@ -411,7 +478,7 @@ export class DemoEngine {
     }
     const alreadySaid = countMentions(lastWords(this.transcript.text, WORD_COUNTS.recent), [normalise(guess.word)]) > 0
     if (alreadySaid || guess.confidence < THRESHOLDS.freeWordConfidence || guess.cues.length === 0) return
-    const rungs = freeWordRungs(guess)
+    const rungs = freeWordRungs({ ...guess, cues: this.freshCues(guess) })
     if (rungs.length < 2) return
     session.confidence = guess.confidence
     session.retarget(this.aimAt(freeNode(guess.word), [], rungs, 'openrouter', 'openrouter'))
@@ -431,7 +498,7 @@ export class DemoEngine {
     if (this.resolvedRecently(node.id) || countMentions(recent, namesOf(node)) > 0) return false
     if (!graphNode && (guess.confidence < THRESHOLDS.freeWordConfidence || guess.cues.length === 0)) return false
     const ladder = graphNode ? buildLadder(graph, deterministicPlan(graph, graphNode.id)) : []
-    const rungs = graphNode ? rungsFor(graphNode, ladder, guess.confidence) : freeWordRungs(guess)
+    const rungs = graphNode ? rungsFor(graphNode, ladder, guess.confidence) : freeWordRungs({ ...guess, cues: this.freshCues(guess) })
     if (rungs.length < 2) return false
     const previous = this.session?.target ?? null
     const session = this.openSession(node, ladder, rungs, graphNode ? 'offline' : 'openrouter', 'openrouter', guess.confidence)
@@ -454,6 +521,7 @@ export class DemoEngine {
     const spokeAt = this.lastSpeechAt
     const completed = await this.ahead.request(text)
     this.judging = false
+    if (completed) this.answeredAt = spokeAt
     if (!completed || this.epoch !== epoch || this.session || this.phase !== 'idle') return
     if (this.lastSpeechAt !== spokeAt || (needsStall && !judgedStall(completed.value))) return
     this.startFromGuess(completed)
@@ -487,7 +555,9 @@ export class DemoEngine {
     const ladder = node ? buildLadder(graph, deterministicPlan(graph, node.id)) : []
     const rungs = node ? rungsFor(node, ladder, prediction.confidence) : []
     if (!targetId || !node || rungs.length < 2 || this.resolvedRecently(node.id)) {
+      if (this.network === 'offline' && this.startFromEveryday()) return
       void this.awaitGuess(text, false)
+      this.fallBackLater()
       return
     }
     const session = this.openSession(node, ladder, rungs, 'offline', 'offline', prediction.confidence)
@@ -517,6 +587,7 @@ export class DemoEngine {
     if (recalled) this.recall.set(recalled.id, session.level)
     this.resolved = { id: session.target.id, at: performance.now() }
     this.publish({ phase: 'success', level: session.level, total: session.rungs.length, text: word, origin: session.origin, targetBy: session.targetBy, network: this.network })
+    void this.voice?.say(praise(word))
     this.scheduleIdle()
   }
 
@@ -630,6 +701,8 @@ export class DemoEngine {
   private startCloudEar() {
     if (!this.options.listen || this.cloudStarting || this.cloudEar || !this.running) return
     this.cloudStarting = true
+    const base = this.earSegmentBase
+    this.earSegmentBase += EAR_SEGMENT_SPAN
     void startCloudEar({
       onVoice: () => {
         const now = performance.now()
@@ -638,12 +711,12 @@ export class DemoEngine {
         this.markVoice(now)
       },
       onPartial: (segment, text) => {
-        if (this.simulating || !this.transcript.notePartial(segment, text)) return
+        if (this.simulating || !this.transcript.notePartial(base + segment, text)) return
         this.composeCloud()
       },
       onCommit: (segment, text, ms) => {
         if (this.simulating) return
-        this.transcript.noteCommit(segment, text)
+        this.transcript.noteCommit(base + segment, text)
         this.setNetwork('online')
         this.patch({ latency: { ...this.state.latency, stt: ms } })
         this.composeCloud()
@@ -725,7 +798,10 @@ export class DemoEngine {
     if (decision === 'wait' || (decision === 'judge' && this.judging)) return
     this.segment.handled = true
     if (decision === 'start') this.startHelp()
-    else void this.awaitGuess(text, true)
+    else {
+      void this.awaitGuess(text, true)
+      this.fallBackLater()
+    }
   }
 
   private guideSession(session: HelpSession, now: number) {

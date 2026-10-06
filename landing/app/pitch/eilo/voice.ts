@@ -12,6 +12,7 @@ export type Voice = {
   speaking: () => boolean
   mode: () => VoiceMode
   setMode: (mode: VoiceMode) => void
+  setRelayReady: (ready: boolean) => void
   subscribe: (listener: () => void) => () => void
   onRelay: (listener: (text: string) => void) => () => void
 }
@@ -20,7 +21,7 @@ const CLIP_VERSION = 'gia-3'
 const FETCH_TIMEOUT_MS = 7000
 const MAX_PLAY_MS = 7000
 const RELAY_MS_PER_CHAR = 70
-const PHONE_MODE_KEY = 'eilo-pitch-voice'
+const PHONE_MODE_KEY = 'eilo-pitch-voice-3'
 export const DECK_MODE_KEY = 'eilo-pitch-voice-deck'
 const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
 
@@ -29,16 +30,17 @@ function spoken(text: string): string {
 }
 
 function storedMode(key: string): VoiceMode {
+  const fallback: VoiceMode = key === PHONE_MODE_KEY ? 'pc' : 'on'
   try {
     const stored = window.localStorage.getItem(key)
-    return stored === 'off' || stored === 'pc' ? stored : 'on'
+    return stored === 'off' || stored === 'pc' || stored === 'on' ? stored : fallback
   } catch {
-    return 'on'
+    return fallback
   }
 }
 
 export function nextVoiceMode(mode: VoiceMode): VoiceMode {
-  return mode === 'on' ? 'pc' : mode === 'pc' ? 'off' : 'on'
+  return mode === 'pc' ? 'on' : 'pc'
 }
 
 export const VOICE_MODE_LABEL: Record<VoiceMode, string> = {
@@ -56,6 +58,7 @@ export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
   let finish: (() => void) | null = null
   let active = false
   let unlocked = false
+  let relayReady = false
   let token = 0
 
   const notify = () => listeners.forEach(listener => listener())
@@ -89,8 +92,8 @@ export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
     return pending
   }
 
-  const onDevice = (text: string, done: () => void) => {
-    if (mode === 'pc') {
+  const onDevice = (text: string, done: () => void, relaying: boolean) => {
+    if (relaying) {
       window.setTimeout(done, text.length * RELAY_MS_PER_CHAR)
       return
     }
@@ -140,7 +143,8 @@ export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
       const text = spoken(raw)
       if (!text || mode === 'off') return Promise.resolve()
       stop()
-      if (mode === 'pc') relays.forEach(relay => relay(text))
+      const relaying = mode === 'pc' && relayReady
+      if (relaying) relays.forEach(relay => relay(text))
       const mine = ++token
       return new Promise<void>(resolve => {
         let guard = 0
@@ -155,14 +159,14 @@ export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
           if (mine !== token) return
           setActive(true)
           guard = window.setTimeout(done, MAX_PLAY_MS)
-          if (!url) return onDevice(text, done)
+          if (!url) return onDevice(text, done, relaying)
           const el = element()
           el.onended = done
-          el.onerror = () => onDevice(text, done)
-          el.muted = mode === 'pc'
-          el.volume = mode === 'pc' ? 0 : 1
+          el.onerror = () => onDevice(text, done, relaying)
+          el.muted = relaying
+          el.volume = relaying ? 0 : 1
           el.src = url
-          el.play().catch(() => onDevice(text, done))
+          el.play().catch(() => onDevice(text, done, relaying))
         })
       })
     },
@@ -176,6 +180,9 @@ export function createVoice(modeKey = PHONE_MODE_KEY): Voice {
       } catch {}
       if (next === 'off') stop()
       notify()
+    },
+    setRelayReady(ready) {
+      relayReady = ready
     },
     subscribe(listener) {
       listeners.add(listener)

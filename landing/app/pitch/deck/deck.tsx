@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PITCH_ASSETS } from './assets'
 import './deck.css'
+import { DeckTimer } from './deck-timer'
 import { SectionChip } from './section-chip'
 import { SlideMenu } from './slide-menu'
 import { SLIDES } from './slides'
@@ -11,6 +12,7 @@ import { useDeckLink } from './use-deck-link'
 const STAGE = { width: 1920, height: 1080 }
 const NEXT_KEYS = ['ArrowRight', 'PageDown']
 const PREVIOUS_KEYS = ['ArrowLeft', 'PageUp']
+const SLIDE_KEY = 'eilo-pitch-slide'
 
 function clampSlide(index: number): number {
   return Math.max(0, Math.min(SLIDES.length - 1, index))
@@ -42,6 +44,19 @@ export function Deck() {
 
   const previous = useCallback(() => setPosition(({ index, step }) => (step > 0 ? { index, step: step - 1 } : { index: clampSlide(index - 1), step: 0 })), [])
 
+  useEffect(() => {
+    try {
+      const saved = Number(window.sessionStorage.getItem(SLIDE_KEY))
+      if (Number.isInteger(saved) && saved > 0) go(saved)
+    } catch {}
+  }, [go])
+
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem(SLIDE_KEY, String(position.index))
+    } catch {}
+  }, [position.index])
+
   const actions = useMemo(() => ({ next, previous, go }), [next, previous, go])
   const remote = useDeckLink(position.index, actions)
 
@@ -65,6 +80,7 @@ export function Deck() {
   return (
     <div className="pitch">
       <div className="stage" style={{ transform: `scale(${scale}) translate(-50%, -50%)` }}>
+        <DeckTimer moved={position.index > 0 || position.step > 0} />
         <div className="panel">
           {!slide.bare && slide.label && <SectionChip label={slide.label} />}
           {!slide.bare && <img className="logo" src={`${PITCH_ASSETS}/eilo-wordmark-lilas2.png`} alt="eilo" />}

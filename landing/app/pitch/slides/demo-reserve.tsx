@@ -10,6 +10,11 @@ const REEL_FILE: Record<Reel, string> = {
   full: 'demo-reserva.mp4'
 }
 
+const REEL_LABEL: Record<Reel, { title: string; close: string }> = {
+  quick: { title: 'vídeo gravado · Helena e a neta', close: 'F volta ao vivo' },
+  full: { title: 'vídeo gravado · a cena da chave', close: 'Shift+F volta ao vivo' }
+}
+
 function typingIn(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
 }
@@ -18,6 +23,7 @@ export function DemoReserve() {
   const videos = useRef<Record<Reel, HTMLVideoElement | null>>({ quick: null, full: null })
   const showing = useRef<Reel | null>(null)
   const [visible, setVisible] = useState<Reel | null>(null)
+  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     const show = (reel: Reel | null) => {
@@ -61,6 +67,8 @@ export function DemoReserve() {
           src={`${PITCH_ASSETS}/${REEL_FILE[reel]}`}
           preload="auto"
           playsInline
+          onPlay={() => setPaused(false)}
+          onPause={() => setPaused(!videos.current[reel]?.ended)}
           onError={() => {
             if (showing.current !== reel) return
             showing.current = null
@@ -69,6 +77,15 @@ export function DemoReserve() {
           aria-hidden={visible !== reel}
         />
       ))}
+      {visible && (
+        <>
+          <span className={`abs demo-reserve-status status status--${paused ? 'held' : 'reel'}`}>{paused ? 'vídeo pausado' : REEL_LABEL[visible].title}</span>
+          <div className="abs demo-reserve-bar">
+            <span>{paused ? 'espaço continua' : 'espaço pausa'}</span>
+            <span>{REEL_LABEL[visible].close}</span>
+          </div>
+        </>
+      )}
     </>
   )
 }

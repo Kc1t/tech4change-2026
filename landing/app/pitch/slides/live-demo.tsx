@@ -27,6 +27,14 @@ const KIND_COPY: Record<string, string> = {
   phonological: 'Só o som do começo, no celular e no pulso. A palavra continua sendo de quem fala.'
 }
 
+type Link = 'live' | 'held' | 'off'
+
+const LINK_LABEL: Record<Link, string> = {
+  live: 'ao vivo',
+  held: 'pausado',
+  off: 'celular desconectado'
+}
+
 const ORIGIN_BADGE: Record<string, { label: string; ai: boolean }> = {
   offline: { label: 'escada no aparelho', ai: false },
   deterministic: { label: 'escada padrão', ai: false },
@@ -91,11 +99,17 @@ export function LiveDemoSlide() {
       return
     }
     relayed.current = id
-    if (speech) void voice?.say(speech.text)
+    if (!speech || !voice) return
+    if (voice.mode() === 'off') voice.setMode('on')
+    void voice.say(speech.text)
   }, [connected, speech, voice])
 
+  const [unlocked, setUnlocked] = useState(() => typeof navigator !== 'undefined' && navigator.userActivation?.hasBeenActive === true)
   useEffect(() => {
-    const unlock = () => voice?.unlock()
+    const unlock = () => {
+      voice?.unlock()
+      setUnlocked(true)
+    }
     window.addEventListener('pointerdown', unlock, { once: true })
     window.addEventListener('keydown', unlock, { once: true })
     return () => {
@@ -125,6 +139,8 @@ export function LiveDemoSlide() {
   const buzzing = cue.phase === 'cue' || cue.phase === 'given'
   const origin = cue.origin ? ORIGIN_BADGE[cue.origin] : undefined
   const offline = (cue.network ?? local.network) === 'offline'
+  const link: Link = !connected ? 'off' : remote?.held ? 'held' : 'live'
+  const sound = remote?.voice === 'on' ? 'voz saindo no celular' : remote?.voice === 'off' ? 'voz desligada no celular' : unlocked ? null : 'clique na tela para liberar o som'
 
   const { phase, level } = cue
   const buzz = useMemo(() => buzzOf(vibrationPattern({ phase, level })), [phase, level])
@@ -155,11 +171,13 @@ export function LiveDemoSlide() {
           </div>
         </div>
         <WatchMock cue={cue} time={time} buzzing={buzzing} />
-        {offline ? (
-          <div className="demo-note"><span className="demo-note-chip">sem internet · escada no aparelho</span></div>
-        ) : !connected && mode === 'off' && (
-          <div className="demo-note"><span className="demo-note-chip">{VOICE_MODE_LABEL[mode]} · V muda</span></div>
-        )}
+        <span key={link} className={`status status--${link}`}>{LINK_LABEL[link]}</span>
+        <div className="demo-note">
+          {connected && sound && <span className="demo-note-chip">{sound}</span>}
+          {offline && <span className="demo-note-chip">sem internet · escada no aparelho</span>}
+          {!connected && mode === 'off' && <span className="demo-note-chip">{VOICE_MODE_LABEL[mode]} · V muda</span>}
+          <span>F vídeo da Helena · Shift+F vídeo da chave</span>
+        </div>
       </div>
       <DemoReserve />
     </div>

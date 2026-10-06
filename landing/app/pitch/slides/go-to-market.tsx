@@ -5,7 +5,7 @@ import './go-to-market.css'
 const MILESTONES = [
   { tone: 1, photo: 'gtm-clinica', phase: '1 · Validar', who: 'Clínicas', price: 'Piloto', note: 'valida o produto com quem trata · depois, licença por unidade com preço definido no piloto' },
   { tone: 2, photo: 'gtm-fono', phase: '2 · Liberar', who: 'Fonoaudiólogo', price: 'R$ 119/mês', note: 'quem paga é o fono: libera o uso completo para os pacientes e acompanha pelo painel' },
-  { tone: 3, photo: 'gtm-familia', phase: '3 · Escalar', who: 'Família · acesso inicial', price: 'R$ 0', note: 'monta o mapa da vida e testa no celular · uso completo com acompanhamento do fono', badge: 'gtm-sus' }
+  { tone: 3, photo: 'gtm-familia', phase: '3 · Escalar', who: 'Família · freemium', price: 'Teste grátis', note: 'monta o mapa da vida e testa no celular · para o uso completo, o app indica um fono, do SUS ou particular', badge: 'gtm-sus' }
 ]
 
 export function GoToMarket() {

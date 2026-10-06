@@ -27,5 +27,5 @@ export function useLiveDemo(active: boolean, onCue: (cue: DemoCue) => void, opti
     return () => engine.stop()
   }, [active, engine])
 
-  return { state, nextLevel: engine.nextLevel, giveWord: engine.giveWord, wake: engine.wake, reset: engine.reset, simulate: engine.simulate, micLevel: engine.micLevel }
+  return { state, nextLevel: engine.nextLevel, giveWord: engine.giveWord, showRung: engine.showRung, wake: engine.wake, reset: engine.reset, simulate: engine.simulate, micLevel: engine.micLevel }
 }

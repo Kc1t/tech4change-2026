@@ -52,3 +52,8 @@
 @media (prefers-reduced-motion: reduce) {
   .pitch * { animation: none !important; }
 }
+.pitch .deck-timer { position: absolute; right: 62px; top: 8px; display: flex; align-items: center; gap: 8px; padding: 3px 12px; border-radius: 999px; background: rgba(255, 255, 255, .8); color: var(--gray); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pitch .deck-timer span { font-size: 12px; font-weight: 600; }
+.pitch .deck-timer--idle { opacity: .55; }
+.pitch .deck-timer--warn { background: #fff4e5; color: #9a5b00; }
+.pitch .deck-timer--over { background: #c62f3c; color: #fff; }

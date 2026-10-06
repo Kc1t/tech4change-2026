@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Pause, Play, SkipForward } from 'lucide-react'
+import { AudioLines, Check, Lightbulb, Pause, Play } from 'lucide-react'
 import { AppHome } from '../app-home/home'
 import { nextVoiceMode, useVoice, VOICE_MODE_LABEL } from '../eilo/voice'
 import type { DemoCue } from '../demo/types'
@@ -19,6 +19,12 @@ const LINK_LABEL: Record<Link, string> = {
   paused: 'em pausa até o slide da demo',
   held: 'pausado por você · o telão congelou'
 }
+
+const RUNG_BUTTONS = [
+  { label: 'dica', Icon: Lightbulb },
+  { label: 'sílaba', Icon: AudioLines },
+  { label: 'palavra', Icon: Check }
+]
 
 const LOUD_RMS = 0.1
 const FRESH_START_MS = 20_000
@@ -114,16 +120,17 @@ export function PhoneDemo() {
 
   const gate = useDeckGate()
   const listening = armed && gate.open && !held
-  const { state, reset, micLevel, nextLevel, giveWord, wake } = useLiveDemo(listening, onCue, { voice, wakeWord: true })
+  const { state, reset, micLevel, nextLevel, giveWord, showRung, wake } = useLiveDemo(listening, onCue, { voice })
   const mic = listening ? state.mic : 'off'
   const activity = listening ? state.activity : 'off'
-  const latest = useRef({ state, mic, activity, speech })
+  const latest = useRef({ state, mic, activity, speech, mode })
   const pausedAt = useRef<number | null>(null)
   useEffect(() => {
-    latest.current = { state, mic, activity, speech }
-  }, [state, mic, activity, speech])
+    latest.current = { state, mic, activity, speech, mode }
+  }, [state, mic, activity, speech, mode])
 
   useEffect(() => voice?.onRelay(text => setSpeech({ id: Date.now(), text })), [voice])
+  useEffect(() => voice?.setRelayReady(link === 'pitch'), [voice, link])
   useScreenAwake(armed)
 
   useEffect(() => {
@@ -145,14 +152,14 @@ export function PhoneDemo() {
 
   useEffect(() => {
     if (!armed || held) return
-    track(publish({ cue: state.cue, words: state.words, mic, activity, speech, at: Date.now() }))
-  }, [armed, held, state.cue, state.words, mic, activity, speech, track])
+    track(publish({ cue: state.cue, words: state.words, mic, activity, speech, voice: mode, at: Date.now() }))
+  }, [armed, held, state.cue, state.words, mic, activity, speech, mode, track])
 
   useEffect(() => {
     if (!armed) return
     const beat = window.setInterval(() => {
-      const { state: s, mic: m, activity: a, speech: said } = latest.current
-      const shown = frozen.current ?? { cue: s.cue, words: s.words, mic: m, activity: a, speech: said }
+      const { state: s, mic: m, activity: a, speech: said, mode: voiceMode } = latest.current
+      const shown = frozen.current ?? { cue: s.cue, words: s.words, mic: m, activity: a, speech: said, voice: voiceMode }
       track(publish({ ...shown, at: Date.now() }))
     }, 3000)
     return () => window.clearInterval(beat)
@@ -164,11 +171,13 @@ export function PhoneDemo() {
       setHeld(false)
       return
     }
-    frozen.current = { cue: state.cue, words: state.words, mic, activity, speech, at: Date.now() }
+    frozen.current = { cue: state.cue, words: state.words, mic, activity, speech, held: true, voice: mode, at: Date.now() }
+    track(publish(frozen.current))
     voice?.stop()
     setHeld(true)
   }
 
+  const settled = state.cue.phase === 'given' || state.cue.phase === 'success'
   const denied = listening && (state.mic === 'blocked' || state.mic === 'unsupported')
   const insecure = typeof window !== 'undefined' && !window.isSecureContext
 
@@ -206,14 +215,12 @@ export function PhoneDemo() {
             {held ? <Play aria-hidden /> : <Pause aria-hidden />}
             {held ? 'continuar' : 'pausar'}
           </button>
-          <button disabled={held || state.activity === 'waiting'} onClick={nextLevel}>
-            <SkipForward aria-hidden />
-            próxima pista
-          </button>
-          <button disabled={held || state.cue.phase !== 'cue'} onClick={giveWord}>
-            <Check aria-hidden />
-            dar a palavra
-          </button>
+          {RUNG_BUTTONS.map(({ label, Icon }, level) => (
+            <button key={label} disabled={held || settled} className={state.cue.phase === 'cue' && state.cue.level === level ? 'is-current' : ''} onClick={() => showRung(level)}>
+              <Icon aria-hidden />
+              {label}
+            </button>
+          ))}
         </div>
       )}
       {armed && (
@@ -269,7 +276,7 @@ export function PhoneDemo() {
           }}
         >
           <b>Começar</b>
-          <span>Diga “Olá, Eilo” para começar. Ele ouve, dá as dicas e vibra; se a palavra não vier, ele fala. A tela do pitch acompanha.</span>
+          <span>Ele já começa a ouvir. Dá as dicas e vibra; se a palavra não vier, ele fala. A tela do pitch acompanha.</span>
         </button>
       )}
     </div>

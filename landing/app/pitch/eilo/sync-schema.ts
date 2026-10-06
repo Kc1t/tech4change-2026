@@ -40,5 +40,5 @@ export function parseSynced(value: unknown): SyncedDemo | null {
     .map(word => syncText(word, LIMITS.syncWordChars))
     .filter(Boolean)
   const activity = typeof raw.activity === 'string' && ACTIVITIES.has(raw.activity as Activity) ? (raw.activity as Activity) : undefined
-  return { cue: parsed, words, mic: raw.mic as LiveDemoState['mic'], activity, speech: parseSpeech(raw.speech), at }
+  return { cue: parsed, words, mic: raw.mic as LiveDemoState['mic'], activity, speech: parseSpeech(raw.speech), held: raw.held === true, voice: raw.voice === 'on' || raw.voice === 'pc' || raw.voice === 'off' ? raw.voice : undefined, at }
 }
